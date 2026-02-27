@@ -1,34 +1,3 @@
-div.border {
-    border: 1px solid black;
-}
-
-h1.info {
-    text-align: center;
-}
-
-div.content {
-    background: linear-gradient(135deg, #EF5777 0%, #5758BB 100%);
-    width: auto;
-    height: auto;
-    padding: 20px 20px 20px 20px;
-    margin: 20px 20px 20px 20px;
-}
-
-table {
-    margin: 0 auto;
-    background-color: white;
-}
-
-table, th, td {
-    border: 1px solid black;
-    border-collapse: collapse;
-}
-
-th, td {
-    padding: 8px;
-    text-align: left;
-}
-
-div.end {
-    border: 1px solid black;
+body {
+    margin: 0;
 }
