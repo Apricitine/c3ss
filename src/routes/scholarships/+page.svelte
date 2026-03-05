@@ -4,18 +4,17 @@
 
 </script>
 
-<h1>hi</h1>
 
 <button onclick={() => (showModal = true)}>show modal</button>
 
 
-<Modal bing:showModal>
-    <h1> hi</h1>
+<Modal bind:showModal>
+hi
 </Modal>
 
 <dialog>
-    <h1> hi</h1>
 </dialog>
+
 
 <style>
     dialog {

@@ -1,5 +1,4 @@
 <script>
-
     let {showModal = $bindable(), children} = $props();
     let dialog = $state();
 
@@ -15,6 +14,8 @@
 
     <div>
         hi
+        <h1>hi</h1>
+        <hr />
 
         {@render children?.()}
 
