@@ -12,8 +12,6 @@
 hi
 </Modal>
 
-<dialog>
-</dialog>
 
 
 <style>

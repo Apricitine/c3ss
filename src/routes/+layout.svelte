@@ -20,10 +20,6 @@
       C3 App / List of summer programs & volunteering opportunities
     </h1>
     <div class="routes">
-<<<<<<< HEAD
-=======
-	  <a class="route-link" href="/">Home</a>
->>>>>>> 7c9cd33949bccf3c26b71c2dc849248b98fe15ba
       <a class="route-link" href="./scholarships">Scholarships</a>
       <a class="route-link" href="./internships">Internships</a>
     </div>
@@ -33,8 +29,4 @@
 {@render children()}
 
 <style lang="scss">
-<<<<<<< HEAD
-=======
-
->>>>>>> 7c9cd33949bccf3c26b71c2dc849248b98fe15ba
 </style>
