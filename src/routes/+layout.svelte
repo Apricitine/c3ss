@@ -12,19 +12,57 @@
 </svelte:head>
 
 <div class="header">
-  <div class="content">
-    <h1 class="info">
-      C3 App / List of summer programs & volunteering opportunities
-    </h1>
-    <div class="routes">
-	  <a class="route-link" href="/">Home</a>
-      <a class="route-link" href="./scholarships">Scholarships</a>
-      <a class="route-link" href="./internships">Internships</a>
-    </div>
-  </div>
+  <h1 class="info">
+    C3 App
+  </h1>
+  <h3>
+    List of scholarship and internship opportunities
+  </h3>
 </div>
+<div class="explanation">
+  <h2>
+    Look for various opportunities to participate in scholars and interships!
+  </h2>
+</div>
+<div class="routes">
+  <a class="route-link" href="/">Home</a>
+  <a class="route-link" href="./scholarships">Scholarships</a>
+  <a class="route-link" href="./internships">Internships</a>
+</div>
+<div class="content"></div>
 
 {@render children()}
 
 <style lang="scss">
+  html {
+    margin: 0 0 0 0;
+    padding: 0 0 0 0;
+  }
+
+  div.header {
+    background-color: #FFF7E8;
+  }
+
+  div.explanation {
+    background-image: linear-gradient(to right, #E02A0B, #E3AA30);
+  }
+
+  h1, h2, h3 {
+    margin: 20px;
+  }
+
+  h1 {
+    font-family: "Inter", sans-serif;
+    font-weight: 400;
+  }
+
+  h2 {
+    font-family: "Inter", sans-serif;
+    font-weight: 300;
+  }
+
+  h3 {
+    font-family: "Inter", sans-serif;
+    font-weight: 250;
+  }
 </style>
