@@ -22,4 +22,7 @@
     />
 {/each}
 
-<Modal bind:showModal>children</Modal>
+
+<Modal bind:showModal>
+    hi
+</Modal>
