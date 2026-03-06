@@ -1,32 +1,25 @@
-<script>
-    import Modal from '$lib/components/Modal.svelte';
+<script lang="ts">
+    import type { PageServerData } from "../$types";
+    import Modal from "$lib/components/Modal.svelte"
     import Scholarship from "$lib/components/Scholarship.svelte"
-    let showModal = $state(false);
     
+    let { data }: PageServerData = $props()
+    let showModal = $state(false)
 
-    let { data } = $props()
+    let formatDate = (date: Date) =>
+        `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
+    let noZero = (str: string): string => str.replace(/^0+(?!$)/, "")
 
-
+    console.log(data)
 </script>
-
-
-
 
 {#each data.scholarships as scholarship}
     <button onclick={() => (showModal = true)}>show modal</button>
-    <Scholarship name={scholarship.name} deadline={formatDate(new Date(scholarship.deadline))} description={scholarship.description}/>
+    <Scholarship
+        name={scholarship.name}
+        deadline={formatDate(new Date(scholarship.deadline))}
+        description={scholarship.description}
+    />
 {/each}
 
-<Modal bind:showModal>
-    
-</Modal>
-
-<h1>hi</h1>
-
-<style>
-    dialog {
-		border-radius: 5px;
-		border-width: 1px;
-		transition: all 2s;
-	}
-</style>
+<Modal bind:showModal>children</Modal>
