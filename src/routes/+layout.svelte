@@ -11,19 +11,21 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet">
 </svelte:head>
 
-<div class="header">
-  <h1 class="info">
-    C3 App
-  </h1>
-  <h3>
-    List of scholarship and internship opportunities
-  </h3>
-</div>
-<div class="explanation">
-  <h2>
-    Look for various opportunities to participate in scholars and interships!
-  </h2>
-</div>
+<header>
+  <div class="header">
+    <h1 class="info">
+      C3 App
+    </h1>
+    <h3>
+      List of scholarship and internship opportunities
+    </h3>
+  </div>
+  <div class="explanation">
+    <h2>
+      Look for various opportunities to participate in scholars and interships!
+    </h2>
+  </div>
+</header>
 <div class="routes">
   <a class="route-link" href="/">Home</a>
   <a class="route-link" href="./scholarships">Scholarships</a>
