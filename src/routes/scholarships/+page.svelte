@@ -1,42 +1,12 @@
 <script lang="ts">
-<<<<<<< HEAD
-    import type { PageServerData } from "../$types";
-    import Modal from "$lib/components/Modal.svelte"
-    import Scholarship from "$lib/components/Scholarship.svelte"
-    import Tag from "$lib/components/Tag.svelte"
-    import Search from "$lib/components/Search.svelte"
-    import stringSimilarity from "$lib/scripts/Regex"
-    
-    let { data }: PageServerData = $props() satisfies Scholarship[]
-    let showModal = $state(false)
-    let searchTerm = $state("");
-
-    let goodData = data as Scholarship[]
-=======
   import Modal from "$lib/components/Modal.svelte"
   import Scholarship from "$lib/components/Scholarship.svelte"
   import Tag from "$lib/components/Tag.svelte"
   import type { PageServerData } from "../$types"
->>>>>>> 4d2953e2c48882e295ce0fd97b482f459909c23f
 
   let { data }: PageServerData = $props()
   type ScholarshipShape = (typeof data.scholarships)[number]
 
-<<<<<<< HEAD
-    const searchSchols = () => {
-
-    }
-    
-
-</script>
-
-<Search bind:searchTerm on:input />
-{#each data.scholarships as scholarship}
-    <Scholarship onclick={() => (showModal = true)}
-        name={scholarship.name}
-        deadline={formatDate(new Date(scholarship.deadline))}
-        description={scholarship.description}
-=======
   let showModal = $state(false)
   let activeScholarship = $state<ScholarshipShape | null>(null)
 
@@ -75,7 +45,6 @@
       deadline={formatDate(new Date(scholarship.deadline))}
       daysLeft={daysUntil(scholarship.deadline)}
       description={scholarship.description}
->>>>>>> 4d2953e2c48882e295ce0fd97b482f459909c23f
     />
   {/each}
 </section>
