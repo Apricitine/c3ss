@@ -39,8 +39,8 @@
   :global(body) {
     margin: 0;
     min-height: 100vh;
-    background: radial-gradient(110% 60% at 50% -10%, #e9f3ff 0%, #f8fbff 45%, #ffffff 100%);
-    color: #0f1f33;
+    background: radial-gradient(110% 60% at 50% -10%, #fff3e6 0%, #fffaf2 45%, #ffffff 100%);
+    color: #2b1a12;
     font-family: "Inter", "Lato", system-ui, -apple-system, sans-serif;
   }
 
@@ -56,9 +56,9 @@
     justify-content: space-between;
     padding: 16px 18px;
     border-radius: 18px;
-    background: rgba(255, 255, 255, 0.85);
-    border: 1px solid rgba(34, 140, 233, 0.12);
-    box-shadow: 0 18px 40px rgba(15, 31, 51, 0.08);
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(179, 38, 30, 0.18);
+    box-shadow: 0 18px 40px rgba(92, 18, 15, 0.12);
     backdrop-filter: blur(12px);
     position: sticky;
     top: 18px;
@@ -75,14 +75,14 @@
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #0e6bcf, #24c2ff);
-    box-shadow: 0 0 0 6px rgba(14, 107, 207, 0.12);
+    background: linear-gradient(135deg, #f6c344, #b3261e);
+    box-shadow: 0 0 0 6px rgba(246, 195, 68, 0.22);
   }
 
   .title {
     font-weight: 800;
     margin: 0;
-    color: #0e2c53;
+    color: #72160f;
   }
 
   .eyebrow {
@@ -90,7 +90,7 @@
     font-size: 0.75rem;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: rgba(15, 31, 51, 0.58);
+    color: rgba(43, 26, 18, 0.72);
   }
 
   .nav {
@@ -103,17 +103,18 @@
     padding: 10px 14px;
     border-radius: 12px;
     text-decoration: none;
-    color: #163455;
-    font-weight: 600;
-    transition: background 120ms ease, color 120ms ease, transform 120ms ease;
+    color: #2b1a12;
+    font-weight: 700;
+    transition: background 120ms ease, color 120ms ease, transform 120ms ease, box-shadow 120ms ease;
   }
 
   .nav-link:hover,
   .nav-link:focus-visible {
-    background: rgba(34, 140, 233, 0.12);
-    color: #0e6bcf;
+    background: rgba(246, 195, 68, 0.24);
+    color: #b3261e;
     outline: none;
     transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(179, 38, 30, 0.16);
   }
 
   .page {

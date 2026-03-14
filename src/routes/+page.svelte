@@ -1,42 +1,41 @@
 <section class="hero">
   <p class="eyebrow">Welcome</p>
-  <h1>Scholarships and internships, curated and clear.</h1>
+  <h1>your one-stop reference for scholarships and internships at LCHS</h1>
   <p class="lede">
-    Discover opportunities without digging through clutter. We surface deadlines, summaries,
-    and details in one sleek place so you can focus on applying.
+    discover opportunities tailored to you LCHS students! don't waste time on irrelevant stuff
   </p>
 
   <div class="actions">
-    <a class="button primary" href="/scholarships">Explore scholarships</a>
-    <a class="button ghost" href="/internships">Browse internships</a>
+    <a class="button primary" href="/scholarships">explore scholarships</a>
+    <a class="button ghost" href="/internships">browse internships</a>
   </div>
 
   <div class="highlights">
     <div class="tile">
-      <span class="pill">Up-to-date</span>
-      <p class="title">Fresh deadlines</p>
-      <p class="copy">See what’s upcoming at a glance with crisp deadline pills.</p>
+      <span class="pill">stay up to do</span>
+      <p class="title">deadlines</p>
+      <p class="copy">idek idek</p>
     </div>
     <div class="tile">
-      <span class="pill">Clarity</span>
-      <p class="title">Readable summaries</p>
-      <p class="copy">Skim concise descriptions styled for quick scanning.</p>
+      <span class="pill">clear</span>
+      <p class="title">all the info</p>
+      <p class="copy">all the info you need to get working on those applications</p>
     </div>
     <div class="tile">
-      <span class="pill">Momentum</span>
-      <p class="title">One-click detail</p>
-      <p class="copy">Tap a card to open the modal and keep moving.</p>
+      <span class="pill">easieness</span>
+      <p class="title">detaisl</p>
+      <p class="copy">search easily and funly</p>
     </div>
   </div>
 </section>
 
 <style lang="scss">
   .hero {
-    background: linear-gradient(145deg, #0f1f33, #133a66 35%, #0e6bcf 100%);
-    color: #eef4ff;
+    background: linear-gradient(145deg, #2b0c0c, #7a1b16 38%, #b3261e 100%);
+    color: #fff6ec;
     padding: 44px 42px 48px;
     border-radius: 24px;
-    box-shadow: 0 24px 48px rgba(9, 19, 33, 0.28);
+    box-shadow: 0 24px 48px rgba(61, 10, 8, 0.32);
     position: relative;
     overflow: hidden;
   }
@@ -47,7 +46,7 @@
     inset: -50% 40% auto auto;
     width: 260px;
     height: 260px;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.16), transparent 60%);
+    background: radial-gradient(circle, rgba(246, 195, 68, 0.24), transparent 60%);
     filter: blur(10px);
     transform: rotate(-12deg);
   }
@@ -95,21 +94,21 @@
   }
 
   .button.primary {
-    background: linear-gradient(135deg, #24c2ff, #0e6bcf);
-    color: #0c182b;
-    box-shadow: 0 14px 30px rgba(12, 104, 186, 0.35);
+    background: linear-gradient(135deg, #f6c344, #b3261e);
+    color: #2c0f0b;
+    box-shadow: 0 14px 30px rgba(179, 38, 30, 0.35);
   }
 
   .button.ghost {
-    background: rgba(255, 255, 255, 0.08);
-    color: #eef4ff;
-    border-color: rgba(255, 255, 255, 0.25);
+    background: rgba(246, 195, 68, 0.14);
+    color: #fff6ec;
+    border-color: rgba(246, 195, 68, 0.32);
   }
 
   .button:hover,
   .button:focus-visible {
     transform: translateY(-1px);
-    box-shadow: 0 16px 34px rgba(12, 104, 186, 0.25);
+    box-shadow: 0 16px 34px rgba(179, 38, 30, 0.26);
     outline: none;
   }
 
@@ -124,18 +123,18 @@
 
   .tile {
     background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(246, 195, 68, 0.28);
     border-radius: 16px;
     padding: 14px 16px;
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+    box-shadow: inset 0 0 0 1px rgba(246, 195, 68, 0.14);
   }
 
   .pill {
     display: inline-block;
     padding: 6px 10px;
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.16);
-    color: #fff;
+    background: rgba(246, 195, 68, 0.3);
+    color: #2c0f0b;
     font-weight: 700;
     font-size: 0.78rem;
     letter-spacing: 0.02em;
@@ -144,12 +143,12 @@
   .tile .title {
     margin: 10px 0 6px;
     font-weight: 700;
-    color: #fff;
+    color: #fff6ec;
   }
 
   .tile .copy {
     margin: 0;
-    color: rgba(238, 244, 255, 0.8);
+    color: rgba(255, 246, 236, 0.8);
     line-height: 1.4;
   }
 

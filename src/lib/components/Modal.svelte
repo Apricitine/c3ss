@@ -31,17 +31,17 @@
       max-width: 34rem;
       width: min(90vw, 560px);
       border-radius: 18px;
-      border: 1px solid rgba(255, 255, 255, 0.32);
+      border: 1px solid rgba(255, 228, 196, 0.6);
       padding: 0;
-      background: radial-gradient(120% 120% at 80% 0%, rgba(36, 194, 255, 0.15), transparent 55%),
-        linear-gradient(145deg, rgba(14, 107, 207, 0.08), rgba(14, 44, 83, 0.4));
-      box-shadow: 0 30px 70px rgba(15, 31, 51, 0.35);
-      color: #0f1f33;
+      background: radial-gradient(120% 120% at 80% 0%, rgba(246, 195, 68, 0.18), transparent 55%),
+        linear-gradient(145deg, rgba(179, 38, 30, 0.12), rgba(92, 18, 15, 0.45));
+      box-shadow: 0 30px 70px rgba(92, 18, 15, 0.35);
+      color: #2b1a12;
       backdrop-filter: blur(12px);
       overflow: hidden;
     }
     dialog::backdrop {
-      background: rgba(6, 14, 26, 0.55);
+      background: rgba(41, 10, 8, 0.58);
     }
     .modal-shell {
       position: relative;
@@ -61,9 +61,9 @@
       width: 32px;
       height: 32px;
       border-radius: 10px;
-      border: 1px solid rgba(15, 31, 51, 0.12);
+      border: 1px solid rgba(92, 18, 15, 0.14);
       background: rgba(255, 255, 255, 0.8);
-      color: #0f1f33;
+      color: #2b1a12;
       font-size: 1.1rem;
       font-weight: 800;
       cursor: pointer;
@@ -72,7 +72,7 @@
     .close:hover,
     .close:focus-visible {
       transform: translateY(-1px);
-      box-shadow: 0 10px 20px rgba(15, 31, 51, 0.18);
+      box-shadow: 0 10px 20px rgba(92, 18, 15, 0.2);
       outline: none;
       background: rgba(255, 255, 255, 0.95);
     }
