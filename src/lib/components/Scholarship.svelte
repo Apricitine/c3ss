@@ -3,12 +3,13 @@
     name: string
     deadline: string
     description: string
+    showing: boolean
   }
 
   let props: Props = $props()
 </script>
 
-<section>
+<section onclick={() => (props.showing = true)}>
   <div id="name">{props.name}</div>
   <div id="deadline">{props.deadline}</div>
   <div id="description">{props.description}</div>

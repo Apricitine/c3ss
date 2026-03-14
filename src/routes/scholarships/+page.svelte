@@ -15,7 +15,6 @@
 </script>
 
 {#each data.scholarships as scholarship}
-    <button onclick={() => (showModal = true)}>show modal</button>
     <Scholarship onclick={() => (showModal = true)}
         name={scholarship.name}
         deadline={formatDate(new Date(scholarship.deadline))}
