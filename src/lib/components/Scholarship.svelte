@@ -112,7 +112,6 @@
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    min-width: 10rem;
     padding: 0.4rem 0.65rem;
     background: rgba(246, 195, 68, 0.14);
     border-radius: 10px;
@@ -171,7 +170,7 @@
     background: rgba(179, 38, 30, 0.22);
     color: #b3261e;
     box-shadow: inset 0 0 0 1px rgba(179, 38, 30, 0.5), 0 0 0 6px rgba(179, 38, 30, 0.12);
-    animation: pulse-fast 0.9s ease-in-out infinite, shake 1.6s ease-in-out infinite;
+    animation: pulse-fast 0.9s ease-in-out infinite, shake 1.0s ease-in-out infinite;
   }
 
   .countdown.passed {
