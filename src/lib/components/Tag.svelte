@@ -18,7 +18,7 @@
         name: string
     }
 
-    let { color, name } = $props<Tag>()
+    let { color, name }: Tag = $props()
 
 </script>
 

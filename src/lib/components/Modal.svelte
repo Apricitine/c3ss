@@ -1,6 +1,6 @@
-<script>
+<script lang="ts">
     let {showModal = $bindable(), children} = $props<{ showModal?: boolean; children?: () => unknown }>();
-    let dialog = $state();
+    let dialog = $state() as any
 
     $effect(() => {
 		if (showModal) dialog.showModal();
