@@ -6,8 +6,8 @@
   </p>
 
   <div class="actions">
-    <a class="button primary" href="/scholarships">explore scholarships</a>
-    <a class="button ghost" href="/internships">browse internships</a>
+    <a class="button primary" href="/scholarships">Explore scholarships</a>
+    <a class="button ghost" href="/internships">Browse internships</a>
   </div>
 
   <div class="highlights">
@@ -97,6 +97,7 @@
     background: linear-gradient(135deg, #f6c344, #b3261e);
     color: #2c0f0b;
     box-shadow: 0 14px 30px rgba(179, 38, 30, 0.35);
+    background-clip: padding-box;
   }
 
   .button.ghost {
