@@ -1,5 +1,5 @@
 <script>
-    let {showModal = $bindable(), children} = $props();
+    let {showModal = $bindable(), children} = $props<{ showModal?: boolean; children?: () => unknown }>();
     let dialog = $state();
 
     $effect(() => {
@@ -31,22 +31,22 @@
       max-width: 34rem;
       width: min(90vw, 560px);
       border-radius: 18px;
-      border: 1px solid rgba(255, 228, 196, 0.6);
+      border: 1px solid rgba(219, 232, 255, 0.8);
       padding: 0;
-      background: radial-gradient(120% 120% at 80% 0%, rgba(246, 195, 68, 0.18), transparent 55%),
-        linear-gradient(145deg, rgba(179, 38, 30, 0.12), rgba(92, 18, 15, 0.45));
-      box-shadow: 0 30px 70px rgba(92, 18, 15, 0.35);
-      color: #2b1a12;
+      background: radial-gradient(120% 120% at 80% 0%, rgba(56, 189, 248, 0.18), transparent 55%),
+        linear-gradient(145deg, rgba(37, 99, 235, 0.12), rgba(15, 60, 164, 0.38));
+      box-shadow: 0 30px 70px rgba(15, 44, 103, 0.35);
+      color: #0b1d36;
       backdrop-filter: blur(12px);
       overflow: hidden;
     }
     dialog::backdrop {
-      background: rgba(41, 10, 8, 0.58);
+      background: rgba(8, 21, 46, 0.6);
     }
     .modal-shell {
       position: relative;
       padding: 24px;
-      background: rgba(255, 255, 255, 0.82);
+      background: rgba(255, 255, 255, 0.9);
       border-radius: 16px;
     }
     .modal-body {
@@ -61,9 +61,9 @@
       width: 32px;
       height: 32px;
       border-radius: 10px;
-      border: 1px solid rgba(92, 18, 15, 0.14);
+      border: 1px solid rgba(37, 99, 235, 0.18);
       background: rgba(255, 255, 255, 0.8);
-      color: #2b1a12;
+      color: #0b1d36;
       font-size: 1.1rem;
       font-weight: 800;
       cursor: pointer;
@@ -72,7 +72,7 @@
     .close:hover,
     .close:focus-visible {
       transform: translateY(-1px);
-      box-shadow: 0 10px 20px rgba(92, 18, 15, 0.2);
+      box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
       outline: none;
       background: rgba(255, 255, 255, 0.95);
     }

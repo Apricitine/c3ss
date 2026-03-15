@@ -7,7 +7,7 @@
     onclick?: (event: MouseEvent) => void
   }
 
-  let props: Props = $props()
+  let props = $props()
 
   const countdownClass = () => {
     if (props.daysLeft < 0) return "passed"
@@ -30,8 +30,8 @@
   class="scholarship-card"
   role="button"
   tabindex="0"
-  on:click={props.onclick}
-  on:keydown={handleKeydown}
+  onclick={props.onclick}
+  onkeydown={handleKeydown}
 >
   <div class="header">
     <div class="header-left">
@@ -60,9 +60,9 @@
     width: 100%;
     padding: 1rem 1.25rem;
     border-radius: 14px;
-    background: linear-gradient(135deg, #fff5ef, #fffaf2);
-    border: 1px solid rgba(179, 38, 30, 0.18);
-    box-shadow: 0 12px 30px rgba(179, 38, 30, 0.12);
+    background: linear-gradient(135deg, #f4f7ff, #f9fbff);
+    border: 1px solid rgba(29, 78, 216, 0.18);
+    box-shadow: 0 12px 30px rgba(23, 61, 140, 0.12);
     cursor: pointer;
     transition: transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease;
     font-family: "Lato", "Inter", system-ui, -apple-system, sans-serif;
@@ -70,13 +70,13 @@
     &:hover,
     &:focus-visible {
       transform: translateY(-2px);
-      box-shadow: 0 16px 36px rgba(179, 38, 30, 0.18);
-      border-color: rgba(179, 38, 30, 0.4);
+      box-shadow: 0 16px 36px rgba(37, 99, 235, 0.18);
+      border-color: rgba(29, 78, 216, 0.4);
       outline: none;
     }
 
     &:focus-visible {
-      box-shadow: 0 0 0 3px rgba(179, 38, 30, 0.32), 0 14px 32px rgba(179, 38, 30, 0.16);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.32), 0 14px 32px rgba(37, 99, 235, 0.16);
     }
   }
 
@@ -100,7 +100,7 @@
   .name {
     font-weight: 800;
     font-size: 1.05rem;
-    color: #b3261e;
+    color: #1d4ed8;
     line-height: 1.4;
     min-width: 0;
     overflow: hidden;
@@ -113,10 +113,10 @@
     align-items: center;
     gap: 10px;
     padding: 0.4rem 0.65rem;
-    background: rgba(246, 195, 68, 0.14);
+    background: rgba(56, 189, 248, 0.16);
     border-radius: 10px;
-    border: 1px solid rgba(246, 195, 68, 0.3);
-    color: #3f1c12;
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    color: #0b2f66;
   }
 
   .deadline-text {
@@ -129,13 +129,13 @@
       font-size: 0.75rem;
       text-transform: uppercase;
       letter-spacing: 0.04em;
-      color: rgba(27, 43, 64, 0.7);
+      color: rgba(15, 60, 164, 0.7);
     }
 
     strong {
       font-size: 0.95rem;
       font-weight: 800;
-      color: #b3261e;
+      color: #1d4ed8;
     }
   }
 
@@ -148,9 +148,9 @@
     font-weight: 800;
     font-size: 0.82rem;
     letter-spacing: 0.02em;
-    background: rgba(246, 195, 68, 0.2);
-    color: #7a2a1f;
-    box-shadow: inset 0 0 0 1px rgba(246, 195, 68, 0.4);
+    background: rgba(56, 189, 248, 0.2);
+    color: #0b2f66;
+    box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.4);
   }
 
   .countdown.calm {
@@ -163,7 +163,7 @@
     background: rgba(246, 195, 68, 0.28);
     color: #7a2a1f;
     box-shadow: inset 0 0 0 1px rgba(246, 195, 68, 0.5);
-    animation: pulse 1.4s ease-in-out infinite;
+    animation: pulse 1s ease-in-out infinite;
   }
 
   .countdown.hot {
@@ -174,9 +174,9 @@
   }
 
   .countdown.passed {
-    background: rgba(64, 54, 50, 0.14);
-    color: #4a3f3b;
-    box-shadow: inset 0 0 0 1px rgba(64, 54, 50, 0.3);
+    background: rgba(90, 112, 144, 0.14);
+    color: #4f5f7d;
+    box-shadow: inset 0 0 0 1px rgba(90, 112, 144, 0.3);
     text-decoration: line-through;
   }
 
@@ -200,12 +200,10 @@
   .description {
     grid-column: 1 / -1;
     margin: 0;
-    color: #3a4b63;
+    color: #3b4b6a;
     line-height: 1.5;
     font-size: 0.98rem;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
     overflow: hidden;
   }
 
@@ -234,10 +232,6 @@
     .scholarship-card {
       padding: 0.9rem 1rem;
       border-radius: 12px;
-    }
-
-    .description {
-      -webkit-line-clamp: 4;
     }
   }
 </style>

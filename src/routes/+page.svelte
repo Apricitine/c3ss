@@ -31,11 +31,11 @@
 
 <style lang="scss">
   .hero {
-    background: linear-gradient(145deg, #2b0c0c, #7a1b16 38%, #b3261e 100%);
-    color: #fff6ec;
+    background: linear-gradient(145deg, #0b1f3b, #0f3ca4 38%, #1d4ed8 100%);
+    color: #f3f7ff;
     padding: 44px 42px 48px;
     border-radius: 24px;
-    box-shadow: 0 24px 48px rgba(61, 10, 8, 0.32);
+    box-shadow: 0 24px 48px rgba(16, 46, 116, 0.32);
     position: relative;
     overflow: hidden;
   }
@@ -46,7 +46,7 @@
     inset: -50% 40% auto auto;
     width: 260px;
     height: 260px;
-    background: radial-gradient(circle, rgba(246, 195, 68, 0.24), transparent 60%);
+    background: radial-gradient(circle, rgba(56, 189, 248, 0.24), transparent 60%);
     filter: blur(10px);
     transform: rotate(-12deg);
   }
@@ -57,7 +57,7 @@
     font-weight: 600;
     font-size: 0.8rem;
     margin: 0 0 10px;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(243, 247, 255, 0.75);
   }
 
   h1 {
@@ -69,7 +69,7 @@
   .lede {
     margin: 0 0 20px;
     max-width: 650px;
-    color: rgba(238, 244, 255, 0.86);
+    color: rgba(227, 236, 255, 0.86);
     font-size: 1.02rem;
     line-height: 1.55;
   }
@@ -94,21 +94,21 @@
   }
 
   .button.primary {
-    background: linear-gradient(135deg, #f6c344, #b3261e);
-    color: #2c0f0b;
-    box-shadow: 0 14px 30px rgba(179, 38, 30, 0.35);
+    background: linear-gradient(135deg, #38bdf8, #1d4ed8);
+    color: #0b1f3b;
+    box-shadow: 0 14px 30px rgba(37, 99, 235, 0.35);
   }
 
   .button.ghost {
-    background: rgba(246, 195, 68, 0.14);
-    color: #fff6ec;
-    border-color: rgba(246, 195, 68, 0.32);
+    background: rgba(56, 189, 248, 0.14);
+    color: #f3f7ff;
+    border-color: rgba(56, 189, 248, 0.32);
   }
 
   .button:hover,
   .button:focus-visible {
     transform: translateY(-1px);
-    box-shadow: 0 16px 34px rgba(179, 38, 30, 0.26);
+    box-shadow: 0 16px 34px rgba(37, 99, 235, 0.26);
     outline: none;
   }
 
@@ -122,19 +122,19 @@
   }
 
   .tile {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(246, 195, 68, 0.28);
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.28);
     border-radius: 16px;
     padding: 14px 16px;
-    box-shadow: inset 0 0 0 1px rgba(246, 195, 68, 0.14);
+    box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.14);
   }
 
   .pill {
     display: inline-block;
     padding: 6px 10px;
     border-radius: 999px;
-    background: rgba(246, 195, 68, 0.3);
-    color: #2c0f0b;
+    background: rgba(56, 189, 248, 0.3);
+    color: #0b1f3b;
     font-weight: 700;
     font-size: 0.78rem;
     letter-spacing: 0.02em;
@@ -143,12 +143,12 @@
   .tile .title {
     margin: 10px 0 6px;
     font-weight: 700;
-    color: #fff6ec;
+    color: #f3f7ff;
   }
 
   .tile .copy {
     margin: 0;
-    color: rgba(255, 246, 236, 0.8);
+    color: rgba(243, 247, 255, 0.82);
     line-height: 1.4;
   }
 

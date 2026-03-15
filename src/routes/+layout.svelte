@@ -1,7 +1,7 @@
 <script lang="ts">
   import favicon from "$lib/assets/favicon.svg"
 
-  let { children } = $props()
+  let { children } = $props<{ children: () => unknown }>()
 </script>
 
 <svelte:head>
@@ -36,11 +36,22 @@
 </div>
 
 <style lang="scss">
+  :global(:root) {
+    --bg: #eaf2ff;
+    --bg-strong: #dbe8ff;
+    --surface: #f7faff;
+    --primary: #1d4ed8;
+    --primary-dark: #0f3ca4;
+    --accent: #38bdf8;
+    --text: #0b1d36;
+    --muted: #4b628a;
+  }
+
   :global(body) {
     margin: 0;
     min-height: 100vh;
-    background: radial-gradient(110% 60% at 50% -10%, #fff3e6 0%, #fffaf2 45%, #ffffff 100%);
-    color: #2b1a12;
+    background: radial-gradient(110% 60% at 50% -10%, #e4edff 0%, #eef3ff 45%, #ffffff 100%);
+    color: var(--text);
     font-family: "Inter", "Lato", system-ui, -apple-system, sans-serif;
   }
 
@@ -57,8 +68,8 @@
     padding: 16px 18px;
     border-radius: 18px;
     background: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(179, 38, 30, 0.18);
-    box-shadow: 0 18px 40px rgba(92, 18, 15, 0.12);
+    border: 1px solid rgba(29, 78, 216, 0.18);
+    box-shadow: 0 18px 40px rgba(23, 61, 140, 0.12);
     backdrop-filter: blur(12px);
     position: sticky;
     top: 18px;
@@ -77,14 +88,14 @@
     width: 12px;
     height: 12px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #f6c344, #b3261e);
-    box-shadow: 0 0 0 6px rgba(246, 195, 68, 0.22);
+    background: linear-gradient(135deg, var(--accent), var(--primary));
+    box-shadow: 0 0 0 6px rgba(56, 189, 248, 0.22);
   }
 
   .title {
     font-weight: 800;
     margin: 0;
-    color: #72160f;
+    color: var(--primary-dark);
   }
 
   .eyebrow {
@@ -92,7 +103,7 @@
     font-size: 0.75rem;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: rgba(43, 26, 18, 0.72);
+    color: rgba(11, 29, 54, 0.6);
   }
 
   .nav {
@@ -105,18 +116,18 @@
     padding: 10px 14px;
     border-radius: 12px;
     text-decoration: none;
-    color: #2b1a12;
+    color: var(--text);
     font-weight: 700;
     transition: background 120ms ease, color 120ms ease, transform 120ms ease, box-shadow 120ms ease;
   }
 
   .nav-link:hover,
   .nav-link:focus-visible {
-    background: rgba(246, 195, 68, 0.24);
-    color: #b3261e;
+    background: rgba(56, 189, 248, 0.18);
+    color: var(--primary);
     outline: none;
     transform: translateY(-1px);
-    box-shadow: 0 10px 20px rgba(179, 38, 30, 0.16);
+    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.16);
   }
 
   .page {

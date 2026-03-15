@@ -2,13 +2,13 @@
 
 
     const colorHexes = {
-        cyan: "#00FFFF",
-        red: "#FF0000",
-        green: "#008000",
-        yellow: "#FFEA00",
-        orange: "#FF8C00",
-        purple: "#9F2B6",
-        gold: "#F6C344"
+        cyan: "#e0f2fe",
+        red: "#dbeafe",
+        green: "#c7d2fe",
+        yellow: "#bfdbfe",
+        orange: "#93c5fd",
+        purple: "#a5b4fc",
+        gold: "#cddcff"
     }
 
     type Color = keyof typeof colorHexes;
@@ -18,7 +18,7 @@
         name: string
     }
 
-    let { color, name }: Tag = $props()
+    let { color, name } = $props<Tag>()
 
 </script>
 
@@ -36,7 +36,7 @@
         gap: 6px;
         padding: 6px 10px;
         border-radius: 999px;
-        color: #2b1a12;
+        color: #0b1d36;
         font-weight: 700;
         font-size: 0.82rem;
         letter-spacing: 0.01em;
