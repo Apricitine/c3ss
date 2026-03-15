@@ -163,7 +163,6 @@
     background: rgba(246, 195, 68, 0.16);
     border: 1px solid rgba(246, 195, 68, 0.32);
     border-radius: 10px;
-    min-width: 9.5rem;
   }
 
   .deadline-text {

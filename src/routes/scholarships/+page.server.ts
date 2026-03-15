@@ -1,4 +1,3 @@
-import type { PageServerLoad } from '../$types';
 import { supabase } from '$lib/supabaseClient';
 
 
@@ -12,7 +11,7 @@ type Scholarship = {
   filters: { filters: [] }
 }
 
-export const load: PageServerLoad = async () => {
+export const load = async () => {
   const { data, error } = await supabase.from('scholarships').select<'scholarships', Scholarship>();
   if (error) {
     console.error('Error loading scholarships:', error.message);
