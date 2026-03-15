@@ -23,6 +23,7 @@
     const target = new Date(deadline)
     target.setHours(0, 0, 0, 0)
     return Math.ceil((target.getTime() - today.getTime()) / msPerDay)
+ 
   }
 
   const countdownClass = (days: number) => {
@@ -41,7 +42,19 @@
 
   // iterate through the scholarships
   // determine the searchSimilarity of each and map that to its id
-  // iterate through that list to get an ordered array of the 
+  // iterate through that list to get aoe 
+  const sortScholarships = (scholarshipList: Scholarship[], searchTerm: string) => {
+    interface IdSimilarity {
+      ID: number
+      Similarity: number
+
+    }
+    scholarshipList.forEach((scholarship: Scholarship) => {
+
+      
+    });
+
+  }
 
 
 </script>
@@ -54,7 +67,7 @@
 
   {#each data.scholarships as scholarship (scholarship.id)}
     {const x = stringSimilarity(searchTerm, scholarship.name)
-    let newData = data.scholarships
+    let newData = data.scholarshipsa
      for (let index = 0; index < data.scholrahips.length; index++) {
       const element = data.scholarships[index];
       if (x > stringSimilarity(searchTerm, element))
