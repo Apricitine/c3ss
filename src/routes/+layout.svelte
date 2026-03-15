@@ -63,6 +63,8 @@
     position: sticky;
     top: 18px;
     z-index: 10;
+
+    width: 100%;
   }
 
   .brand {
