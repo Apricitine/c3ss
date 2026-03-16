@@ -1,27 +1,58 @@
 <script lang="ts">
   import type { PageServerData } from "./$types"
 
-  let test = document.getElementById("pill")
-
   let { data }: PageServerData = $props()
 
-  const firstScholarshipName = data.scholarships[0].name;
-  const year = parseInt((data.scholarships[0].deadline.split("T")[0]).split("-")[0], 10);
-  const month = parseInt((data.scholarships[0].deadline.split("T")[0]).split("-")[1], 10);
-  const day = parseInt((data.scholarships[0].deadline.split("T")[0]).split("-")[2], 10);
-  
-  const now = new Date();
-  const currentYear = now.getFullYear();
-  const currentMonth = now.getMonth() + 1;
-  const currentDay = now.getDate();
+  let nameAndDeadline = [];
 
-  const yearDifference = (currentYear - year) * 365;
-  const monthDifference = (currentMonth - month) * 30;
-  const dayDifference = currentDay - day;
+  for (const scholarship of data.scholarships) {
+    // name
+    const name = scholarship.name;
+    
+    // deadline
+    const year = parseInt((scholarship.deadline.split("T")[0]).split("-")[0], 10);
+    const month = parseInt((scholarship.deadline.split("T")[0]).split("-")[1], 10);
+    const day = parseInt((scholarship.deadline.split("T")[0]).split("-")[2], 10);
+    
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1;
+    const currentDay = now.getDate();
 
-  const totalDay = yearDifference + monthDifference + dayDifference;
+    const yearDifference = (currentYear - year) * 365;
+    const monthDifference = (currentMonth - month) * 30;
+    const dayDifference = currentDay - day;
 
-  let firstScholarshipDeadline = totalDay + " DAYS LEFT";
+    const totalDay = yearDifference + monthDifference + dayDifference;
+
+    nameAndDeadline.push({name, totalDay});
+  }
+
+  nameAndDeadline.sort((a, b) => a.totalDay - b.totalDay);
+
+  let index = $state(0);
+  let scholarshipName = $state("");
+  let scholarshipDeadline = $state("");
+
+  let onlyTen = [];
+
+  if (nameAndDeadline.length >= 0) {
+    onlyTen = nameAndDeadline.slice(0, 10);
+  }
+
+  $effect(() => {
+    if (nameAndDeadline.length === 0) return;
+
+    const myInterval = setInterval(() => {
+      const current = nameAndDeadline[index];
+      scholarshipName = current.name;
+      scholarshipDeadline = `${current.totalDay} DAYS LEFT`;
+
+      index = (index + 1) % nameAndDeadline.length;
+    }, 2000);
+
+    return () => clearInterval(myInterval);
+  });
 
 </script>
 
@@ -39,8 +70,8 @@
 
     <div class="highlights">
       <div class="tile">
-        <span class="pill">{firstScholarshipName}</span>
-        <p class="title">{firstScholarshipDeadline}</p>
+        <span class="pill">{scholarshipName}</span>
+        <p class="title">{scholarshipDeadline}</p>
         <p class="copy">idek idek</p>
       </div>
       <div class="tile">
