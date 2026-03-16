@@ -1,64 +1,91 @@
 <script lang="ts">
-  import Modal from "$lib/components/Modal.svelte"
-  import Scholarship from "$lib/components/Scholarship.svelte"
-  import Tag from "$lib/components/Tag.svelte"
-  import Search from "$lib/components/Search.svelte"
+  import Modal from "$lib/components/Modal.svelte";
+  import Scholarship from "$lib/components/Scholarship.svelte";
+  import Tag from "$lib/components/Tag.svelte";
+  import Search from "$lib/components/Search.svelte";
+  import stringSimilarity from "$lib/scripts/Regex";
 
-  let { data } = $props()
-  type ScholarshipShape = (typeof data.scholarships)[number]
+  let { data } = $props();
+  type ScholarshipShape = (typeof data.scholarships)[number];
 
-  let showModal = $state(false)
-  let activeScholarship = $state<ScholarshipShape | null>(null)
-  let searchTerm = $state("")
+  type IDSimilarity = {
+    id: number;
+    similarity: number;
+  }
+  type ID = number
+
+  let showModal = $state(false);
+  let activeScholarship = $state<ScholarshipShape | null>(null);
+  let searchTerm = $state("");
 
   const formatDate = (date: Date) =>
-    `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
+    `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
 
   const daysUntil = (deadline: string) => {
-    const msPerDay = 1000 * 60 * 60 * 24
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    const target = new Date(deadline)
-    target.setHours(0, 0, 0, 0)
-    return Math.ceil((target.getTime() - today.getTime()) / msPerDay)
- 
-  }
+    const msPerDay = 1000 * 60 * 60 * 24;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const target = new Date(deadline);
+    target.setHours(0, 0, 0, 0);
+    return Math.ceil((target.getTime() - today.getTime()) / msPerDay);
+  };
 
   const countdownClass = (days: number) => {
-    if (days < 0) return "passed"
-    if (days <= 3) return "hot"
-    if (days <= 10) return "warm"
-    return "calm"
-  }
+    if (days < 0) return "passed";
+    if (days <= 3) return "hot";
+    if (days <= 10) return "warm";
+    return "calm";
+  };
 
-  const countdownLabel = (days: number) => (days < 0 ? "Passed" : `${days} days`)
+  const countdownLabel = (days: number) =>
+    days < 0 ? "Passed" : `${days} days`;
 
   const openScholarship = (scholarship: ScholarshipShape) => {
-    activeScholarship = scholarship
-    showModal = true
+    activeScholarship = scholarship;
+    showModal = true;
+  };
+
+  const sortScholarships = (searchTerm: string): IDSimilarity[] => {
+    let idList: IDSimilarity[] = [];
+    data.scholarships.forEach((scholarship) => {
+      idList.push({
+        id: scholarship.id,
+        similarity: stringSimilarity(searchTerm, scholarship.name),
+      });
+    });
+
+    let swapped: boolean
+    let placeholder: IDSimilarity
+    for(let i = 0; i < idList.length - 1; i++) {
+      swapped = false
+      for (let j = 0; j < idList.length - i - 1; j++) {
+        if (idList[j].similarity < idList[j+1].similarity) {
+          placeholder = idList[j]
+          idList[j] = idList[j+1]
+          idList[j+1] = placeholder
+          swapped = true
+        }
+      }
+      if (swapped = false) {
+        break
+      }
+    }
+    return idList;
   }
 
-  const filteredScholarships = $derived.by(() => {
-    const term = searchTerm.trim().toLowerCase()
-    if (!term) return data.scholarships
 
-    return data.scholarships.filter((scholarship: ScholarshipShape) => {
-      const inName = scholarship.name.toLowerCase().includes(term)
-      const inDescription = scholarship.description.toLowerCase().includes(term)
-      return inName || inDescription
-    })
-  })
+
+  //let displayOrder = sortScholarships(searchTerm)
+  //console.log(displayOrder)
+  
 
 
 </script>
 
 <Search bind:searchTerm />
 
-
 <section class="scholarship-grid">
-
-
-  {#each filteredScholarships as scholarship (scholarship.id)}
+  {#each data.scholarships as scholarship (scholarship.id)}
     <Scholarship
       onclick={() => openScholarship(scholarship)}
       name={scholarship.name}
@@ -77,7 +104,9 @@
         <h2>{activeScholarship.name}</h2>
       </div>
       <div class="deadline">
-        <span class={`countdown ${countdownClass(daysUntil(activeScholarship.deadline))}`}>
+        <span
+          class={`countdown ${countdownClass(daysUntil(activeScholarship.deadline))}`}
+        >
           {countdownLabel(daysUntil(activeScholarship.deadline))}
         </span>
         <div class="deadline-text">
@@ -197,8 +226,12 @@
   .countdown.hot {
     background: rgba(179, 38, 30, 0.22);
     color: #b3261e;
-    box-shadow: inset 0 0 0 1px rgba(179, 38, 30, 0.5), 0 0 0 6px rgba(179, 38, 30, 0.12);
-    animation: pulse-fast 0.9s ease-in-out infinite, shake 1.0s ease-in-out infinite;
+    box-shadow:
+      inset 0 0 0 1px rgba(179, 38, 30, 0.5),
+      0 0 0 6px rgba(179, 38, 30, 0.12);
+    animation:
+      pulse-fast 0.9s ease-in-out infinite,
+      shake 1s ease-in-out infinite;
   }
 
   .countdown.passed {
@@ -209,20 +242,39 @@
   }
 
   @keyframes pulse {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-1px); }
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-1px);
+    }
   }
 
   @keyframes pulse-fast {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-2px) scale(1.02); }
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-2px) scale(1.02);
+    }
   }
 
   @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-1px); }
-    50% { transform: translateX(1px); }
-    75% { transform: translateX(-0.5px); }
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-1px);
+    }
+    50% {
+      transform: translateX(1px);
+    }
+    75% {
+      transform: translateX(-0.5px);
+    }
   }
 
   .description {
