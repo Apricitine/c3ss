@@ -24,9 +24,11 @@
     const monthDifference = (currentMonth - month) * 30;
     const dayDifference = currentDay - day;
 
-    const totalDay = yearDifference + monthDifference + dayDifference;
+    const totalDay = yearDifference + monthDifference + dayDifference + 1;
 
-    nameAndDeadline.push({name, totalDay});
+    if (totalDay >= 0) {
+      nameAndDeadline.push({name, totalDay});
+    }
   }
 
   nameAndDeadline.sort((a, b) => a.totalDay - b.totalDay);
