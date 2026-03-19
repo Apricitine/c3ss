@@ -23,6 +23,10 @@
     activeScholarship = scholarship
     showModal = true
   }
+
+  data.scholarships.forEach(scholarship => {
+    console.log(scholarship.endowment)
+  })
 </script>
 
 <section class="scholarship-grid">

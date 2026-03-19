@@ -37,7 +37,7 @@ export class Scholarship implements ScholarshipDTO {
     this.primary_link = dto.primary_link
     this.filters = dto.filters ?? null
     this.availableGrades = dto.availableGrades
-    this.endowment = dto.endowment
+    this.endowment = dto.endowment ?? []
   }
 
   static from(dto: ScholarshipDTO) {
@@ -82,6 +82,8 @@ export class Scholarship implements ScholarshipDTO {
   endowmentRange(): EndowmentRange | null {
     let lowest = Number.POSITIVE_INFINITY
     let highest = Number.NEGATIVE_INFINITY
+
+    if (!this.endowment || this.endowment.length === 0) return null
 
     for (const prize of this.endowment) {
       const [min, max] = Array.isArray(prize.amount)
