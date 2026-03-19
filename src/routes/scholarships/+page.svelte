@@ -10,6 +10,15 @@
   let showModal = $state(false)
   let activeScholarship = $state<Scholarship | null>(null)
 
+  const formatCurrency = (value: number) =>
+    value.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })
+
+  const awardLabel = (range: [number, number] | null) => {
+    if (!range) return null
+    const [low, high] = range
+    return low === high ? formatCurrency(low) : `${formatCurrency(low)} – ${formatCurrency(high)}`
+  }
+
   const openScholarship = (scholarship: Scholarship) => {
     activeScholarship = scholarship
     showModal = true
@@ -24,6 +33,7 @@
       deadline={scholarship.formattedDeadline()}
       daysLeft={scholarship.daysUntil()}
       description={scholarship.description}
+      endowmentRange={scholarship.endowmentRange()}
     />
   {/each}
 </section>
@@ -34,6 +44,9 @@
       <div class="meta">
         <p class="eyebrow">Scholarship</p>
         <h2>{activeScholarship.name}</h2>
+        {#if awardLabel(activeScholarship.endowmentRange())}
+          <p class="award-inline">{awardLabel(activeScholarship.endowmentRange())}</p>
+        {/if}
       </div>
       <div class="deadline">
         <span class={`countdown ${activeScholarship.countdownClass()}`}>
@@ -95,6 +108,20 @@
     font-size: 0.75rem;
     color: rgba(15, 60, 164, 0.9);
     margin: 0;
+  }
+
+  .award-inline {
+    margin: 4px 0 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 10px;
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    color: #0f5132;
+    font-weight: 700;
+    width: fit-content;
   }
 
   .deadline {

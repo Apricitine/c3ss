@@ -79,8 +79,24 @@ export class Scholarship implements ScholarshipDTO {
     return `${days} days`
   }
 
-  endowmentRange(): [number, number] {
-    return [1, 2]
+  endowmentRange(): EndowmentRange | null {
+    let lowest = Number.POSITIVE_INFINITY
+    let highest = Number.NEGATIVE_INFINITY
+
+    for (const prize of this.endowment) {
+      const [min, max] = Array.isArray(prize.amount)
+        ? prize.amount
+        : [prize.amount, prize.amount]
+
+      lowest = Math.min(lowest, min)
+      highest = Math.max(highest, max)
+    }
+
+    if (!Number.isFinite(lowest) || !Number.isFinite(highest)) {
+      return null
+    }
+
+    return [lowest, highest]
   }
 
   toJSON(): ScholarshipDTO {
@@ -97,4 +113,3 @@ export class Scholarship implements ScholarshipDTO {
     }
   }
 }
-
