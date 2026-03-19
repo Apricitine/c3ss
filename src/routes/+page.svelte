@@ -6,6 +6,17 @@
 
   let nameAndDeadline = [];
 
+  let daysLeft = 0;
+
+  const daysUntil = (deadline: string) => {
+    const msPerDay = 1000 * 60 * 60 * 24
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const target = new Date(deadline)
+    target.setHours(0, 0, 0, 0)
+    return Math.ceil((target.getTime() - today.getTime()) / msPerDay)
+  }
+
   for (const scholarship of data.scholarships) {
     // name
     const name = scholarship.name;
@@ -15,23 +26,27 @@
     const month = parseInt((scholarship.deadline.split("T")[0]).split("-")[1], 10);
     const day = parseInt((scholarship.deadline.split("T")[0]).split("-")[2], 10);
     
+    /*
     const now = new Date();
     const currentYear = now.getFullYear();
     const currentMonth = now.getMonth() + 1;
     const currentDay = now.getDate();
 
-    const yearDifference = (currentYear - year) * 365;
-    const monthDifference = (currentMonth - month) * 30;
-    const dayDifference = currentDay - day;
+    const yearDifference = (year - currentYear) * 365;
+    const monthDifference = (month - currentMonth) * 30;
+    const dayDifference = day - currentDay;
 
     const totalDay = yearDifference + monthDifference + dayDifference + 1;
+    */
 
-    if (totalDay >= 0) {
-      nameAndDeadline.push({name, totalDay});
+    daysLeft = daysUntil(scholarship.deadline)
+
+    if (daysLeft > 0) {
+      nameAndDeadline.push({name, daysLeft});
     }
   }
 
-  nameAndDeadline.sort((a, b) => a.totalDay - b.totalDay);
+  nameAndDeadline.sort((a, b) => a.daysLeft - b.daysLeft);
 
   let index = $state(0);
   let scholarshipName = $state("");
@@ -49,7 +64,7 @@
     const myInterval = setInterval(() => {
       const current = nameAndDeadline[index];
       scholarshipName = current.name;
-      scholarshipDeadline = `${current.totalDay} DAYS LEFT`;
+      scholarshipDeadline = `${current.daysLeft} DAYS LEFT`;
 
       index = (index + 1) % nameAndDeadline.length;
     }, 2000);
