@@ -3,8 +3,8 @@
   import Scholarship from "$lib/components/Scholarship.svelte";
   import Tag from "$lib/components/Tag.svelte";
   import Search from "$lib/components/Search.svelte";
-  import stringSimilarity from "$lib/scripts/Regex";
-
+  import { fuzzy } from 'fast-fuzzy';
+  
   let { data } = $props();
   type ScholarshipShape = (typeof data.scholarships)[number];
 
@@ -17,6 +17,7 @@
   let showModal = $state(false);
   let activeScholarship = $state<ScholarshipShape | null>(null);
   let searchTerm = $state("");
+  let filteredScholarships = $derived(data.scholarships)
 
   const formatDate = (date: Date) =>
     `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
@@ -50,7 +51,7 @@
     data.scholarships.forEach((scholarship) => {
       idList.push({
         id: scholarship.id,
-        similarity: stringSimilarity(searchTerm, scholarship.name),
+        similarity: fuzzy(searchTerm, scholarship.name),
       });
     });
 
@@ -77,6 +78,7 @@
   let displayOrder: IDSimilarity[] = $state([])
 
 
+
   //let displayOrder = sortScholarships(searchTerm)
   //console.log(displayOrder)
   
@@ -87,7 +89,8 @@
 <Search bind:searchTerm on:input={() => displayOrder = sortScholarships(searchTerm)} />
 
 <section class="scholarship-grid">
-  {#each data.scholarships as scholarship (scholarship.id)}
+  {#each filteredScholarships as scholarship, index ((searchTerm === undefined) ? displayOrder[index] : scholarship.id)}
+    {console.log("hi")}
     <Scholarship
       onclick={() => openScholarship(scholarship)}
       name={scholarship.name}
