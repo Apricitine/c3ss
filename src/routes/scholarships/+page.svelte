@@ -72,10 +72,14 @@
       }
     }
     console.log(idList)
+    filteredScholarships = filteredScholarships;
     return idList;
   }
+  
+  
 
   let displayOrder: IDSimilarity[] = $state([])
+  
 
 
 
@@ -90,7 +94,6 @@
 
 <section class="scholarship-grid">
   {#each filteredScholarships as scholarship, index ((searchTerm === undefined) ? displayOrder[index] : scholarship.id)}
-    {console.log("hi")}
     <Scholarship
       onclick={() => openScholarship(scholarship)}
       name={scholarship.name}
