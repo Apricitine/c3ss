@@ -4,6 +4,7 @@
   import Tag from "$lib/components/Tag.svelte";
   import Search from "$lib/components/Search.svelte";
   import { fuzzy } from 'fast-fuzzy';
+  import { createAttachmentKey } from "svelte/attachments";
   
   let { data } = $props();
   type ScholarshipShape = (typeof data.scholarships)[number];
@@ -46,10 +47,10 @@
     showModal = true;
   };
 
-  const sortScholarships = (searchTerm: string): Scholarship[] => {
+  const sortScholarships = (searchTerm: string): ScholarshipShape[] => {
     //fuzzy finding
     let idList: IDSimilarity[] = [];
-    data.scholarships.forEach((scholarship) => {
+    filteredScholarships.forEach((scholarship) => {
       idList.push({
         id: scholarship.id,
         similarity: fuzzy(searchTerm, scholarship.name),
@@ -73,41 +74,27 @@
       }
     }
     
-    let newScholarships: Scholarship[] = []
+    let newScholarships: ScholarshipShape[] = []
 
-    data.scholarships
-    let count = 0
-    for (let location of displayOrder) {
+    for (let location of idList) {
       for (let scholarship of filteredScholarships) {
         if (location.id === scholarship.id) {
           newScholarships.push(scholarship)
         }
       }
     }
-      count += 1
-
+    return newScholarships
   }
     //#each filteredScholarships as scholarship, index ((searchTerm === undefined) ? displayOrder[index] : scholarship.id
-  
-  
-
-  let displayOrder: IDSimilarity[] = $state([])
-
-
-  
-
-
-
-
-
+  let renderedScholarships: ScholarshipShape[] = $state(sortScholarships(""))
 </script>
 
-<Search bind:searchTerm on:input={() => displayOrder = sortScholarships(searchTerm)} />
+<Search bind:searchTerm on:input={() => renderedScholarships = sortScholarships(searchTerm)} />
 
 <section class="scholarship-grid">
   
 
-  {#each filteredScholarships as scholarship, index ((searchTerm === undefined) ? displayOrder[index] : scholarship.id)}
+  {#each renderedScholarships as scholarship}
     <Scholarship
       onclick={() => openScholarship(scholarship)}
       name={scholarship.name}
