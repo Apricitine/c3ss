@@ -73,22 +73,21 @@
       }
     }
     
-    let newScholarships: Scholarship[]
+    let newScholarships: Scholarship[] = []
 
     data.scholarships
     let count = 0
-    for (let scholarship of filteredScholarships) {
-      displayOrder[count]
-
+    for (let location of displayOrder) {
+      for (let scholarship of filteredScholarships) {
+        if (location.id === scholarship.id) {
+          newScholarships.push(scholarship)
+        }
       }
-      count += 1
     }
-    #each filteredScholarships as scholarship, index ((searchTerm === undefined) ? displayOrder[index] : scholarship.id
+      count += 1
 
-
-    
-    return newScholarships
   }
+    //#each filteredScholarships as scholarship, index ((searchTerm === undefined) ? displayOrder[index] : scholarship.id
   
   
 
