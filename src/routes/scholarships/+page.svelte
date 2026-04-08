@@ -46,7 +46,8 @@
     showModal = true;
   };
 
-  const sortScholarships = (searchTerm: string): IDSimilarity[] => {
+  const sortScholarships = (searchTerm: string): Scholarship[] => {
+    //fuzzy finding
     let idList: IDSimilarity[] = [];
     data.scholarships.forEach((scholarship) => {
       idList.push({
@@ -54,7 +55,7 @@
         similarity: fuzzy(searchTerm, scholarship.name),
       });
     });
-
+    //this is bubble sort to sort by id
     let swapped: boolean
     let placeholder: IDSimilarity
     for(let i = 0; i < idList.length - 1; i++) {
@@ -71,21 +72,33 @@
         break
       }
     }
-    console.log(idList)
-    filteredScholarships = filteredScholarships;
-    return idList;
+    
+    let newScholarships: Scholarship[]
+
+    data.scholarships
+    let count = 0
+    for (let scholarship of filteredScholarships) {
+      displayOrder[count]
+
+      }
+      count += 1
+    }
+    #each filteredScholarships as scholarship, index ((searchTerm === undefined) ? displayOrder[index] : scholarship.id
+
+
+    
+    return newScholarships
   }
   
   
 
   let displayOrder: IDSimilarity[] = $state([])
+
+
   
 
 
 
-  //let displayOrder = sortScholarships(searchTerm)
-  //console.log(displayOrder)
-  
 
 
 </script>
@@ -93,6 +106,8 @@
 <Search bind:searchTerm on:input={() => displayOrder = sortScholarships(searchTerm)} />
 
 <section class="scholarship-grid">
+  
+
   {#each filteredScholarships as scholarship, index ((searchTerm === undefined) ? displayOrder[index] : scholarship.id)}
     <Scholarship
       onclick={() => openScholarship(scholarship)}
