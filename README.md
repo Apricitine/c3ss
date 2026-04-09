@@ -1,42 +1,13 @@
-# sv
+# College and Career Center Scholarships and Internships Catalog (C3SI)
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+The C3SI is a Scholarship and Internship search catalog for the LCHS College and Career Center. It provides the user with a database of information of scholarships and internships available locally, statewide, nationwide, and globally to La Canada High School Students with fast searching and filtering capabilities. Try it out at **[betac3si.lciteam.club](https://betac3si.lciteam.club)**!
 
-## Creating a project
+## Starting a Dev Server
 
-If you're seeing this, you've probably already done this step. Congrats!
-
-```sh
-# create a new project
-npx sv create my-app
+This application was written in SvelteKit, and utilizes Supabase on the database side. To start up a dev server, clone the project and run the usual:
 ```
-
-To recreate this project with the same configuration:
-
-```sh
-# recreate this project
-bun x sv create --template minimal --types ts --add sveltekit-adapter="adapter:vercel" --install bun c3si
+bun i
+bun dev
 ```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```sh
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+The environment variables aren't in the gitignore so you can access the database without any secrets. (<-- this will change in the future, dw)
+DM us on discord with any questions, concerns, or additions!
