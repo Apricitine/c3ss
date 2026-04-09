@@ -20,9 +20,8 @@
 <style lang="scss">
   .search-shell {
     display: flex;
-    justify-content: center;
     margin: 0 0 18px;
-    padding: 6px 10px;
+    padding: 0px 0px 6px 0px;
   }
 
   .search-bar {
