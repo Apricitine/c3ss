@@ -193,7 +193,7 @@
   }
 
   .highlights {
-    display: grid; //jeo
+    display: flex; //jeo
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 14px;
     margin-top: 10px;
@@ -207,6 +207,7 @@
     border-radius: 16px;
     padding: 14px 16px;
     box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.14);
+    width: 33%;
   }
 
   .pill {
@@ -236,7 +237,11 @@
     .hero {
       padding: 28px 24px 32px;
     }
-
   }
+
+  .card {
+    height: 0px;
+  }
+
 </style>
 
