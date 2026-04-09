@@ -5,9 +5,8 @@
     "": {
       "name": "c3si",
       "dependencies": {
-        "@supabase/supabase-js": "^2.99.3",
+        "@supabase/supabase-js": "^2.98.0",
         "fast-fuzzy": "^1.12.0",
-        "fuse.js": "^7.1.0",
       },
       "devDependencies": {
         "@sveltejs/adapter-vercel": "^6.3.3",

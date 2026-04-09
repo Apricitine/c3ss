@@ -14,7 +14,7 @@
     >
 
     <div class="modal-shell">
-      <button class="close" aria-label="Close dialog" autofocus onclick={() => dialog.close()}>
+      <button class="close" aria-label="Close dialog" onclick={() => dialog.close()}>
         ×
       </button>
 
@@ -28,8 +28,7 @@
 
 <style lang="css">
     dialog {
-      max-width: 34rem;
-      width: min(90vw, 560px);
+      width: 50vw;
       border-radius: 18px;
       border: 1px solid rgba(219, 232, 255, 0.8);
       padding: 0;

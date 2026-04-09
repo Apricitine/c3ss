@@ -1,106 +1,67 @@
 <script lang="ts">
-  import Modal from "$lib/components/Modal.svelte";
-  import Scholarship from "$lib/components/Scholarship.svelte";
-  import Tag from "$lib/components/Tag.svelte";
-  import Search from "$lib/components/Search.svelte";
-  import { fuzzy } from 'fast-fuzzy';
-  import { createAttachmentKey } from "svelte/attachments";
-  
-  let { data } = $props();
-  type ScholarshipShape = (typeof data.scholarships)[number];
+  import Modal from "$lib/components/Modal.svelte"
+  import ScholarshipCard from "$lib/components/Scholarship.svelte"
+  import Tag from "$lib/components/Tag.svelte"
+  import { fuzzy } from "fast-fuzzy"
+  import { Scholarship, type ScholarshipDTO } from "$lib/scripts/scholarships"
+  import Search from "$lib/components/Search.svelte"
 
-  type IDSimilarity = {
-    id: number;
-    similarity: number;
+  let { data }: { data: { scholarships: ScholarshipDTO[] } } = $props()
+
+  let showModal = $state(false)
+  let activeScholarship = $state<Scholarship | null>(null)
+  let searchTerm = $state("")
+  let scholarships = $derived(data.scholarships.map(Scholarship.from))
+
+  const formatCurrency = (value: number) =>
+    value.toLocaleString("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 0,
+    })
+
+  const awardLabel = (range: [number, number] | null) => {
+    if (!range) return null
+    const [low, high] = range
+    return low === high
+      ? formatCurrency(low)
+      : `${formatCurrency(low)} – ${formatCurrency(high)}`
   }
-  type ID = number
 
-  let showModal = $state(false);
-  let activeScholarship = $state<ScholarshipShape | null>(null);
-  let searchTerm = $state("");
-  let filteredScholarships = $derived(data.scholarships)
-
-  const formatDate = (date: Date) =>
-    `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
-
-  const daysUntil = (deadline: string) => {
-    const msPerDay = 1000 * 60 * 60 * 24;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const target = new Date(deadline);
-    target.setHours(0, 0, 0, 0);
-    return Math.ceil((target.getTime() - today.getTime()) / msPerDay);
-  };
-
-  const countdownClass = (days: number) => {
-    if (days < 0) return "passed";
-    if (days <= 3) return "hot";
-    if (days <= 10) return "warm";
-    return "calm";
-  };
-
-  const countdownLabel = (days: number) =>
-    days < 0 ? "Passed" : `${days} days`;
-
-  const openScholarship = (scholarship: ScholarshipShape) => {
-    activeScholarship = scholarship;
-    showModal = true;
-  };
-
-  const sortScholarships = (searchTerm: string): ScholarshipShape[] => {
-    //fuzzy finding
-    let idList: IDSimilarity[] = [];
-    filteredScholarships.forEach((scholarship) => {
-      idList.push({
-        id: scholarship.id,
-        similarity: fuzzy(searchTerm, scholarship.name),
-      });
-    });
-    //this is bubble sort to sort by id
-    let swapped: boolean
-    let placeholder: IDSimilarity
-    for(let i = 0; i < idList.length - 1; i++) {
-      swapped = false
-      for (let j = 0; j < idList.length - i - 1; j++) {
-        if (idList[j].similarity < idList[j+1].similarity) {
-          placeholder = idList[j]
-          idList[j] = idList[j+1]
-          idList[j+1] = placeholder
-          swapped = true
-        }
-      }
-      if (swapped = false) {
-        break
-      }
-    }
-    
-    let newScholarships: ScholarshipShape[] = []
-
-    for (let location of idList) {
-      for (let scholarship of filteredScholarships) {
-        if (location.id === scholarship.id) {
-          newScholarships.push(scholarship)
-        }
-      }
-    }
-    return newScholarships
+  const openScholarship = (scholarship: Scholarship) => {
+    activeScholarship = scholarship
+    showModal = true
   }
-    //#each filteredScholarships as scholarship, index ((searchTerm === undefined) ? displayOrder[index] : scholarship.id
-  let renderedScholarships: ScholarshipShape[] = $state(sortScholarships(""))
+
+  const sortScholarships = (term: string): Scholarship[] => {
+    const query = term.trim()
+
+    return [...scholarships]
+      .map((scholarship) => ({
+        scholarship,
+        similarity: fuzzy(query, scholarship.name),
+      }))
+      .sort((firstItem, secondItem) => firstItem.similarity - secondItem.similarity)
+      .map(({ scholarship }) => scholarship)
+  }
+
+  let renderedScholarships: Scholarship[] = $state(sortScholarships(""))
 </script>
 
-<Search bind:searchTerm on:input={() => renderedScholarships = sortScholarships(searchTerm)} />
+<Search
+  bind:searchTerm
+  on:input={() => (renderedScholarships = sortScholarships(searchTerm))}
+/>
 
 <section class="scholarship-grid">
-  
-
   {#each renderedScholarships as scholarship}
-    <Scholarship
+    <ScholarshipCard
       onclick={() => openScholarship(scholarship)}
       name={scholarship.name}
-      deadline={formatDate(new Date(scholarship.deadline))}
-      daysLeft={daysUntil(scholarship.deadline)}
+      deadline={scholarship.formattedDeadline()}
+      daysLeft={scholarship.daysUntil()}
       description={scholarship.description}
+      endowmentRange={scholarship.endowmentRange()}
     />
   {/each}
 </section>
@@ -111,16 +72,19 @@
       <div class="meta">
         <p class="eyebrow">Scholarship</p>
         <h2>{activeScholarship.name}</h2>
+        {#if awardLabel(activeScholarship.endowmentRange())}
+          <p class="award-inline">
+            {awardLabel(activeScholarship.endowmentRange())}
+          </p>
+        {/if}
       </div>
       <div class="deadline">
-        <span
-          class={`countdown ${countdownClass(daysUntil(activeScholarship.deadline))}`}
-        >
-          {countdownLabel(daysUntil(activeScholarship.deadline))}
+        <span class={`countdown ${activeScholarship.countdownClass()}`}>
+          {activeScholarship.countdownLabel()}
         </span>
         <div class="deadline-text">
           <span>Deadline</span>
-          <strong>{formatDate(new Date(activeScholarship.deadline))}</strong>
+          <strong>{activeScholarship.formattedDeadline()}</strong>
         </div>
       </div>
     </header>
@@ -174,6 +138,20 @@
     font-size: 0.75rem;
     color: rgba(15, 60, 164, 0.9);
     margin: 0;
+  }
+
+  .award-inline {
+    margin: 4px 0 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 10px;
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    color: #0f5132;
+    font-weight: 700;
+    width: fit-content;
   }
 
   .deadline {

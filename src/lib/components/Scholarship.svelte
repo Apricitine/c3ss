@@ -4,6 +4,7 @@
     deadline: string
     daysLeft: number
     description: string
+    endowmentRange?: [number, number] | null
     onclick?: (event: MouseEvent) => void
   }
 
@@ -17,6 +18,15 @@
   }
 
   const countdownLabel = () => (props.daysLeft < 0 ? "Passed" : `${props.daysLeft}d`)
+
+  const formatCurrency = (value: number) =>
+    value.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })
+
+  const endowmentText = () => {
+    if (!props.endowmentRange) return null
+    const [low, high] = props.endowmentRange
+    return low === high ? formatCurrency(low) : `${formatCurrency(low)} – ${formatCurrency(high)}`
+  }
 
   const handleKeydown = (event: KeyboardEvent) => {
     if (event.key === "Enter" || event.key === " ") {
@@ -36,6 +46,9 @@
   <div class="header">
     <div class="header-left">
       <div class="name">{props.name}</div>
+      {#if endowmentText()}
+        <span class="award">{endowmentText()}</span>
+      {/if}
     </div>
     <div class="deadline">
       <span class={`countdown ${countdownClass()}`}>
@@ -105,6 +118,17 @@
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .award {
+    background: rgba(16, 185, 129, 0.14);
+    color: #0f5132;
+    border: 1px solid rgba(16, 185, 129, 0.32);
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-weight: 700;
+    font-size: 0.82rem;
     white-space: nowrap;
   }
 
