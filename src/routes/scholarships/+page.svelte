@@ -41,7 +41,7 @@
         scholarship,
         similarity: fuzzy(query, scholarship.name),
       }))
-      .sort((firstItem, secondItem) => firstItem.similarity - secondItem.similarity)
+      .sort((firstItem, secondItem) => secondItem.similarity - firstItem.similarity)
       .map(({ scholarship }) => scholarship)
   }
 
