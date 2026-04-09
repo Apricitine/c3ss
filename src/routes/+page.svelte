@@ -193,7 +193,7 @@
   }
 
   .highlights {
-    display: grid;
+    display: grid; //jeo
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 14px;
     margin-top: 10px;
@@ -236,5 +236,7 @@
     .hero {
       padding: 28px 24px 32px;
     }
+
   }
 </style>
+
