@@ -12,6 +12,7 @@
   let activeScholarship = $state<Scholarship | null>(null)
   let searchTerm = $state("")
   let scholarships = $derived(data.scholarships.map(Scholarship.from))
+  
 
   const formatCurrency = (value: number) =>
     value.toLocaleString("en-US", {
