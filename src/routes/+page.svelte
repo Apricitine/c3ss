@@ -1,33 +1,113 @@
-<section class="hero">
-  <p class="eyebrow">Welcome</p>
-  <h1>your one-stop reference for scholarships and internships at LCHS</h1>
-  <p class="lede">
-    discover opportunities tailored to you LCHS students! don't waste time on irrelevant stuff
-  </p>
+<script lang="ts">
+  import type { PageServerData } from "./$types"
+  import { fade, fly, scale, blur } from 'svelte/transition';
 
-  <div class="actions">
-    <a class="button primary" href="/scholarships">explore scholarships</a>
-    <a class="button ghost" href="/internships">browse internships</a>
-  </div>
+  let { data }: PageServerData = $props()
 
-  <div class="highlights">
-    <div class="tile">
-      <span class="pill">stay up to do</span>
-      <p class="title">deadlines</p>
-      <p class="copy">idek idek</p>
+  let nameAndDeadline = [];
+
+  let daysLeft = 0;
+
+  const daysUntil = (deadline: string) => {
+    const msPerDay = 1000 * 60 * 60 * 24
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const target = new Date(deadline)
+    target.setHours(0, 0, 0, 0)
+    return Math.ceil((target.getTime() - today.getTime()) / msPerDay)
+  }
+
+  for (const scholarship of data.scholarships) {
+    // name
+    const name = scholarship.name;
+    
+    // deadline
+    const year = parseInt((scholarship.deadline.split("T")[0]).split("-")[0], 10);
+    const month = parseInt((scholarship.deadline.split("T")[0]).split("-")[1], 10);
+    const day = parseInt((scholarship.deadline.split("T")[0]).split("-")[2], 10);
+    
+    /*
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1;
+    const currentDay = now.getDate();
+
+    const yearDifference = (year - currentYear) * 365;
+    const monthDifference = (month - currentMonth) * 30;
+    const dayDifference = day - currentDay;
+
+    const totalDay = yearDifference + monthDifference + dayDifference + 1;
+    */
+
+    daysLeft = daysUntil(scholarship.deadline)
+
+    if (daysLeft > 0) {
+      nameAndDeadline.push({name, daysLeft});
+    }
+  }
+
+  nameAndDeadline.sort((a, b) => a.daysLeft - b.daysLeft);
+
+  let index = $state(0);
+  let scholarshipName = $state("");
+  let scholarshipDeadline = $state("");
+
+  let onlyTen = [];
+
+  if (nameAndDeadline.length >= 0) {
+    onlyTen = nameAndDeadline.slice(0, 10);
+  }
+
+  $effect(() => {
+    if (nameAndDeadline.length === 0) return;
+
+    const myInterval = setInterval(() => {
+      const current = nameAndDeadline[index];
+      scholarshipName = current.name;
+      scholarshipDeadline = `${current.daysLeft} DAYS LEFT`;
+
+      index = (index + 1) % nameAndDeadline.length;
+    }, 2000);
+
+    return () => clearInterval(myInterval);
+  });
+
+</script>
+
+  <section class="hero">
+    <p class="eyebrow">Welcome</p>
+    <h1>Your one-stop reference for scholarships and internships at LCHS</h1>
+    <p class="lede">
+      Discover opportunities tailored to you LCHS students! Don't waste time on irrelevant stuff.
+    </p>
+
+    <div class="actions">
+      <a class="button primary" href="/scholarships">Explore scholarships</a>
+      <a class="button ghost" href="/internships">Browse internships</a>
     </div>
-    <div class="tile">
-      <span class="pill">clear</span>
-      <p class="title">all the info</p>
-      <p class="copy">all the info you need to get working on those applications</p>
+
+    <div class="highlights">
+      <div class="tile">
+          {#key scholarshipName}
+            <div in:fly={{ y: 0, duration: 500 }} out:fade={{ duration: 300 }} class="card">
+              <span class="pill">UPCOMING!</span>
+              <p class="title">{scholarshipName}</p>
+              <p class="copy">{scholarshipDeadline}</p>
+            </div>
+          {/key}
+      </div>
+      <div class="tile">
+        <span id="pill"class="pill">clear</span>
+        <p class="title">all the info</p>
+        <p class="copy">all the info you need to get working on those applications</p>
+      </div>
+      <div class="tile">
+        <span class="pill">easieness</span>
+        <p class="title">detaisl</p>
+        <p class="copy">search easily and funly</p>
+      </div>
     </div>
-    <div class="tile">
-      <span class="pill">easieness</span>
-      <p class="title">detaisl</p>
-      <p class="copy">search easily and funly</p>
-    </div>
-  </div>
-</section>
+  </section>
 
 <style lang="scss">
   .hero {
