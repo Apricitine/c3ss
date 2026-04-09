@@ -2,31 +2,59 @@
   import Modal from "$lib/components/Modal.svelte"
   import ScholarshipCard from "$lib/components/Scholarship.svelte"
   import Tag from "$lib/components/Tag.svelte"
+  import { fuzzy } from "fast-fuzzy"
   import { Scholarship, type ScholarshipDTO } from "$lib/scripts/scholarships"
+  import Search from "$lib/components/Search.svelte"
 
   let { data }: { data: { scholarships: ScholarshipDTO[] } } = $props()
 
-  let scholarships = $derived(data.scholarships.map(Scholarship.from))
   let showModal = $state(false)
   let activeScholarship = $state<Scholarship | null>(null)
+  let searchTerm = $state("")
+  let scholarships = $derived(data.scholarships.map(Scholarship.from))
 
   const formatCurrency = (value: number) =>
-    value.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })
+    value.toLocaleString("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 0,
+    })
 
   const awardLabel = (range: [number, number] | null) => {
     if (!range) return null
     const [low, high] = range
-    return low === high ? formatCurrency(low) : `${formatCurrency(low)} – ${formatCurrency(high)}`
+    return low === high
+      ? formatCurrency(low)
+      : `${formatCurrency(low)} – ${formatCurrency(high)}`
   }
 
   const openScholarship = (scholarship: Scholarship) => {
     activeScholarship = scholarship
     showModal = true
   }
+
+  const sortScholarships = (term: string): Scholarship[] => {
+    const query = term.trim()
+
+    return [...scholarships]
+      .map((scholarship) => ({
+        scholarship,
+        similarity: fuzzy(query, scholarship.name),
+      }))
+      .sort((firstItem, secondItem) => firstItem.similarity - secondItem.similarity)
+      .map(({ scholarship }) => scholarship)
+  }
+
+  let renderedScholarships: Scholarship[] = $state(sortScholarships(""))
 </script>
 
+<Search
+  bind:searchTerm
+  on:input={() => (renderedScholarships = sortScholarships(searchTerm))}
+/>
+
 <section class="scholarship-grid">
-  {#each scholarships as scholarship (scholarship.id)}
+  {#each renderedScholarships as scholarship}
     <ScholarshipCard
       onclick={() => openScholarship(scholarship)}
       name={scholarship.name}
@@ -45,7 +73,9 @@
         <p class="eyebrow">Scholarship</p>
         <h2>{activeScholarship.name}</h2>
         {#if awardLabel(activeScholarship.endowmentRange())}
-          <p class="award-inline">{awardLabel(activeScholarship.endowmentRange())}</p>
+          <p class="award-inline">
+            {awardLabel(activeScholarship.endowmentRange())}
+          </p>
         {/if}
       </div>
       <div class="deadline">
@@ -183,8 +213,12 @@
   .countdown.hot {
     background: rgba(179, 38, 30, 0.22);
     color: #b3261e;
-    box-shadow: inset 0 0 0 1px rgba(179, 38, 30, 0.5), 0 0 0 6px rgba(179, 38, 30, 0.12);
-    animation: pulse-fast 0.9s ease-in-out infinite, shake 1.0s ease-in-out infinite;
+    box-shadow:
+      inset 0 0 0 1px rgba(179, 38, 30, 0.5),
+      0 0 0 6px rgba(179, 38, 30, 0.12);
+    animation:
+      pulse-fast 0.9s ease-in-out infinite,
+      shake 1s ease-in-out infinite;
   }
 
   .countdown.passed {
@@ -195,20 +229,39 @@
   }
 
   @keyframes pulse {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-1px); }
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-1px);
+    }
   }
 
   @keyframes pulse-fast {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-2px) scale(1.02); }
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-2px) scale(1.02);
+    }
   }
 
   @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-1px); }
-    50% { transform: translateX(1px); }
-    75% { transform: translateX(-0.5px); }
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-1px);
+    }
+    50% {
+      transform: translateX(1px);
+    }
+    75% {
+      transform: translateX(-0.5px);
+    }
   }
 
   .description {
