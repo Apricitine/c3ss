@@ -104,7 +104,7 @@ export class Scholarship implements ScholarshipDTO {
         )
     }
 
-    if (!Number.isFinite(lowest)) {
+    if (!Number.isFinite(lowest) || (highest !== "full-tuition" && !Number.isFinite(highest))) {
       return null
     }
 
