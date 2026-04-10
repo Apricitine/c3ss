@@ -1,4 +1,11 @@
-export type EndowmentRange = [number, number]
+const formatCurrency = (value: number) =>
+  value.toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  })
+
+export type EndowmentRange = [number, number | "full-tuition"]
 
 export type Endowment = {
   place: number
@@ -79,9 +86,9 @@ export class Scholarship implements ScholarshipDTO {
     return `${days} days`
   }
 
-  endowmentRange(): EndowmentRange | null {
+  endowmentRange() {
     let lowest = Number.POSITIVE_INFINITY
-    let highest = Number.NEGATIVE_INFINITY
+    let highest: number | "full-tuition" = Number.NEGATIVE_INFINITY
 
     if (!this.endowment || this.endowment.length === 0) return null
 
@@ -91,14 +98,23 @@ export class Scholarship implements ScholarshipDTO {
         : [prize.amount, prize.amount]
 
       lowest = Math.min(lowest, min)
-      highest = Math.max(highest, max)
+      highest = (highest === "full-tuition") ? 
+        "full-tuition" : (
+          (max === "full-tuition") ? "full-tuition" : Math.max(highest, max)
+        )
     }
 
-    if (!Number.isFinite(lowest) || !Number.isFinite(highest)) {
+    if (!Number.isFinite(lowest)) {
       return null
     }
 
-    return [lowest, highest]
+    const range: [number, number | "full-tuition"] = [lowest, highest]
+
+    if (!range) return null
+    const [low, high] = range
+    return low === high
+      ? formatCurrency(low)
+      : `${formatCurrency(low)} – ${(high === "full-tuition") ? "Full Tuition" : formatCurrency(high)}`
   }
 
   toJSON(): ScholarshipDTO {
