@@ -1,76 +1,39 @@
 <script lang="ts">
-  import type { PageServerData } from "./$types"
-  import { fade, fly, scale, blur } from 'svelte/transition';
+  import { fade, fly } from "svelte/transition"
+  import { Scholarship, type ScholarshipDTO } from "$lib/scripts/scholarships"
 
-  let { data }: PageServerData = $props()
+  let { data }: { data: { scholarships: ScholarshipDTO[] } } = $props()
 
-  let nameAndDeadline = [];
+  const scholarships = $derived(data.scholarships.map(Scholarship.from))
 
-  let daysLeft = 0;
+  const upcomingScholarships = $derived(
+    scholarships
+      .map((scholarship) => ({ scholarship, daysLeft: scholarship.daysUntil() }))
+      .filter(({ daysLeft }) => daysLeft > 0)
+      .sort((first, second) => first.daysLeft - second.daysLeft)
+  )
 
-  const daysUntil = (deadline: string) => {
-    const msPerDay = 1000 * 60 * 60 * 24
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    const target = new Date(deadline)
-    target.setHours(0, 0, 0, 0)
-    return Math.ceil((target.getTime() - today.getTime()) / msPerDay)
-  }
-
-  for (const scholarship of data.scholarships) {
-    // name
-    const name = scholarship.name;
-    
-    // deadline
-    const year = parseInt((scholarship.deadline.split("T")[0]).split("-")[0], 10);
-    const month = parseInt((scholarship.deadline.split("T")[0]).split("-")[1], 10);
-    const day = parseInt((scholarship.deadline.split("T")[0]).split("-")[2], 10);
-    
-    /*
-    const now = new Date();
-    const currentYear = now.getFullYear();
-    const currentMonth = now.getMonth() + 1;
-    const currentDay = now.getDate();
-
-    const yearDifference = (year - currentYear) * 365;
-    const monthDifference = (month - currentMonth) * 30;
-    const dayDifference = day - currentDay;
-
-    const totalDay = yearDifference + monthDifference + dayDifference + 1;
-    */
-
-    daysLeft = daysUntil(scholarship.deadline)
-
-    if (daysLeft > 0) {
-      nameAndDeadline.push({name, daysLeft});
-    }
-  }
-
-  nameAndDeadline.sort((a, b) => a.daysLeft - b.daysLeft);
-
-  let index = $state(0);
-  let scholarshipName = $state("");
-  let scholarshipDeadline = $state("");
-
-  let onlyTen = [];
-
-  if (nameAndDeadline.length >= 0) {
-    onlyTen = nameAndDeadline.slice(0, 10);
-  }
+  let index = $state(0)
+  let scholarshipName = $state("")
+  let scholarshipDeadline = $state("")
 
   $effect(() => {
-    if (nameAndDeadline.length === 0) return;
+    if (!upcomingScholarships.length) return
 
-    const myInterval = setInterval(() => {
-      const current = nameAndDeadline[index];
-      scholarshipName = current.name;
-      scholarshipDeadline = `${current.daysLeft} DAYS LEFT`;
+    index = 0
 
-      index = (index + 1) % nameAndDeadline.length;
-    }, 2000);
+    const update = () => {
+      const { scholarship } = upcomingScholarships[index]
+      scholarshipName = scholarship.name
+      scholarshipDeadline = `${scholarship.countdownLabel().toUpperCase()} LEFT`
+      index = (index + 1) % upcomingScholarships.length
+    }
 
-    return () => clearInterval(myInterval);
-  });
+    update()
+    const myInterval = setInterval(update, 2000)
+
+    return () => clearInterval(myInterval)
+  })
 
 </script>
 
