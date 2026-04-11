@@ -27,7 +27,7 @@
     <nav class="nav">
       <a class="nav-link" href="/">Home</a>
       <a class="nav-link" href="/scholarships">Scholarships</a>
-      <a class="nav-link" href="/internships">Internships</a>
+      <a class="nav-link" href="/summerprograms">Summer Programs</a>
     </nav>
   </header>
 

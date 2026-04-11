@@ -14,20 +14,7 @@
   let scholarships = $derived(data.scholarships.map(Scholarship.from))
   
 
-  const formatCurrency = (value: number) =>
-    value.toLocaleString("en-US", {
-      style: "currency",
-      currency: "USD",
-      maximumFractionDigits: 0,
-    })
-
-  const awardLabel = (range: [number, number] | null) => {
-    if (!range) return null
-    const [low, high] = range
-    return low === high
-      ? formatCurrency(low)
-      : `${formatCurrency(low)} – ${formatCurrency(high)}`
-  }
+  
 
   const openScholarship = (scholarship: Scholarship) => {
     activeScholarship = scholarship
@@ -73,9 +60,9 @@
       <div class="meta">
         <p class="eyebrow">Scholarship</p>
         <h2>{activeScholarship.name}</h2>
-        {#if awardLabel(activeScholarship.endowmentRange())}
+        {#if activeScholarship.endowmentRange()}
           <p class="award-inline">
-            {awardLabel(activeScholarship.endowmentRange())}
+            {activeScholarship.endowmentRange()}
           </p>
         {/if}
       </div>
