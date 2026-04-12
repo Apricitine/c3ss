@@ -17,9 +17,13 @@
     observer.observe(continer)
     return () => observer.unobserve(container)
 
-    function handler() {
-        const bcr = container.getBoundingClientRect()
-        intersecting = 
+    function handler(): void {
+        const bcr: DOMRect = container.getBoundingClientRect();
+        intersecting =
+            bcr.bottom + bottom > 0 &&
+            bcr.right + right > 0 &&
+            bcr.top - top < window.innerHeight &&
+            bcr.left - left < window.innerWidth;
     }
 
 
