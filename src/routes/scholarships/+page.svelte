@@ -5,6 +5,7 @@
   import { fuzzy } from "fast-fuzzy"
   import { Scholarship, type ScholarshipDTO } from "$lib/scripts/scholarships"
   import Search from "$lib/components/Search.svelte"
+  import IntersectionObserver from "$lib/components/IntersectionObserver.svelte"
 
   let { data }: { data: { scholarships: ScholarshipDTO[] } } = $props()
 
@@ -12,6 +13,7 @@
   let activeScholarship = $state<Scholarship | null>(null)
   let searchTerm = $state("")
   let scholarships = $derived(data.scholarships.map(Scholarship.from))
+  
 
   
 
@@ -42,14 +44,18 @@
 
 <section class="scholarship-grid">
   {#each renderedScholarships as scholarship}
-    <ScholarshipCard
-      onclick={() => openScholarship(scholarship)}
-      name={scholarship.name}
-      deadline={scholarship.formattedDeadline()}
-      daysLeft={scholarship.daysUntil()}
-      description={scholarship.description}
-      endowmentRange={scholarship.endowmentRange()}
-    />
+    <IntersectionObserver let:intersecting >
+      {#if intersecting}
+        <ScholarshipCard
+          onclick={() => openScholarship(scholarship)}
+          name={scholarship.name}
+          deadline={scholarship.formattedDeadline()}
+          daysLeft={scholarship.daysUntil()}
+          description={scholarship.description}
+          endowmentRange={scholarship.endowmentRange()}
+        />
+      {/if}
+    </IntersectionObserver>
   {/each}
 </section>
 
