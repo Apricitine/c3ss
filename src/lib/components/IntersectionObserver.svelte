@@ -1,41 +1,52 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 
-	export let once: boolean = false;
-	export let top: number = 0;
-	export let bottom: number = 0;
-	export let left: number = 0;
-	export let right: number = 0;
+	export let once: boolean = false
+	export let top: number = 0
+	export let bottom: number = 0
+	export let left: number = 0
+	export let right: number = 0
 
-	let intersecting: boolean = false;
-	let container: HTMLDivElement;
+	let intersecting: boolean = false
+	let container: HTMLDivElement
 
 	onMount(() => {
 		if (typeof IntersectionObserver !== 'undefined') {
 			const rootMargin = `${bottom}px ${left}px ${top}px ${right}px`;
 			const observer = new IntersectionObserver((entries: IntersectionObserverEntry[]) => {
-				intersecting = entries[0].isIntersecting;
-				if (intersecting && once) {
-					observer.unobserve(container);
-				}
+				if (once) {
+                    if (entries[0].isIntersecting) {
+                        intersecting = true
+                        observer.unobserve(container)
+                    }
+					} else {
+						intersecting = entries[0].isIntersecting
+					}
 			}, {
 				rootMargin
 			});
 			observer.observe(container);
-			return () => observer.unobserve(container);
+			return () => observer.unobserve(container)
 		}
 
 		function handler(): void {
 			const bcr: DOMRect = container.getBoundingClientRect();
-			intersecting = (
+			const currIntersecting = (
 				(bcr.bottom + bottom) > 0 &&
 				(bcr.right + right) > 0 &&
 				(bcr.top - top) < window.innerHeight &&
 				(bcr.left - left) < window.innerWidth
 			);
-			if (intersecting && once) {
-				window.removeEventListener('scroll', handler);
+			if (once) {
+                if (currIntersecting) {
+                    intersecting = true
+                    window.removeEventListener("scroll", handler)
+                } else {
+                    intersecting = currIntersecting;
+                }
 			}
+            
+
 		}
 
 		window.addEventListener('scroll', handler);
