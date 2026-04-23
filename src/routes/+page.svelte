@@ -64,7 +64,7 @@
     const myInterval = setInterval(() => {
       const current = nameAndDeadline[index];
       scholarshipName = current.name;
-      scholarshipDeadline = `${current.daysLeft} DAYS LEFT`;
+      scholarshipDeadline = current.daysLeft;
 
       index = (index + 1) % nameAndDeadline.length;
     }, 2000);
