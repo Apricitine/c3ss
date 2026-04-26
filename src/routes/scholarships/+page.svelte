@@ -99,7 +99,7 @@
     {#if activeScholarship.displayFilters().length}
       <div class="tags">
         {#each activeScholarship.displayFilters() as filter (filter.key)}
-          <Tag color={filter.color} name={filter.name} />
+          <Tag color={filter.color} name={filter.name} description={filter.description} />
         {/each}
       </div>
     {/if}

@@ -47,7 +47,7 @@
       {#if props.filters?.length}
         <div class="filter-tags">
           {#each props.filters as filter (filter.key)}
-            <Tag color={filter.color} name={filter.name} />
+            <Tag color={filter.color} name={filter.name} description={filter.description} />
           {/each}
         </div>
       {/if}
