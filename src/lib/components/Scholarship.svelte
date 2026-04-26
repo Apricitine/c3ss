@@ -1,10 +1,14 @@
 <script lang="ts">
+  import Tag from "$lib/components/Tag.svelte"
+  import type { ScholarshipFilter } from "$lib/scripts/scholarships"
+
   interface Props {
     name: string
     deadline: string
     daysLeft: number
     description: string
     endowmentRange?: string | null
+    filters?: ScholarshipFilter[]
     onclick?: (event: MouseEvent) => void
   }
 
@@ -39,6 +43,13 @@
       <div class="name">{props.name}</div>
       {#if props.endowmentRange}
         <span class="award">{props.endowmentRange}</span>
+      {/if}
+      {#if props.filters?.length}
+        <div class="filter-tags">
+          {#each props.filters as filter (filter.key)}
+            <Tag color={filter.color} name={filter.name} />
+          {/each}
+        </div>
       {/if}
     </div>
     <div class="deadline">
@@ -121,6 +132,13 @@
     font-weight: 700;
     font-size: 0.82rem;
     white-space: nowrap;
+  }
+
+  .filter-tags {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
   }
 
   .deadline {

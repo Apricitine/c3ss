@@ -2,13 +2,14 @@
 
 
     const colorHexes = {
-        cyan: "#e0f2fe",
-        red: "#dbeafe",
-        green: "#c7d2fe",
-        yellow: "#bfdbfe",
-        orange: "#93c5fd",
-        purple: "#a5b4fc",
-        gold: "#cddcff"
+        cyan: "#52cfeb",
+        red: "#eb5752",
+        green: "#65ba6a",
+        yellow: "#debe68",
+        blue: "#5276eb",
+        orange: "#eb8552",
+        purple: "#b882e0",
+        gold: "#e3ab62"
     }
 
     type Color = keyof typeof colorHexes;

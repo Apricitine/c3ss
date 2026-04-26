@@ -12,6 +12,47 @@ export type Endowment = {
   amount: number | EndowmentRange
 }
 
+export const FILTER_COLORS = {
+  red: "red",
+  green: "green",
+  yellow: "yellow",
+  blue: "blue",
+  purple: "purple",
+  gold: "gold",
+} as const
+
+export type FilterColor = keyof typeof FILTER_COLORS
+
+export type FilterDefinition = {
+  name: string
+  description: string
+  color: FilterColor
+}
+
+const filterDefinitions = {
+  science: {
+    name: "Science",
+    description: "The scholarship has some relevancy to science.",
+    color: FILTER_COLORS.green,
+  },
+  ethnic: {
+    name: "Ethnic",
+    description: "The scholarship is intended for a specific ethnic community.",
+    color: FILTER_COLORS.purple,
+  },
+  needbased: {
+    name: "Need-Based",
+    description: "The scholarship considers financial need.",
+    color: FILTER_COLORS.gold,
+  },
+} as const satisfies Record<string, FilterDefinition>
+
+export type ScholarshipFilterKey = keyof typeof filterDefinitions
+
+export type ScholarshipFilter = FilterDefinition & {
+  key: ScholarshipFilterKey
+}
+
 export type ScholarshipDTO = {
   id: number
   name: string
@@ -19,7 +60,7 @@ export type ScholarshipDTO = {
   description: string
   deadline: string
   primary_link: string
-  filters: { filters: string[] } | null
+  filters?: ScholarshipFilterKey[] | null
   availableGrades: number[]
   endowment: Endowment[]
 }
@@ -31,7 +72,7 @@ export class Scholarship implements ScholarshipDTO {
   description: string
   deadline: string
   primary_link: string
-  filters: { filters: string[] } | null
+  filters: ScholarshipFilterKey[]
   availableGrades: number[]
   endowment: Endowment[]
 
@@ -42,7 +83,7 @@ export class Scholarship implements ScholarshipDTO {
     this.description = dto.description
     this.deadline = dto.deadline
     this.primary_link = dto.primary_link
-    this.filters = dto.filters ?? null
+    this.filters = dto.filters ?? []
     this.availableGrades = dto.availableGrades
     this.endowment = dto.endowment ?? []
   }
@@ -98,23 +139,28 @@ export class Scholarship implements ScholarshipDTO {
         : [prize.amount, prize.amount]
 
       lowest = Math.min(lowest, min)
-      highest = (highest === "full-tuition") ? 
-        "full-tuition" : (
-          (max === "full-tuition") ? "full-tuition" : Math.max(highest, max)
-        )
+      highest =
+        highest === "full-tuition"
+          ? "full-tuition"
+          : max === "full-tuition"
+            ? "full-tuition"
+            : Math.max(highest, max)
     }
 
     if (!Number.isFinite(lowest) || (highest !== "full-tuition" && !Number.isFinite(highest))) {
       return null
     }
 
-    const range: [number, number | "full-tuition"] = [lowest, highest]
+    return lowest === highest
+      ? formatCurrency(lowest)
+      : `${formatCurrency(lowest)} – ${highest === "full-tuition" ? "Full Tuition" : formatCurrency(highest)}`
+  }
 
-    if (!range) return null
-    const [low, high] = range
-    return low === high
-      ? formatCurrency(low)
-      : `${formatCurrency(low)} – ${(high === "full-tuition") ? "Full Tuition" : formatCurrency(high)}`
+  displayFilters(): ScholarshipFilter[] {
+    return this.filters.flatMap((key) => {
+      const definition = filterDefinitions[key]
+      return definition ? [{ key, ...definition }] : []
+    })
   }
 
   toJSON(): ScholarshipDTO {
@@ -127,7 +173,7 @@ export class Scholarship implements ScholarshipDTO {
       primary_link: this.primary_link,
       filters: this.filters,
       availableGrades: this.availableGrades,
-      endowment: this.endowment
+      endowment: this.endowment,
     }
   }
 }
