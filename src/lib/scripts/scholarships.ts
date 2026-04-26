@@ -20,6 +20,7 @@ export const FILTER_COLORS = {
   blue: "blue",
   purple: "purple",
   gold: "gold",
+  cyan: "cyan"
 } as const
 
 export type FilterColor = keyof typeof FILTER_COLORS
@@ -56,10 +57,20 @@ const filterDefinitions = {
     description: "The scholarship has some relevancy to the literary arts.",
     color: FILTER_COLORS.orange,
   },
+  advocacy: {
+    name: "Advocacy",
+    description: "The scholarship has some relevancy to political or social activism.",
+    color: FILTER_COLORS.orange,
+  },
   meritonly: {
     name: "Merit Only",
     description: "The scholarship only considers merit in applicants.",
     color: FILTER_COLORS.gold,
+  },
+  majorspecific: {
+    name: "Major-Specific",
+    description: "The scholarship only accepts applicants pursuing a specific major in college/other program.",
+    color: FILTER_COLORS.cyan,
   },
 } as const satisfies Record<string, FilterDefinition>
 
