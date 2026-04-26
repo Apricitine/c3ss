@@ -16,6 +16,7 @@ export const FILTER_COLORS = {
   red: "red",
   green: "green",
   yellow: "yellow",
+  orange: "orange",  
   blue: "blue",
   purple: "purple",
   gold: "gold",
@@ -43,6 +44,21 @@ const filterDefinitions = {
   needbased: {
     name: "Need-Based",
     description: "The scholarship considers financial need.",
+    color: FILTER_COLORS.gold,
+  },
+  experienceincluded: {
+    name: "Experience Included",
+    description: "The scholarship offers an additional experience on top of the financial endowment.",
+    color: FILTER_COLORS.red,
+  },
+  literaryarts: {
+    name: "Literary Arts",
+    description: "The scholarship has some relevancy to the literary arts.",
+    color: FILTER_COLORS.orange,
+  },
+  meritonly: {
+    name: "Merit Only",
+    description: "The scholarship only considers merit in applicants.",
     color: FILTER_COLORS.gold,
   },
 } as const satisfies Record<string, FilterDefinition>
