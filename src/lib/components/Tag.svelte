@@ -1,19 +1,8 @@
 <script lang="ts">
-    const colorHexes = {
-        cyan: "#52cfeb",
-        red: "#eb5752",
-        green: "#65ba6a",
-        yellow: "#debe68",
-        blue: "#5276eb",
-        orange: "#eb8552",
-        purple: "#b882e0",
-        gold: "#e3ab62"
-    }
-
-    type Color = keyof typeof colorHexes;
+    import { FILTER_COLORS, type FilterColor } from "$lib/scripts/scholarships"
 
     interface Tag {
-        color: Color
+        color: FilterColor
         name: string
         description?: string
     }
@@ -26,7 +15,7 @@
   <button
     type="button"
     class="tag"
-    style={`background-color: ${colorHexes[color]}`}
+    style={`background-color: ${FILTER_COLORS[color]}`}
     aria-label={description ? `${name}: ${description}` : name}
   >
     {name}

@@ -13,14 +13,14 @@ export type Endowment = {
 }
 
 export const FILTER_COLORS = {
-  red: "red",
-  green: "green",
-  yellow: "yellow",
-  orange: "orange",  
-  blue: "blue",
-  purple: "purple",
-  gold: "gold",
-  cyan: "cyan"
+  cyan: "#52cfeb",
+  red: "#eb5752",
+  green: "#65ba6a",
+  yellow: "#debe68",
+  blue: "#5276eb",
+  orange: "#eb8552",
+  purple: "#b882e0",
+  gold: "#e3ab62",
 } as const
 
 export type FilterColor = keyof typeof FILTER_COLORS
@@ -35,42 +35,42 @@ const filterDefinitions = {
   science: {
     name: "Science",
     description: "The scholarship has some relevancy to science.",
-    color: FILTER_COLORS.green,
+    color: "green",
   },
   ethnic: {
     name: "Ethnic",
     description: "The scholarship is intended for a specific ethnic community.",
-    color: FILTER_COLORS.purple,
+    color: "purple",
   },
   needbased: {
     name: "Need-Based",
     description: "The scholarship considers financial need.",
-    color: FILTER_COLORS.gold,
+    color: "gold",
   },
   experienceincluded: {
     name: "Experience Included",
     description: "The scholarship offers an additional experience on top of the financial endowment.",
-    color: FILTER_COLORS.red,
+    color: "red",
   },
   literaryarts: {
     name: "Literary Arts",
     description: "The scholarship has some relevancy to the literary arts.",
-    color: FILTER_COLORS.orange,
+    color: "orange",
   },
   advocacy: {
     name: "Advocacy",
     description: "The scholarship has some relevancy to political or social activism.",
-    color: FILTER_COLORS.orange,
+    color: "orange",
   },
   meritonly: {
     name: "Merit Only",
     description: "The scholarship only considers merit in applicants.",
-    color: FILTER_COLORS.gold,
+    color: "gold",
   },
   majorspecific: {
     name: "Major-Specific",
     description: "The scholarship only accepts applicants pursuing a specific major in college/other program.",
-    color: FILTER_COLORS.cyan,
+    color: "cyan",
   },
 } as const satisfies Record<string, FilterDefinition>
 
