@@ -53,6 +53,7 @@
           daysLeft={scholarship.daysUntil()}
           description={scholarship.description}
           endowmentRange={scholarship.endowmentRange()}
+          filters={scholarship.displayFilters()}
         />
       {/if}
     </IntersectionObserver>
@@ -95,10 +96,10 @@
       </a>
     {/if}
 
-    {#if activeScholarship.filters?.filters?.length}
+    {#if activeScholarship.displayFilters().length}
       <div class="tags">
-        {#each activeScholarship.filters.filters as tag (tag)}
-          <Tag color="gold" name={tag} />
+        {#each activeScholarship.displayFilters() as filter (filter.key)}
+          <Tag color={filter.color} name={filter.name} description={filter.description} />
         {/each}
       </div>
     {/if}

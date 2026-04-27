@@ -9,3 +9,5 @@ export const load = async () => {
   }
   return { scholarships: data ?? [] }
 }
+
+
