@@ -174,7 +174,9 @@
   }
 
   .button.primary {
-    background: linear-gradient(135deg, #38bdf8, #1d4ed8);
+    background-image: linear-gradient(135deg, #38bdf8, #1d4ed8), linear-gradient(135deg, #38bdf8, #1d4ed8);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
     color: #0b1f3b;
     box-shadow: 0 14px 30px rgba(37, 99, 235, 0.35);
   }
