@@ -24,6 +24,7 @@
   }
 
   const openScholarship = (scholarship: Scholarship) => {
+
     activeScholarship = scholarship
     showModal = true
   }
