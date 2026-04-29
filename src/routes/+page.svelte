@@ -48,25 +48,21 @@
 
   nameAndDeadline.sort((a, b) => a.daysLeft - b.daysLeft);
 
-  let index = $state(0);
-  let scholarshipName = $state("");
-  let scholarshipDeadline = $state("");
+  const onlyFive = nameAndDeadline.slice(0, 5);
 
-  let onlyTen = [];
-
-  if (nameAndDeadline.length >= 0) {
-    onlyTen = nameAndDeadline.slice(0, 10);
-  }
+  let index = $state(1);
+  let scholarshipName = $state(onlyFive.length > 0 ? onlyFive[0].name : "");
+  let scholarshipDeadline = $state(onlyFive.length > 0 ? `${onlyFive[0].daysLeft} DAYS LEFT` : "");
 
   $effect(() => {
-    if (nameAndDeadline.length === 0) return;
+    if (onlyFive.length === 0) return;
 
     const myInterval = setInterval(() => {
-      const current = nameAndDeadline[index];
+      const current = onlyFive[index];
       scholarshipName = current.name;
-      scholarshipDeadline = current.daysLeft;
+      scholarshipDeadline = `${current.daysLeft} DAYS LEFT`;
 
-      index = (index + 1) % nameAndDeadline.length;
+      index = (index + 1) % onlyFive.length;
     }, 2000);
 
     return () => clearInterval(myInterval);
@@ -89,7 +85,11 @@
     <div class="highlights">
       <div class="tile">
           {#key scholarshipName}
-            <div in:fly={{ y: 0, duration: 500 }} out:fade={{ duration: 300 }} class="card">
+            <div 
+              in:fly={{ y: 20, duration: 500, delay: 300 }} 
+              out:fly={{ y: -20, duration: 300 }} 
+              class="card"
+            >
               <span class="pill">UPCOMING!</span>
               <p class="title">{scholarshipName}</p>
               <p class="copy">{scholarshipDeadline}</p>
@@ -202,12 +202,14 @@
   }
 
   .tile {
+    position: relative;
     background: rgba(255, 255, 255, 0.12);
     border: 1px solid rgba(56, 189, 248, 0.28);
     border-radius: 16px;
     padding: 14px 16px;
     box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.14);
     width: 33%;
+    min-height: 150px;
   }
 
   .pill {
@@ -240,7 +242,10 @@
   }
 
   .card {
-    height: 0px;
+    position: absolute;
+    top: 14px;
+    left: 16px;
+    right: 16px;
   }
 
 </style>
