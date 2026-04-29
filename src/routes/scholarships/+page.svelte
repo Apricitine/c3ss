@@ -17,6 +17,12 @@
 
   
 
+  const queryScholarship = (): ScholarshipDTO[] => {
+    data = actions(data)
+
+    return data
+  }
+
   const openScholarship = (scholarship: Scholarship) => {
     activeScholarship = scholarship
     showModal = true
@@ -44,8 +50,6 @@
 
 <section class="scholarship-grid">
   {#each renderedScholarships as scholarship}
-    <IntersectionObserver let:intersecting >
-      {#if intersecting}
         <ScholarshipCard
           onclick={() => openScholarship(scholarship)}
           name={scholarship.name}
@@ -55,9 +59,15 @@
           endowmentRange={scholarship.endowmentRange()}
           filters={scholarship.displayFilters()}
         />
-      {/if}
-    </IntersectionObserver>
   {/each}
+
+  <!--   load more scholarships     -->
+  <IntersectionObserver let:intersecting>
+    {#if intersecting}
+      <div>hi</div>
+      {console.log("hi!")}
+    {/if}
+  </IntersectionObserver>
 </section>
 
 <Modal bind:showModal>

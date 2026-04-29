@@ -1,6 +1,13 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-
+	import { onMount } from 'svelte'
+	//as you scroll down you access 
+	//query the database to get more entries, updating data progressively'
+	//what you need to do is when you scroll down you send a request to query more scholarships
+	//Steps
+	//1. make it so that you only render in a few scholarships
+	//2. Make it so that when you have white space you send a request to the database to query another scholarship
+	//3. After you query that scholarship the entire thing renders in
+	//4. Fix searching aftert scholarship the entire thing renders in
 	export let once: boolean = false
 	export let top: number = 0
 	export let bottom: number = 0
@@ -19,13 +26,16 @@
                         intersecting = true
                         observer.unobserve(container)
                     }
-					} else {
-						intersecting = entries[0].isIntersecting
+				} 
+					else { 
+						if (intersecting == false){
+							intersecting = entries[0].isIntersecting
+						}
 					}
 			}, {
 				rootMargin
-			});
-			observer.observe(container);
+			})
+			observer.observe(container)
 			return () => observer.unobserve(container)
 		}
 
@@ -41,23 +51,19 @@
                 if (currIntersecting) {
                     intersecting = true
                     window.removeEventListener("scroll", handler)
-                } else {
-                    intersecting = currIntersecting;
                 }
 			}
-            
-
 		}
 
-		window.addEventListener('scroll', handler);
-		return () => window.removeEventListener('scroll', handler);
-	});
+		window.addEventListener('scroll', handler)
+		return () => window.removeEventListener('scroll', handler)
+	})
 </script>
 
 <style>
 	div {
 		width: 100%;
-		height: 100%;
+		height: 100%
 	}
 </style>
 
