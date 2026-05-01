@@ -17,11 +17,6 @@
 
   
 
-  const queryScholarship = (): ScholarshipDTO[] => {
-    data = actions(data)
-
-    return data
-  }
 
   const openScholarship = (scholarship: Scholarship) => {
 
@@ -67,6 +62,9 @@
     {#if intersecting}
       <div>hi</div>
       {console.log("hi!")}
+      <form method="POST">
+        <button>load</button>
+      </form>
     {/if}
   </IntersectionObserver>
 </section>

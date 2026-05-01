@@ -11,12 +11,26 @@ export const load = async () => {
   return { scholarships: data ?? [] }
 }
 
-export const actions = async (data: ScholarshipDTO[]) => {
-  const { data: newData, error } = await supabase.from('scharships').select<'scholarships', ScholarshipDTO>().limit(5)
-  if (error) {
-    console.error('Error loading scholarships:', error.message);
-    return { data };
-  }
-  return { newData } }
+export const actions = {
+	default: async ( data ) => {
+		console.log("loading new data!")
+    const { data: newData, error } = await supabase.from('scharships').select<'scholarships', ScholarshipDTO>().limit(5)
+    if (error) {
+      console.error('Error loading scholarships:', error.message)
+    }
+    return { newData }
+	}
+} satisfies Actions;
+
+
+
+// export const actions = async (data: ScholarshipDTO[]) => {
+//   const { data: newData, error } = await supabase.from('scharships').select<'scholarships', ScholarshipDTO>().limit(5)
+//   if (error) {
+//     console.error('Error loading scholarships:', error.message);
+//     return { data };
+//   }
+//   console.log("loading new data!")
+//   return { scholarships: newData ?? [] } }
 
 
