@@ -6,67 +6,87 @@
   import { Scholarship, type ScholarshipDTO } from "$lib/scripts/scholarships"
   import Search from "$lib/components/Search.svelte"
   import IntersectionObserver from "$lib/components/IntersectionObserver.svelte"
+  import { enhance } from "$app/forms"
 
-  let { data }: { data: { scholarships: ScholarshipDTO[] } } = $props()
+  let { data, form }: {
+    data: { scholarships: ScholarshipDTO[] }
+    form: { more: ScholarshipDTO[] } | null
+  } = $props()
 
   let showModal = $state(false)
   let activeScholarship = $state<Scholarship | null>(null)
   let searchTerm = $state("")
-  let scholarships = $derived(data.scholarships.map(Scholarship.from))
-  
+  let hasMore = $state(true)
+  let isLoading = $state(false)
+  let page = $state(1)
+  let loadMoreForm = $state<HTMLFormElement | null>(null)
+  let baseScholarships = $state(data.scholarships.map(Scholarship.from))
 
-  
+  $effect(() => {
+    if (form?.more) {
+      const newOnes = form.more.map(Scholarship.from)
+      if (newOnes.length === 0) {
+        hasMore = false
+      } else {
+        baseScholarships = [...baseScholarships, ...newOnes]
+        page += 1
+      }
+    }
+  })
 
+  function handleIntersect() {
+    if (!isLoading && hasMore && !searchTerm.trim()) {
+      isLoading = true
+      loadMoreForm?.requestSubmit()
+    }
+  }
 
   const openScholarship = (scholarship: Scholarship) => {
-
     activeScholarship = scholarship
     showModal = true
   }
 
-  const sortScholarships = (term: string): Scholarship[] => {
-    const query = term.trim()
-
-    return [...scholarships]
-      .map((scholarship) => ({
-        scholarship,
-        similarity: fuzzy(query, scholarship.name),
-      }))
-      .sort((firstItem, secondItem) => secondItem.similarity - firstItem.similarity)
-      .map(({ scholarship }) => scholarship)
-  }
-
-  let renderedScholarships: Scholarship[] = $state(sortScholarships(""))
+  let renderedScholarships = $derived(
+    searchTerm.trim()
+      ? [...baseScholarships]
+          .map((s) => ({ s, similarity: fuzzy(searchTerm.trim(), s.name) }))
+          .sort((a, b) => b.similarity - a.similarity)
+          .map(({ s }) => s)
+      : baseScholarships
+  )
 </script>
 
-<Search
-  bind:searchTerm
-  on:input={() => (renderedScholarships = sortScholarships(searchTerm))}
-/>
+<Search bind:searchTerm />
 
 <section class="scholarship-grid">
   {#each renderedScholarships as scholarship}
-        <ScholarshipCard
-          onclick={() => openScholarship(scholarship)}
-          name={scholarship.name}
-          deadline={scholarship.formattedDeadline()}
-          daysLeft={scholarship.daysUntil()}
-          description={scholarship.description}
-          endowmentRange={scholarship.endowmentRange()}
-          filters={scholarship.displayFilters()}
-        />
+    <ScholarshipCard
+      onclick={() => openScholarship(scholarship)}
+      name={scholarship.name}
+      deadline={scholarship.formattedDeadline()}
+      daysLeft={scholarship.daysUntil()}
+      description={scholarship.description}
+      endowmentRange={scholarship.endowmentRange()}
+      filters={scholarship.displayFilters()}
+    />
   {/each}
 
-  <!--   load more scholarships     -->
-  <IntersectionObserver let:intersecting>
-    {#if intersecting}
-      <div>hi</div>
-      {console.log("hi!")}
-      <form method="POST">
-        <button>load</button>
+  {#if hasMore}
+    <IntersectionObserver onintersect={handleIntersect}>
+      <form
+        method="POST"
+        action="?/loadMore"
+        bind:this={loadMoreForm}
+        use:enhance={() => {
+          return ({ update }) => {
+            update({ reset: false }).then(() => (isLoading = false))
+          }
+        }}
+      >
+        <input type="hidden" name="page" value={page} />
       </form>
-    {/if}
-  </IntersectionObserver>
+    </IntersectionObserver>
+  {/if}
 </section>
 
 <Modal bind:showModal>
