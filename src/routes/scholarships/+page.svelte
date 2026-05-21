@@ -6,19 +6,21 @@
   import { Scholarship, type ScholarshipDTO } from "$lib/scripts/scholarships"
   import Search from "$lib/components/Search.svelte"
   import IntersectionObserver from "$lib/components/IntersectionObserver.svelte"
+  import FilterSelect from "$lib/components/FilterSelect.svelte"
 
   let { data }: { data: { scholarships: ScholarshipDTO[] } } = $props()
 
   let showModal = $state(false)
   let activeScholarship = $state<Scholarship | null>(null)
+  let activeCardRect = $state<DOMRect | null>(null)
   let searchTerm = $state("")
   let scholarships = $derived(data.scholarships.map(Scholarship.from))
-  
 
-  
+  const openScholarship = (scholarship: Scholarship, event: MouseEvent) => {
+    const sourceCard = event.currentTarget instanceof HTMLElement ? event.currentTarget : null
 
-  const openScholarship = (scholarship: Scholarship) => {
     activeScholarship = scholarship
+    activeCardRect = sourceCard?.getBoundingClientRect() ?? null
     showModal = true
   }
 
@@ -35,32 +37,45 @@
   }
 
   let renderedScholarships: Scholarship[] = $state(sortScholarships(""))
+
+  $effect(() => {
+    if (!showModal) {
+      activeCardRect = null
+    }
+  })
 </script>
 
 <Search
   bind:searchTerm
   on:input={() => (renderedScholarships = sortScholarships(searchTerm))}
 />
+<FilterSelect />
 
 <section class="scholarship-grid">
-  {#each renderedScholarships as scholarship}
-    <IntersectionObserver let:intersecting >
+  {#each renderedScholarships as scholarship (scholarship.id)}
+    <IntersectionObserver let:intersecting>
       {#if intersecting}
-        <ScholarshipCard
-          onclick={() => openScholarship(scholarship)}
-          name={scholarship.name}
-          deadline={scholarship.formattedDeadline()}
-          daysLeft={scholarship.daysUntil()}
-          description={scholarship.description}
-          endowmentRange={scholarship.endowmentRange()}
-          filters={scholarship.displayFilters()}
-        />
+        <div
+          class="scholarship-card-slot"
+          class:source-hidden={showModal && activeScholarship?.id === scholarship.id}
+          aria-hidden={showModal && activeScholarship?.id === scholarship.id}
+        >
+          <ScholarshipCard
+            onclick={(event) => openScholarship(scholarship, event)}
+            name={scholarship.name}
+            deadline={scholarship.formattedDeadline()}
+            daysLeft={scholarship.daysUntil()}
+            description={scholarship.description}
+            endowmentRange={scholarship.endowmentRange()}
+            filters={scholarship.displayFilters()}
+          />
+        </div>
       {/if}
     </IntersectionObserver>
   {/each}
 </section>
 
-<Modal bind:showModal>
+<Modal bind:showModal sourceRect={activeCardRect}>
   {#if activeScholarship}
     <header class="modal-header">
       <div class="meta">
@@ -111,6 +126,15 @@
     display: grid;
     gap: 14px;
     margin: 18px 0 32px;
+  }
+
+  .scholarship-card-slot {
+    transition: opacity 160ms ease;
+  }
+
+  .scholarship-card-slot.source-hidden {
+    opacity: 0;
+    pointer-events: none;
   }
 
   .modal-header {

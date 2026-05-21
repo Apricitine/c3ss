@@ -13,6 +13,8 @@
   }
 
   let props: Props = $props()
+  let descriptionElement: HTMLParagraphElement | null = null
+  let isDescriptionClipped = $state(false)
 
   const countdownClass = () => {
     if (props.daysLeft < 0) return "passed"
@@ -29,6 +31,27 @@
       props.onclick?.(event as unknown as MouseEvent)
     }
   }
+
+  const updateDescriptionClip = () => {
+    if (!descriptionElement) return
+    isDescriptionClipped = descriptionElement.scrollHeight > descriptionElement.clientHeight + 1
+  }
+
+  $effect(() => {
+    props.description
+    queueMicrotask(updateDescriptionClip)
+  })
+
+  $effect(() => {
+    if (!descriptionElement) return
+
+    const observer = new ResizeObserver(updateDescriptionClip)
+
+    observer.observe(descriptionElement)
+    updateDescriptionClip()
+
+    return () => observer.disconnect()
+  })
 </script>
 
 <section
@@ -63,7 +86,19 @@
     </div>
   </div>
 
-  <p class="description">{props.description}</p>
+  <div class="description-block">
+    <div class="description-preview">
+      <p bind:this={descriptionElement} class="description">{props.description}</p>
+
+      {#if isDescriptionClipped}
+        <div class="description-fade" aria-hidden="true"></div>
+      {/if}
+    </div>
+
+    {#if isDescriptionClipped}
+      <span class="description-hint" aria-hidden="true">Click to see more</span>
+    {/if}
+  </div>
 </section>
 
 <style lang="scss">
@@ -230,14 +265,40 @@
     75% { transform: translateX(-0.5px); }
   }
 
-  .description {
+  .description-block {
     grid-column: 1 / -1;
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  .description-preview {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .description {
     margin: 0;
     color: #3b4b6a;
     line-height: 1.5;
     font-size: 0.98rem;
-    display: -webkit-box;
+    max-height: calc(4 * 1em * 1.5);
     overflow: hidden;
+    padding-right: 0.1rem;
+  }
+
+  .description-fade {
+    position: absolute;
+    inset: auto 0 0;
+    height: 3.25rem;
+    background: linear-gradient(180deg, rgba(244, 247, 255, 0) 0%, rgba(249, 251, 255, 0.96) 78%);
+    pointer-events: none;
+  }
+
+  .description-hint {
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: #1d4ed8;
+    letter-spacing: 0.02em;
   }
 
   @media (max-width: 720px) {
