@@ -53,25 +53,21 @@
 
 <section class="scholarship-grid">
   {#each renderedScholarships as scholarship (scholarship.id)}
-    <IntersectionObserver let:intersecting>
-      {#if intersecting}
-        <div
-          class="scholarship-card-slot"
-          class:source-hidden={showModal && activeScholarship?.id === scholarship.id}
-          aria-hidden={showModal && activeScholarship?.id === scholarship.id}
-        >
-          <ScholarshipCard
-            onclick={(event) => openScholarship(scholarship, event)}
-            name={scholarship.name}
-            deadline={scholarship.formattedDeadline()}
-            daysLeft={scholarship.daysUntil()}
-            description={scholarship.description}
-            endowmentRange={scholarship.endowmentRange()}
-            filters={scholarship.displayFilters()}
-          />
-        </div>
-      {/if}
-    </IntersectionObserver>
+    <div
+      class="scholarship-card-slot"
+      class:source-hidden={showModal && activeScholarship?.id === scholarship.id}
+      aria-hidden={showModal && activeScholarship?.id === scholarship.id}
+    >
+      <ScholarshipCard
+        onclick={(event) => openScholarship(scholarship, event)}
+        name={scholarship.name}
+        deadline={scholarship.formattedDeadline()}
+        daysLeft={scholarship.daysUntil()}
+        description={scholarship.description}
+        endowmentRange={scholarship.endowmentRange()}
+        filters={scholarship.displayFilters()}
+      />
+    </div>
   {/each}
 </section>
 
