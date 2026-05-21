@@ -12,52 +12,78 @@
   let showModal = $state(false)
   let activeScholarship = $state<Scholarship | null>(null)
   let searchTerm = $state("")
-  let scholarships = $derived(data.scholarships.map(Scholarship.from))
-  
+  let hasMore = $state(true)
+  let isLoading = $state(false)
+  let page = $state(1)
+  let baseScholarships = $state(data.scholarships.map(Scholarship.from))
+    
+  async function loadMore() {
+  if (isLoading || !hasMore) return
+  isLoading = true
 
-  
+  try {
+    const res = await fetch(`/api/scholarships?page=${page}`)
+    const json = await res.json()
+    const incoming: ScholarshipDTO[] = json.more ?? []
+
+    if (incoming.length === 0) {
+      hasMore = false
+    } else {
+      baseScholarships = [...baseScholarships, ...incoming.map(Scholarship.from)]
+      page += 1
+    }
+  } catch (e) {
+    console.error('Failed to load more:', e)
+  } finally {
+    isLoading = false
+  }
+}
+
+  function handleIntersect() {
+    if (!isLoading && hasMore && !searchTerm.trim()) {
+      loadMore()
+    }
+  }
 
   const openScholarship = (scholarship: Scholarship) => {
     activeScholarship = scholarship
     showModal = true
   }
 
-  const sortScholarships = (term: string): Scholarship[] => {
-    const query = term.trim()
-
-    return [...scholarships]
-      .map((scholarship) => ({
-        scholarship,
-        similarity: fuzzy(query, scholarship.name),
-      }))
-      .sort((firstItem, secondItem) => secondItem.similarity - firstItem.similarity)
-      .map(({ scholarship }) => scholarship)
-  }
-
-  let renderedScholarships: Scholarship[] = $state(sortScholarships(""))
+  let renderedScholarships = $derived(
+    searchTerm.trim()
+      ? [...baseScholarships]
+          .map((s) => ({ s, similarity: fuzzy(searchTerm.trim(), s.name) }))
+          .sort((a, b) => b.similarity - a.similarity)
+          .map(({ s }) => s)
+      : baseScholarships
+  )
 </script>
 
-<Search
-  bind:searchTerm
-  on:input={() => (renderedScholarships = sortScholarships(searchTerm))}
-/>
+<Search bind:searchTerm />
 
 <section class="scholarship-grid">
   {#each renderedScholarships as scholarship}
-    <IntersectionObserver let:intersecting >
-      {#if intersecting}
-        <ScholarshipCard
-          onclick={() => openScholarship(scholarship)}
-          name={scholarship.name}
-          deadline={scholarship.formattedDeadline()}
-          daysLeft={scholarship.daysUntil()}
-          description={scholarship.description}
-          endowmentRange={scholarship.endowmentRange()}
-          filters={scholarship.displayFilters()}
-        />
-      {/if}
-    </IntersectionObserver>
+    <ScholarshipCard
+      onclick={() => openScholarship(scholarship)}
+      name={scholarship.name}
+      deadline={scholarship.formattedDeadline()}
+      daysLeft={scholarship.daysUntil()}
+      description={scholarship.description}
+      endowmentRange={scholarship.endowmentRange()}
+      filters={scholarship.displayFilters()}
+    />
   {/each}
+
+  <!-- {#if hasMore}
+    <IntersectionObserver onintersect={handleIntersect}>
+      <div style="height: 1px"></div>
+    </IntersectionObserver>
+  {/if}
+
+  {#if isLoading}
+    <p style="text-align:center; color: #888;">Loading...</p>
+  {/if} -->
 </section>
 
 <Modal bind:showModal>
