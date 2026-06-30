@@ -24,7 +24,7 @@
   let selectedMinAward = $state(0)
   let selectedMaxAward = $state(0)
   let awardRangeInitialized = $state(false)
-  let scholarships = $derived(data.scholarships.map(Scholarship.from))
+  let scholarships = $derived((data.scholarships ?? []).map(Scholarship.from))
 
   let filterOptions = $derived.by(() => {
     const options = new Map<ScholarshipFilterKey, ScholarshipFilter>()

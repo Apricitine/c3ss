@@ -17,7 +17,7 @@
   let hasMore = $state(true)
   let isLoading = $state(false)
   let page = $state(1)
-  let baseSummers = $state(data.summers.map(Summer.from))
+  let baseSummers = $state((data.summers ?? []).map(Summer.from))
 
   async function loadMore() {
   if (isLoading || !hasMore) return
