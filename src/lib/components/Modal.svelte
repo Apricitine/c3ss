@@ -114,7 +114,8 @@
 
 <style lang="css">
     dialog {
-      width: min(50vw, calc(100vw - 2rem));
+      width: min(760px, calc(100vw - 2rem));
+      max-height: calc(100vh - 2rem);
       border-radius: 18px;
       border: 1px solid rgba(219, 232, 255, 0.8);
       padding: 0;
@@ -135,10 +136,12 @@
       padding: 24px;
       background: rgba(255, 255, 255, 0.9);
       border-radius: 16px;
+      max-height: calc(100vh - 2rem);
+      overflow: auto;
     }
     .modal-body {
       display: grid;
-      gap: 12px;
+      gap: 0;
       color: #0f1f33;
     }
     .close {
@@ -162,6 +165,11 @@
       box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
       outline: none;
       background: rgba(255, 255, 255, 0.95);
+    }
+    @media (max-width: 640px) {
+      .modal-shell {
+        padding: 18px;
+      }
     }
     dialog[open]::backdrop {
       animation: fade 0.2s ease-out;

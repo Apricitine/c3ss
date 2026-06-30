@@ -34,7 +34,6 @@
 
     return () => clearInterval(myInterval)
   })
-
 </script>
 
   <section class="hero">
