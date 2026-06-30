@@ -83,7 +83,6 @@ export type ScholarshipFilter = FilterDefinition & {
 export type ScholarshipDTO = {
   id: number
   name: string
-  created: string
   description: string
   deadline: string
   primary_link: string
@@ -95,7 +94,6 @@ export type ScholarshipDTO = {
 export class Scholarship implements ScholarshipDTO {
   id: number
   name: string
-  created: string
   description: string
   deadline: string
   primary_link: string
@@ -106,7 +104,6 @@ export class Scholarship implements ScholarshipDTO {
   constructor(dto: ScholarshipDTO) {
     this.id = dto.id
     this.name = dto.name
-    this.created = dto.created
     this.description = dto.description
     this.deadline = dto.deadline
     this.primary_link = dto.primary_link
@@ -194,7 +191,6 @@ export class Scholarship implements ScholarshipDTO {
     return {
       id: this.id,
       name: this.name,
-      created: this.created,
       description: this.description,
       deadline: this.deadline,
       primary_link: this.primary_link,
