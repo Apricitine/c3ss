@@ -1,123 +1,106 @@
+
 <script lang="ts">
   import Modal from "$lib/components/Modal.svelte"
-  import SummerCard from "$lib/components/SummerPrograms.svelte"
+  import ScholarshipCard from "$lib/components/Scholarship.svelte"
   import Tag from "$lib/components/Tag.svelte"
   import { fuzzy } from "fast-fuzzy"
-  import { Summer, type SummerDTO } from "$lib/scripts/summerprograms"
+  import { Scholarship, type ScholarshipDTO } from "$lib/scripts/scholarships"
   import Search from "$lib/components/Search.svelte"
   import IntersectionObserver from "$lib/components/IntersectionObserver.svelte"
+  import FilterSelect from "$lib/components/FilterSelect.svelte"
 
-  let { data }: { data: { summers: SummerDTO[] } } = $props()
-  console.log(data)
-
+  let { data }: { data: { scholarships: ScholarshipDTO[] } } = $props()
 
   let showModal = $state(false)
-  let activeSummer = $state<Summer | null>(null)
+  let activeScholarship = $state<Scholarship | null>(null)
+  let activeCardRect = $state<DOMRect | null>(null)
   let searchTerm = $state("")
-  let hasMore = $state(true)
-  let isLoading = $state(false)
-  let page = $state(1)
-  let baseSummers = $state((data.summers ?? []).map(Summer.from))
+  let scholarships = $derived(data.scholarships.map(Scholarship.from))
 
-  async function loadMore() {
-  if (isLoading || !hasMore) return
-  isLoading = true
+  const openScholarship = (scholarship: Scholarship, event: MouseEvent) => {
+    const sourceCard = event.currentTarget instanceof HTMLElement ? event.currentTarget : null
 
-  try {
-    const res = await fetch(`/api/summerprograms?page=${page}`)
-    const json = await res.json()
-    const incoming: SummerDTO[] = json.more ?? []
-
-    if (incoming.length === 0) {
-      hasMore = false
-    } else {
-      baseSummers = [...baseSummers, ...incoming.map(Summer.from)]
-      page += 1
-    }
-  } catch (e) {
-    console.error('Failed to load more:', e)
-  } finally {
-    isLoading = false
-  }
-}
-
-  function handleIntersect() {
-    if (!isLoading && hasMore && !searchTerm.trim()) {
-      loadMore()
-    }
-  }
-
-  const openSummer = (summer: Summer) => {
-    activeSummer = summer
+    activeScholarship = scholarship
+    activeCardRect = sourceCard?.getBoundingClientRect() ?? null
     showModal = true
   }
 
-  let renderedSummers = $derived(
-    searchTerm.trim()
-      ? [...baseSummers]
-          .map((s) => ({ s, similarity: fuzzy(searchTerm.trim(), s.name) }))
-          .sort((a, b) => b.similarity - a.similarity)
-          .map(({ s }) => s)
-      : baseSummers
-  )
+  const sortScholarships = (term: string): Scholarship[] => {
+    const query = term.trim()
 
+    return [...scholarships]
+      .map((scholarship) => ({
+        scholarship,
+        similarity: fuzzy(query, scholarship.name),
+      }))
+      .sort((firstItem, secondItem) => secondItem.similarity - firstItem.similarity)
+      .map(({ scholarship }) => scholarship)
+  }
+
+  let renderedScholarships: Scholarship[] = $state(sortScholarships(""))
+
+  $effect(() => {
+    if (!showModal) {
+      activeCardRect = null
+    }
+  })
 </script>
 
-<Search bind:searchTerm />
+<Search
+  bind:searchTerm
+  on:input={() => (renderedScholarships = sortScholarships(searchTerm))}
+/>
+<FilterSelect />
 
-<section class="summer-grid">
-  {#each renderedSummers as summer}
-    <SummerCard
-      onclick={() => openSummer(summer)}
-      name={summer.name}
-      deadline={summer.formattedDeadline()}
-      daysLeft={summer.daysUntil()}
-      description={summer.description}
-      endowmentRange={summer.estimated_costRange()}
-      filters={summer.displayFilters()}
-    />
+<section class="scholarship-grid">
+  {#each renderedScholarships as scholarship (scholarship.id)}
+    <div
+      class="scholarship-card-slot"
+      class:source-hidden={showModal && activeScholarship?.id === scholarship.id}
+      aria-hidden={showModal && activeScholarship?.id === scholarship.id}
+    >
+      <ScholarshipCard
+        onclick={(event) => openScholarship(scholarship, event)}
+        name={scholarship.name}
+        deadline={scholarship.formattedDeadline()}
+        daysLeft={scholarship.daysUntil()}
+        description={scholarship.description}
+        endowmentRange={scholarship.endowmentRange()}
+        filters={scholarship.displayFilters()}
+      />
+    </div>
   {/each}
-
-  <!-- {#if hasMore}
-    <IntersectionObserver onintersect={handleIntersect}>
-      <div style="height: 1px"></div>
-    </IntersectionObserver>
-  {/if}
-
-  {#if isLoading}
-    <p style="text-align:center; color: #888;">Loading...</p>
-  {/if} -->
 </section>
 
-<Modal bind:showModal>
-  {#if activeSummer}
+<Modal bind:showModal sourceRect={activeCardRect}>
+  {#if activeScholarship}
     <header class="modal-header">
       <div class="meta">
-        <p class="eyebrow">Summer</p>
-        <h2>{activeSummer.name}</h2>
-        {#if activeSummer.estimated_costRange()}
+        <p class="eyebrow">Scholarship</p>
+        <h2>{activeScholarship.name}</h2>
+        {#if activeScholarship.endowmentRange()}
           <p class="award-inline">
-            {activeSummer.estimated_costRange()}
+            {activeScholarship.endowmentRange()}
           </p>
         {/if}
       </div>
       <div class="deadline">
-        <span class={`countdown ${activeSummer.countdownClass()}`}>
-          {activeSummer.countdownLabel()}
+        <span class={`countdown ${activeScholarship.countdownClass()}`}>
+          {activeScholarship.countdownLabel()}
         </span>
         <div class="deadline-text">
           <span>Deadline</span>
-          <strong>{activeSummer.formattedDeadline()}</strong>
+          <strong>{activeScholarship.formattedDeadline()}</strong>
         </div>
       </div>
     </header>
 
-    <p class="description">{activeSummer.description}</p>
+    <p class="description">{activeScholarship.description}</p>
 
-    {#if activeSummer.primary_link}
+    {#if activeScholarship.primary_link}
       <a
         class="primary-link"
-        href={activeSummer.primary_link}
+        href={activeScholarship.primary_link}
         target="_blank"
         rel="noreferrer"
       >
@@ -125,9 +108,9 @@
       </a>
     {/if}
 
-    {#if activeSummer.displayFilters().length}
+    {#if activeScholarship.displayFilters().length}
       <div class="tags">
-        {#each activeSummer.displayFilters() as filter (filter.key)}
+        {#each activeScholarship.displayFilters() as filter (filter.key)}
           <Tag color={filter.color} name={filter.name} description={filter.description} />
         {/each}
       </div>
@@ -136,10 +119,19 @@
 </Modal>
 
 <style lang="scss">
-  .summer-grid {
+  .scholarship-grid {
     display: grid;
     gap: 14px;
     margin: 18px 0 32px;
+  }
+
+  .scholarship-card-slot {
+    transition: opacity 160ms ease;
+  }
+
+  .scholarship-card-slot.source-hidden {
+    opacity: 0;
+    pointer-events: none;
   }
 
   .modal-header {

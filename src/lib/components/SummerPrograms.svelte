@@ -13,8 +13,6 @@
   }
 
   let props: Props = $props()
-  let descriptionElement: HTMLParagraphElement | null = null
-  let isDescriptionClipped = $state(false)
 
   const countdownClass = () => {
     if (props.daysLeft < 0) return "passed"
@@ -31,31 +29,10 @@
       props.onclick?.(event as unknown as MouseEvent)
     }
   }
-
-  const updateDescriptionClip = () => {
-    if (!descriptionElement) return
-    isDescriptionClipped = descriptionElement.scrollHeight > descriptionElement.clientHeight + 1
-  }
-
-  $effect(() => {
-    props.description
-    queueMicrotask(updateDescriptionClip)
-  })
-
-  $effect(() => {
-    if (!descriptionElement) return
-
-    const observer = new ResizeObserver(updateDescriptionClip)
-
-    observer.observe(descriptionElement)
-    updateDescriptionClip()
-
-    return () => observer.disconnect()
-  })
 </script>
 
 <section
-  class="summer-card"
+  class="Summer-card"
   role="button"
   tabindex="0"
   onclick={props.onclick}
@@ -86,23 +63,11 @@
     </div>
   </div>
 
-  <div class="description-block">
-    <div class="description-preview">
-      <p bind:this={descriptionElement} class="description">{props.description}</p>
-
-      {#if isDescriptionClipped}
-        <div class="description-fade" aria-hidden="true"></div>
-      {/if}
-    </div>
-
-    {#if isDescriptionClipped}
-      <span class="description-hint" aria-hidden="true">Click to see more</span>
-    {/if}
-  </div>
+  <p class="description">{props.description}</p>
 </section>
 
 <style lang="scss">
-  .summer-card {
+  .Summer-card {
     display: grid;
     grid-template-columns: 1fr auto;
     gap: 0.75rem 1rem;
@@ -265,44 +230,18 @@
     75% { transform: translateX(-0.5px); }
   }
 
-  .description-block {
-    grid-column: 1 / -1;
-    display: grid;
-    gap: 0.35rem;
-  }
-
-  .description-preview {
-    position: relative;
-    overflow: hidden;
-  }
-
   .description {
+    grid-column: 1 / -1;
     margin: 0;
     color: #3b4b6a;
     line-height: 1.5;
     font-size: 0.98rem;
-    max-height: calc(4 * 1em * 1.5);
+    display: -webkit-box;
     overflow: hidden;
-    padding-right: 0.1rem;
-  }
-
-  .description-fade {
-    position: absolute;
-    inset: auto 0 0;
-    height: 3.25rem;
-    background: linear-gradient(180deg, rgba(244, 247, 255, 0) 0%, rgba(249, 251, 255, 0.96) 78%);
-    pointer-events: none;
-  }
-
-  .description-hint {
-    font-size: 0.78rem;
-    font-weight: 800;
-    color: #1d4ed8;
-    letter-spacing: 0.02em;
   }
 
   @media (max-width: 720px) {
-    .summer-card {
+    .Summer-card {
       grid-template-columns: 1fr;
       gap: 0.5rem;
     }
@@ -323,7 +262,7 @@
   }
 
   @media (max-width: 480px) {
-    .summer-card {
+    .Summer-card {
       padding: 0.9rem 1rem;
       border-radius: 12px;
     }

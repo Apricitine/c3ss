@@ -1,3 +1,4 @@
+
 const formatCurrency = (value: number) =>
   value.toLocaleString("en-US", {
     style: "currency",
