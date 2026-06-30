@@ -12,38 +12,37 @@
   let showModal = $state(false)
   let activeScholarship = $state<Scholarship | null>(null)
   let searchTerm = $state("")
-  let hasMore = $state(true)
-  let isLoading = $state(false)
-  let page = $state(1)
+  // let hasMore = $state(true)
+  // let isLoading = $state(false)
+  // let page = $state(1)
   let baseScholarships = $state(data.scholarships.map(Scholarship.from))
-    
-  async function loadMore() {
-  if (isLoading || !hasMore) return
-  isLoading = true
+//   async function loadMore() {
+//   if (isLoading || !hasMore) return
+//   isLoading = true
 
-  try {
-    const res = await fetch(`/api/scholarships?page=${page}`)
-    const json = await res.json()
-    const incoming: ScholarshipDTO[] = json.more ?? []
+//   try {
+//     const res = await fetch(`/api/scholarships?page=${page}`)
+//     const json = await res.json()
+//     const incoming: ScholarshipDTO[] = json.more ?? []
 
-    if (incoming.length === 0) {
-      hasMore = false
-    } else {
-      baseScholarships = [...baseScholarships, ...incoming.map(Scholarship.from)]
-      page += 1
-    }
-  } catch (e) {
-    console.error('Failed to load more:', e)
-  } finally {
-    isLoading = false
-  }
-}
+//     if (incoming.length === 0) {
+//       hasMore = false
+//     } else {
+//       baseScholarships = [...baseScholarships, ...incoming.map(Scholarship.from)]
+//       page += 1
+//     }
+//   } catch (e) {
+//     console.error('Failed to load more:', e)
+//   } finally {
+//     isLoading = false
+//   }
+// }
 
-  function handleIntersect() {
-    if (!isLoading && hasMore && !searchTerm.trim()) {
-      loadMore()
-    }
-  }
+//   function handleIntersect() {
+//     if (!isLoading && hasMore && !searchTerm.trim()) {
+//       loadMore()
+//     }
+//   }
 
   const openScholarship = (scholarship: Scholarship) => {
     activeScholarship = scholarship

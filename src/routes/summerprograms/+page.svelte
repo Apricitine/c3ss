@@ -1,6 +1,6 @@
 <script lang="ts">
   import Modal from "$lib/components/Modal.svelte"
-  import ScholarshipCard from "$lib/components/Scholarship.svelte"
+  import SummerCard from "$lib/components/SummerPrograms.svelte"
   import Tag from "$lib/components/Tag.svelte"
   import { fuzzy } from "fast-fuzzy"
   import { Summer, type SummerDTO } from "$lib/scripts/summerprograms"
@@ -8,6 +8,8 @@
   import IntersectionObserver from "$lib/components/IntersectionObserver.svelte"
 
   let { data }: { data: { summers: SummerDTO[] } } = $props()
+  console.log(data)
+
 
   let showModal = $state(false)
   let activeSummer = $state<Summer | null>(null)
@@ -16,13 +18,13 @@
   let isLoading = $state(false)
   let page = $state(1)
   let baseSummers = $state(data.summers.map(Summer.from))
-    
+
   async function loadMore() {
   if (isLoading || !hasMore) return
   isLoading = true
 
   try {
-    const res = await fetch(`/api/internships?page=${page}`)
+    const res = await fetch(`/api/summerprograms?page=${page}`)
     const json = await res.json()
     const incoming: SummerDTO[] = json.more ?? []
 
@@ -58,19 +60,20 @@
           .map(({ s }) => s)
       : baseSummers
   )
+
 </script>
 
 <Search bind:searchTerm />
 
 <section class="summer-grid">
   {#each renderedSummers as summer}
-    <ScholarshipCard
+    <SummerCard
       onclick={() => openSummer(summer)}
       name={summer.name}
       deadline={summer.formattedDeadline()}
       daysLeft={summer.daysUntil()}
       description={summer.description}
-      endowmentRange={summer.estCostRange()}
+      endowmentRange={summer.estimated_costRange()}
       filters={summer.displayFilters()}
     />
   {/each}
@@ -92,9 +95,9 @@
       <div class="meta">
         <p class="eyebrow">Summer</p>
         <h2>{activeSummer.name}</h2>
-        {#if activeSummer.estCostRange()}
+        {#if activeSummer.estimated_costRange()}
           <p class="award-inline">
-            {activeSummer.estCostRange()}
+            {activeSummer.estimated_costRange()}
           </p>
         {/if}
       </div>

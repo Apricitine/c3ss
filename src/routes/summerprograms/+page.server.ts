@@ -1,19 +1,11 @@
-import { supabase } from '$lib/supabaseClient'
-import type { SummerDTO } from '$lib/scripts/summerprograms'
-
-const PAGE_SIZE = 5
+import { supabase } from '$lib/supabaseClient';
+import type { SummerDTO } from '$lib/scripts/summerprograms';
 
 export const load = async () => {
-  const { data, error } = await supabase
-    .from('internships')
-    .select<'internships', SummerDTO>()
-    .limit(PAGE_SIZE)
-    .order('deadline', { ascending: true })
-
+  const { data, error } = await supabase.from('summerprograms').select<'summerprograms', SummerDTO>();
   if (error) {
-    console.error('Error loading internships:', error.message)
-    return { scholarships: [] }
+    console.error('Error loading summer programs:', error.message);
+    return { summers: [] };
   }
-
-  return { scholarships: data ?? [] }
+  return { summers: data ?? [] }
 }

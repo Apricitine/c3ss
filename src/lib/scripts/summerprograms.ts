@@ -5,11 +5,11 @@ const formatCurrency = (value: number) =>
     maximumFractionDigits: 0,
   })
 
-export type EstCostRange = [number, number | "free"]
+export type estimated_costRange = [number, number | "free"]
 
-export type EstCost = {
+export type Estimated_cost = {
   place: number
-  amount: number | EstCostRange
+  amount: number | estimated_costRange
 }
 
 export const FILTER_COLORS = {
@@ -49,7 +49,7 @@ const filterDefinitions = {
   },
 //   experienceincluded: {
 //     name: "Experience Included",
-//     description: "The summer program offers an additional experience on top of the financial estCost.",
+//     description: "The summer program offers an additional experience on top of the financial estimated_cost.",
 //     color: "red",
 //   },
   literaryarts: {
@@ -89,7 +89,8 @@ export type SummerDTO = {
   primary_link: string
   filters?: SummerFilterKey[] | null
   availableGrades: number[]
-  estCost: EstCost[]
+  estimated_cost: Estimated_cost[]
+  location?: string
 }
 
 export class Summer implements SummerDTO {
@@ -101,8 +102,8 @@ export class Summer implements SummerDTO {
   primary_link: string
   filters: SummerFilterKey[]
   availableGrades: number[]
-  estCost: EstCost[]
-
+  estimated_cost: Estimated_cost[]
+  location?: string
   constructor(dto: SummerDTO) {
     this.id = dto.id
     this.name = dto.name
@@ -112,7 +113,8 @@ export class Summer implements SummerDTO {
     this.primary_link = dto.primary_link
     this.filters = dto.filters ?? []
     this.availableGrades = dto.availableGrades
-    this.estCost = dto.estCost ?? []
+    this.estimated_cost = dto.estimated_cost ?? []
+    this.location = dto.location
   }
 
   static from(dto: SummerDTO) {
@@ -154,13 +156,13 @@ export class Summer implements SummerDTO {
     return `${days} days`
   }
 
-  estCostRange() {
+  estimated_costRange() {
     let lowest = Number.POSITIVE_INFINITY
     let highest: number | "free" = Number.NEGATIVE_INFINITY
 
-    if (!this.estCost || this.estCost.length === 0) return null
+    if (!this.estimated_cost || this.estimated_cost.length === 0) return null
 
-    for (const prize of this.estCost) {
+    for (const prize of this.estimated_cost) {
       const [min, max] = Array.isArray(prize.amount)
         ? prize.amount
         : [prize.amount, prize.amount]
@@ -200,7 +202,8 @@ export class Summer implements SummerDTO {
       primary_link: this.primary_link,
       filters: this.filters,
       availableGrades: this.availableGrades,
-      estCost: this.estCost,
+      estimated_cost: this.estimated_cost,
+      location: this.location,
     }
   }
 }
