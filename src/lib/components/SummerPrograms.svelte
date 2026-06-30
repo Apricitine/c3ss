@@ -7,7 +7,7 @@
     deadline: string
     daysLeft: number
     description: string
-    endowmentRange?: string | null
+    estimated_cost?: string | null
     filters?: SummerFilter[]
     onclick?: (event: MouseEvent) => void
   }
@@ -41,8 +41,8 @@
   <div class="header">
     <div class="header-left">
       <div class="name">{props.name}</div>
-      {#if props.endowmentRange}
-        <span class="award">{props.endowmentRange}</span>
+      {#if props.estimated_cost}
+        <span class="award">{props.estimated_cost}</span>
       {/if}
       {#if props.filters?.length}
         <div class="filter-tags">
