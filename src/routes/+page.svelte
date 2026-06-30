@@ -4,7 +4,7 @@
 
   let { data }: { data: { scholarships: ScholarshipDTO[] } } = $props()
 
-  const scholarships = $derived(data.scholarships.map(Scholarship.from))
+  const scholarships = $derived((data.scholarships ?? []).map(Scholarship.from))
 
   const upcomingScholarships = $derived(
     scholarships
