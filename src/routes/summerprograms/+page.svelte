@@ -1,23 +1,22 @@
 
 <script lang="ts">
   import Modal from "$lib/components/Modal.svelte"
-  import ScholarshipCard from "$lib/components/Scholarship.svelte"
+  import SummerProgramCard from "$lib/components/SummerPrograms.svelte"
   import Tag from "$lib/components/Tag.svelte"
   import { fuzzy } from "fast-fuzzy"
-  import { Scholarship, type ScholarshipDTO } from "$lib/scripts/scholarships"
+  import { Summer, type SummerDTO } from "$lib/scripts/summerprograms"
   import Search from "$lib/components/Search.svelte"
   import IntersectionObserver from "$lib/components/IntersectionObserver.svelte"
-  import FilterSelect from "$lib/components/FilterSelect.svelte"
 
-  let { data }: { data: { scholarships: ScholarshipDTO[] } } = $props()
+  let { data }: { data: { summers: SummerDTO[] } } = $props()
 
   let showModal = $state(false)
-  let activeScholarship = $state<Scholarship | null>(null)
+  let activeScholarship = $state<Summer | null>(null)
   let activeCardRect = $state<DOMRect | null>(null)
   let searchTerm = $state("")
-  let scholarships = $derived(data.scholarships.map(Scholarship.from))
+  let scholarships = $derived(data.summers.map(Summer.from))
 
-  const openScholarship = (scholarship: Scholarship, event: MouseEvent) => {
+  const openScholarship = (scholarship: Summer, event: MouseEvent) => {
     const sourceCard = event.currentTarget instanceof HTMLElement ? event.currentTarget : null
 
     activeScholarship = scholarship
@@ -25,7 +24,7 @@
     showModal = true
   }
 
-  const sortScholarships = (term: string): Scholarship[] => {
+  const sortScholarships = (term: string): Summer[] => {
     const query = term.trim()
 
     return [...scholarships]
@@ -37,7 +36,7 @@
       .map(({ scholarship }) => scholarship)
   }
 
-  let renderedScholarships: Scholarship[] = $state(sortScholarships(""))
+  let renderedScholarships: Summer[] = $state(sortScholarships(""))
 
   $effect(() => {
     if (!showModal) {
@@ -50,7 +49,6 @@
   bind:searchTerm
   on:input={() => (renderedScholarships = sortScholarships(searchTerm))}
 />
-<FilterSelect />
 
 <section class="scholarship-grid">
   {#each renderedScholarships as scholarship (scholarship.id)}
@@ -59,13 +57,13 @@
       class:source-hidden={showModal && activeScholarship?.id === scholarship.id}
       aria-hidden={showModal && activeScholarship?.id === scholarship.id}
     >
-      <ScholarshipCard
+      <SummerProgramCard
         onclick={(event) => openScholarship(scholarship, event)}
         name={scholarship.name}
         deadline={scholarship.formattedDeadline()}
         daysLeft={scholarship.daysUntil()}
         description={scholarship.description}
-        endowmentRange={scholarship.endowmentRange()}
+        estimated_cost={scholarship.estimated_costRange()}
         filters={scholarship.displayFilters()}
       />
     </div>
@@ -78,9 +76,9 @@
       <div class="meta">
         <p class="eyebrow">Scholarship</p>
         <h2>{activeScholarship.name}</h2>
-        {#if activeScholarship.endowmentRange()}
+        {#if activeScholarship.estimated_costRange()}
           <p class="award-inline">
-            {activeScholarship.endowmentRange()}
+            {activeScholarship.estimated_costRange()}
           </p>
         {/if}
       </div>
