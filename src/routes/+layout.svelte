@@ -2,7 +2,6 @@
   import favicon from "$lib/assets/favicon.svg"
 
   let { children } = $props<{ children: () => unknown }>()
-  
 </script>
 
 <svelte:head>
@@ -51,9 +50,19 @@
   :global(body) {
     margin: 0;
     min-height: 100vh;
-    background: radial-gradient(110% 60% at 50% -10%, #e4edff 0%, #eef3ff 45%, #ffffff 100%);
+    background: radial-gradient(
+      110% 60% at 50% -10%,
+      #e4edff 0%,
+      #eef3ff 45%,
+      #ffffff 100%
+    );
     color: var(--text);
-    font-family: "Inter", "Lato", system-ui, -apple-system, sans-serif;
+    font-family:
+      "Inter",
+      "Lato",
+      system-ui,
+      -apple-system,
+      sans-serif;
   }
 
   .app-shell {
@@ -119,7 +128,11 @@
     text-decoration: none;
     color: var(--text);
     font-weight: 700;
-    transition: background 120ms ease, color 120ms ease, transform 120ms ease, box-shadow 120ms ease;
+    transition:
+      background 120ms ease,
+      color 120ms ease,
+      transform 120ms ease,
+      box-shadow 120ms ease;
   }
 
   .nav-link:hover,
@@ -148,5 +161,11 @@
       justify-content: flex-start;
       flex-wrap: wrap;
     }
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
   }
 </style>
