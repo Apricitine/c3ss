@@ -22,6 +22,7 @@
 	},
 	"dependencies": {
 		"@supabase/supabase-js": "^2.106.2",
+		"@sveltejs/enhanced-img": "^0.11.0",
 		"fast-fuzzy": "^1.12.0"
 	}
 }

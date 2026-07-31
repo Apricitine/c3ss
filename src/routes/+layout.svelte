@@ -17,7 +17,13 @@
 <div class="app-shell">
   <header class="topbar">
     <div class="brand">
-      <span class="dot"></span>
+      <span class="logo-container"
+        ><enhanced:img
+          class="logo"
+          src="$lib/assets/logo.png"
+          alt="c3 logo"
+        /></span
+      >
       <div>
         <p class="eyebrow">College & Career Center</p>
         <p class="title">C3 Opportunities</p>
@@ -94,12 +100,14 @@
     align-items: center;
   }
 
-  .dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent), var(--primary));
-    box-shadow: 0 0 0 6px rgba(56, 189, 248, 0.22);
+  .logo-container {
+    width: 48px;
+    height: 48px;
+
+    .logo {
+      width: 48px;
+      height: 48px;
+    }
   }
 
   .title {
