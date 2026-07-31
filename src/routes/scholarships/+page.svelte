@@ -11,7 +11,7 @@
     type ScholarshipFilterKey,
   } from "$lib/scripts/scholarships"
   import Search from "$lib/components/Search.svelte"
-  import FilterSelect from "$lib/components/FilterSelect.svelte"
+  import FilterSelect from "$lib/components/FilterSelectScholarship.svelte"
 
   let { data }: { data: { scholarships: ScholarshipDTO[] } } = $props()
 
