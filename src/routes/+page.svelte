@@ -8,9 +8,12 @@
 
   const upcomingScholarships = $derived(
     scholarships
-      .map((scholarship) => ({ scholarship, daysLeft: scholarship.daysUntil() }))
+      .map((scholarship) => ({
+        scholarship,
+        daysLeft: scholarship.daysUntil(),
+      }))
       .filter(({ daysLeft }) => daysLeft > 0)
-      .sort((first, second) => first.daysLeft - second.daysLeft)
+      .sort((first, second) => first.daysLeft - second.daysLeft),
   )
 
   let index = $state(0)
@@ -36,40 +39,47 @@
   })
 </script>
 
-  <section class="hero">
-    <p class="eyebrow">Welcome</p>
-    <h1>Your one-stop reference for scholarships and internships at LCHS</h1>
-    <p class="lede">
-      Discover opportunities tailored to you LCHS students! Don't waste time on irrelevant stuff.
-    </p>
+<section class="hero">
+  <p class="eyebrow">Welcome</p>
+  <h1>Your one-stop reference for scholarships and internships at LCHS</h1>
+  <p class="lede">
+    Discover opportunities tailored to you LCHS students! Don't waste time on
+    irrelevant stuff.
+  </p>
 
-    <div class="actions">
-      <a class="button primary" href="/scholarships">Explore scholarships</a>
-      <a class="button ghost" href="/internships">Browse internships</a>
-    </div>
+  <div class="actions">
+    <a class="button primary" href="/scholarships">Explore scholarships</a>
+    <a class="button ghost" href="/internships">Browse internships</a>
+  </div>
 
-    <div class="highlights">
-      <div class="tile">
-          {#key scholarshipName}
-            <div in:fly={{ y: 0, duration: 500 }} out:fade={{ duration: 300 }} class="card">
-              <span class="pill">UPCOMING!</span>
-              <p class="title">{scholarshipName}</p>
-              <p class="copy">{scholarshipDeadline}</p>
-            </div>
-          {/key}
-      </div>
-      <div class="tile">
-        <span id="pill"class="pill">clear</span>
-        <p class="title">all the info</p>
-        <p class="copy">all the info you need to get working on those applications</p>
-      </div>
-      <div class="tile">
-        <span class="pill">easieness</span>
-        <p class="title">detaisl</p>
-        <p class="copy">search easily and funly</p>
-      </div>
+  <div class="highlights">
+    <div class="tile">
+      {#key scholarshipName}
+        <div
+          in:fly={{ y: 0, duration: 500 }}
+          out:fade={{ duration: 300 }}
+          class="card"
+        >
+          <span class="pill">UPCOMING!</span>
+          <p class="title">{scholarshipName}</p>
+          <p class="copy">{scholarshipDeadline}</p>
+        </div>
+      {/key}
     </div>
-  </section>
+    <div class="tile">
+      <span id="pill" class="pill">clear</span>
+      <p class="title">all the info</p>
+      <p class="copy">
+        all the info you need to get working on those applications
+      </p>
+    </div>
+    <div class="tile">
+      <span class="pill">easieness</span>
+      <p class="title">detaisl</p>
+      <p class="copy">search easily and funly</p>
+    </div>
+  </div>
+</section>
 
 <style lang="scss">
   .hero {
@@ -80,17 +90,60 @@
     box-shadow: 0 24px 48px rgba(16, 46, 116, 0.32);
     position: relative;
     overflow: hidden;
-  }
 
-  .hero::after {
-    content: "";
-    position: absolute;
-    inset: -50% 40% auto auto;
-    width: 260px;
-    height: 260px;
-    background: radial-gradient(circle, rgba(56, 189, 248, 0.24), transparent 60%);
-    filter: blur(10px);
-    transform: rotate(-12deg);
+    &::after {
+      content: "";
+      position: absolute;
+      inset: -50% 40% auto auto;
+      width: 260px;
+      height: 260px;
+      background: radial-gradient(
+        circle,
+        rgba(56, 189, 248, 0.24),
+        transparent 60%
+      );
+      filter: blur(10px);
+      transform: rotate(-12deg);
+    }
+
+    .highlights {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+    margin-top: 10px;
+    position: relative;
+    z-index: 1;
+
+    .tile {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.28);
+      border-radius: 16px;
+      padding: 14px 16px;
+      box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.14);
+
+      .title {
+        margin: 10px 0 6px;
+        font-weight: 700;
+        color: #f3f7ff;
+      }
+
+      .copy {
+        margin: 0;
+        color: rgba(243, 247, 255, 0.82);
+        line-height: 1.4;
+      }
+    }
+    .pill {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.3);
+      color: #0b1f3b;
+      font-weight: 700;
+      font-size: 0.78rem;
+      letter-spacing: 0.02em;
+    }
+  }
   }
 
   .eyebrow {
@@ -131,68 +184,34 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease, color 120ms ease;
+    transition:
+      transform 120ms ease,
+      box-shadow 120ms ease,
+      background 120ms ease,
+      color 120ms ease;
     border: 1px solid transparent;
+
+    &.primary {
+      background: linear-gradient(135deg, #38bdf8, #1d4ed8);
+      color: #0b1f3b;
+      box-shadow: 0 14px 30px rgba(37, 99, 235, 0.35);
+    }
+
+    &.ghost {
+      background: rgba(56, 189, 248, 0.14);
+      color: #f3f7ff;
+      border-color: rgba(56, 189, 248, 0.32);
+    }
+
+    &.button:hover,
+    &.button:focus-visible {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 34px rgba(37, 99, 235, 0.26);
+      outline: none;
+    }
   }
 
-  .button.primary {
-    background: linear-gradient(135deg, #38bdf8, #1d4ed8);
-    color: #0b1f3b;
-    box-shadow: 0 14px 30px rgba(37, 99, 235, 0.35);
-  }
-
-  .button.ghost {
-    background: rgba(56, 189, 248, 0.14);
-    color: #f3f7ff;
-    border-color: rgba(56, 189, 248, 0.32);
-  }
-
-  .button:hover,
-  .button:focus-visible {
-    transform: translateY(-1px);
-    box-shadow: 0 16px 34px rgba(37, 99, 235, 0.26);
-    outline: none;
-  }
-
-  .highlights {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 14px;
-    margin-top: 10px;
-    position: relative;
-    z-index: 1;
-  }
-
-  .tile {
-    background: rgba(255, 255, 255, 0.12);
-    border: 1px solid rgba(56, 189, 248, 0.28);
-    border-radius: 16px;
-    padding: 14px 16px;
-    box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.14);
-  }
-
-  .pill {
-    display: inline-block;
-    padding: 6px 10px;
-    border-radius: 999px;
-    background: rgba(56, 189, 248, 0.3);
-    color: #0b1f3b;
-    font-weight: 700;
-    font-size: 0.78rem;
-    letter-spacing: 0.02em;
-  }
-
-  .tile .title {
-    margin: 10px 0 6px;
-    font-weight: 700;
-    color: #f3f7ff;
-  }
-
-  .tile .copy {
-    margin: 0;
-    color: rgba(243, 247, 255, 0.82);
-    line-height: 1.4;
-  }
+  
 
   @media (max-width: 640px) {
     .hero {
