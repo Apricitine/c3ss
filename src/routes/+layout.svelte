@@ -42,9 +42,8 @@
 </div>
 
 <style lang="scss">
-  @use "/src/lib/styles/global.scss";
+  @use "$lib/styles/global.scss" as *;
 
-  $p
   *,
   *::before,
   *::after {
@@ -54,13 +53,8 @@
   :global(body) {
     margin: 0;
     min-height: 100vh;
-    background: radial-gradient(
-      110% 60% at 50% -10%,
-      #e4edff 0%,
-      #eef3ff 45%,
-      #ffffff 100%
-    );
-    color: var(--text);
+    background: $bg;
+    color: $text;
     font-family:
       "Inter",
       "Lato",
@@ -81,9 +75,9 @@
     justify-content: space-between;
     padding: 16px 18px;
     border-radius: 18px;
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(29, 78, 216, 0.18);
-    box-shadow: 0 18px 40px rgba(23, 61, 140, 0.12);
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid $nav-border;
+    box-shadow: 0 18px 40px $nav-shadow;
     backdrop-filter: blur(12px);
     position: sticky;
     top: 18px;
@@ -111,7 +105,7 @@
   .title {
     font-weight: 800;
     margin: 0;
-    color: var(global.$primary-dark);
+    color: $primary;
   }
 
   .eyebrow {
@@ -119,7 +113,7 @@
     font-size: 0.75rem;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: rgba(11, 29, 54, 0.6);
+    color: $eyebrow;
   }
 
   .nav {
@@ -132,7 +126,7 @@
     padding: 10px 14px;
     border-radius: 12px;
     text-decoration: none;
-    color: var(--text);
+    color: $text;
     font-weight: 700;
     transition:
       background 120ms ease,
@@ -143,11 +137,11 @@
 
   .nav-link:hover,
   .nav-link:focus-visible {
-    background: rgba(56, 189, 248, 0.18);
-    color: var(--primary);
+    background: $link-focus;
+    color: $primary;
     outline: none;
     transform: translateY(-1px);
-    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.16);
+    box-shadow: 0 10px 20px $link-shadow;
   }
 
   .page {
