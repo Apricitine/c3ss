@@ -42,15 +42,13 @@
 </div>
 
 <style lang="scss">
-  :global(:root) {
-    --bg: #eaf2ff;
-    --bg-strong: #dbe8ff;
-    --surface: #f7faff;
-    --primary: #1d4ed8;
-    --primary-dark: #0f3ca4;
-    --accent: #38bdf8;
-    --text: #0b1d36;
-    --muted: #4b628a;
+  @use "/src/lib/styles/global.scss";
+
+  $p
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
   }
 
   :global(body) {
@@ -113,7 +111,7 @@
   .title {
     font-weight: 800;
     margin: 0;
-    color: var(--primary-dark);
+    color: var(global.$primary-dark);
   }
 
   .eyebrow {
