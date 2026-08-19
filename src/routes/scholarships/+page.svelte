@@ -411,6 +411,7 @@
 
   .scholarship-card-slot {
     transition: opacity 160ms ease;
+    max-width: 75vw;
   }
 
   .scholarship-card-slot.source-hidden {

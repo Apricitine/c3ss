@@ -64,9 +64,9 @@
   }
 
   .app-shell {
-    max-width: 80vw;
+    max-width: 75vw;
     margin: 0 auto;
-    padding: 32px 20px 64px;
+    padding: 32px 0px 64px;
   }
 
   .topbar {

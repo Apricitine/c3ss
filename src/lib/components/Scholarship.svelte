@@ -102,6 +102,10 @@
 </section>
 
 <style lang="scss">
+  * {
+    box-sizing: border-box;
+  }
+
   .scholarship-card {
     display: grid;
     grid-template-columns: 1fr auto;
