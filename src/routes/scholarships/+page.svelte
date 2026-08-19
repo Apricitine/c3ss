@@ -35,7 +35,9 @@
       }
     }
 
-    return [...options.values()].sort((first, second) => first.name.localeCompare(second.name))
+    return [...options.values()].sort((first, second) =>
+      first.name.localeCompare(second.name),
+    )
   })
 
   const getFiniteAwardValues = (scholarship: Scholarship) =>
@@ -57,10 +59,14 @@
         : [prize.amount, prize.amount]
 
       lowest = Math.min(lowest, min)
-      highest = max === "full-tuition" ? Number.POSITIVE_INFINITY : Math.max(highest, max)
+      highest =
+        max === "full-tuition"
+          ? Number.POSITIVE_INFINITY
+          : Math.max(highest, max)
     }
 
-    if (!Number.isFinite(lowest) || highest === Number.NEGATIVE_INFINITY) return null
+    if (!Number.isFinite(lowest) || highest === Number.NEGATIVE_INFINITY)
+      return null
 
     return { min: lowest, max: highest }
   }
@@ -78,20 +84,27 @@
 
   let isAwardRangeFiltered = $derived(
     awardBounds.max > awardBounds.min &&
-      (selectedMinAward > awardBounds.min || selectedMaxAward < awardBounds.max)
+      (selectedMinAward > awardBounds.min ||
+        selectedMaxAward < awardBounds.max),
   )
 
-  let activeFilterCount = $derived(selectedFilters.length + (isAwardRangeFiltered ? 1 : 0))
+  let activeFilterCount = $derived(
+    selectedFilters.length + (isAwardRangeFiltered ? 1 : 0),
+  )
 
   const openScholarship = (scholarship: Scholarship, event: MouseEvent) => {
-    const sourceCard = event.currentTarget instanceof HTMLElement ? event.currentTarget : null
+    const sourceCard =
+      event.currentTarget instanceof HTMLElement ? event.currentTarget : null
 
     activeScholarship = scholarship
     activeCardRect = sourceCard?.getBoundingClientRect() ?? null
     showModal = true
   }
 
-  const sortScholarships = (term: string, source: Scholarship[]): Scholarship[] => {
+  const sortScholarships = (
+    term: string,
+    source: Scholarship[],
+  ): Scholarship[] => {
     const query = term.trim()
 
     if (!query) return [...source]
@@ -101,7 +114,9 @@
         scholarship,
         similarity: fuzzy(query, scholarship.name),
       }))
-      .sort((firstItem, secondItem) => secondItem.similarity - firstItem.similarity)
+      .sort(
+        (firstItem, secondItem) => secondItem.similarity - firstItem.similarity,
+      )
       .map(({ scholarship }) => scholarship)
   }
 
@@ -112,11 +127,17 @@
   }
 
   const setMinAward = (value: number) => {
-    selectedMinAward = Math.min(Math.max(value, awardBounds.min), selectedMaxAward)
+    selectedMinAward = Math.min(
+      Math.max(value, awardBounds.min),
+      selectedMaxAward,
+    )
   }
 
   const setMaxAward = (value: number) => {
-    selectedMaxAward = Math.max(Math.min(value, awardBounds.max), selectedMinAward)
+    selectedMaxAward = Math.max(
+      Math.min(value, awardBounds.max),
+      selectedMinAward,
+    )
   }
 
   const resetFilters = () => {
@@ -125,23 +146,30 @@
     selectedMaxAward = awardBounds.max
   }
 
-  const formatGradeList = (grades: number[]) => grades.map((grade) => `Grade ${grade}`).join(", ")
+  const formatGradeList = (grades: number[]) =>
+    grades.map((grade) => `Grade ${grade}`).join(", ")
 
   const matchesFilters = (scholarship: Scholarship) => {
     const hasSelectedFilters =
       selectedFilters.length === 0 ||
-      selectedFilters.every((selectedFilter) => scholarship.filters.includes(selectedFilter))
+      selectedFilters.every((selectedFilter) =>
+        scholarship.filters.includes(selectedFilter),
+      )
 
     if (!hasSelectedFilters) return false
     if (!isAwardRangeFiltered) return true
 
     const awardRange = getAwardRange(scholarship)
 
-    return awardRange !== null && awardRange.max >= selectedMinAward && awardRange.min <= selectedMaxAward
+    return (
+      awardRange !== null &&
+      awardRange.max >= selectedMinAward &&
+      awardRange.min <= selectedMaxAward
+    )
   }
 
   let renderedScholarships = $derived.by(() =>
-    sortScholarships(searchTerm, scholarships.filter(matchesFilters))
+    sortScholarships(searchTerm, scholarships.filter(matchesFilters)),
   )
 
   $effect(() => {
@@ -178,10 +206,13 @@
 </div>
 
 {#if filtersOpen}
-  <div class="filter-transition" transition:slide={{ duration: 180, axis: "y" }}>
+  <div
+    class="filter-transition"
+    transition:slide={{ duration: 180, axis: "y" }}
+  >
     <FilterSelect
       filters={filterOptions}
-      selectedFilters={selectedFilters}
+      {selectedFilters}
       minAward={selectedMinAward}
       maxAward={selectedMaxAward}
       rangeMin={awardBounds.min}
@@ -201,7 +232,8 @@
     {#each renderedScholarships as scholarship (scholarship.id)}
       <div
         class="scholarship-card-slot"
-        class:source-hidden={showModal && activeScholarship?.id === scholarship.id}
+        class:source-hidden={showModal &&
+          activeScholarship?.id === scholarship.id}
         aria-hidden={showModal && activeScholarship?.id === scholarship.id}
       >
         <ScholarshipCard
@@ -261,7 +293,8 @@
         {#if activeScholarship.availableGrades?.length}
           <div class="detail-tile">
             <span>Eligible grades</span>
-            <strong>{formatGradeList(activeScholarship.availableGrades)}</strong>
+            <strong>{formatGradeList(activeScholarship.availableGrades)}</strong
+            >
           </div>
         {/if}
       </section>
@@ -289,7 +322,11 @@
               <p class="section-label">Categories</p>
               <div class="tags">
                 {#each activeScholarship.displayFilters() as filter (filter.key)}
-                  <Tag color={filter.color} name={filter.name} description={filter.description} />
+                  <Tag
+                    color={filter.color}
+                    name={filter.name}
+                    description={filter.description}
+                  />
                 {/each}
               </div>
             </div>
@@ -315,11 +352,12 @@
     min-width: 0;
     margin: 0;
     padding: 0;
+    height: 7vh;
+    min-height: 52px;
   }
 
   .search-tools :global(.search-bar) {
     width: 100%;
-    min-height: 52px;
   }
 
   .filter-tab {
@@ -335,9 +373,17 @@
     background: rgba(255, 255, 255, 0.86);
     color: $primary;
     cursor: pointer;
-    font: 800 0.94rem/1 "Inter", system-ui, -apple-system, sans-serif;
+    font:
+      800 0.94rem/1 "Inter",
+      system-ui,
+      -apple-system,
+      sans-serif;
     box-shadow: 0 12px 26px $nav-shadow;
-    transition: background 140ms ease, border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
+    transition:
+      background 140ms ease,
+      border-color 140ms ease,
+      box-shadow 140ms ease,
+      transform 140ms ease;
     z-index: 0;
   }
 
@@ -369,7 +415,9 @@
     border-radius: 999px;
     background: currentColor;
     box-shadow: 0 6px 0 currentColor;
-    transition: transform 140ms ease, width 140ms ease;
+    transition:
+      transform 140ms ease,
+      width 140ms ease;
   }
 
   .filter-icon::before {
@@ -397,7 +445,7 @@
     height: 22px;
     padding: 0 6px;
     border-radius: 999px;
-    background: var(--primary);
+    background: $primary;
     color: #ffffff;
     font-size: 0.78rem;
   }
@@ -429,10 +477,10 @@
     min-height: 220px;
     margin: 18px 0 32px;
     padding: 30px;
-    border: 1px dashed rgba(29, 78, 216, 0.28);
+    border: 1px dashed $nav-border;
     border-radius: 16px;
     background: rgba(255, 255, 255, 0.72);
-    color: var(--muted);
+    color: $eyebrow;
     text-align: center;
   }
 
@@ -447,7 +495,11 @@
     background: rgba(56, 189, 248, 0.16);
     color: var(--primary-dark);
     cursor: pointer;
-    font: 800 0.9rem/1 "Inter", system-ui, -apple-system, sans-serif;
+    font:
+      800 0.9rem/1 "Inter",
+      system-ui,
+      -apple-system,
+      sans-serif;
     padding: 10px 12px;
   }
 
@@ -694,7 +746,9 @@
     text-decoration: none;
     font-weight: 800;
     box-shadow: 0 12px 26px rgba(37, 99, 235, 0.22);
-    transition: transform 130ms ease, box-shadow 130ms ease;
+    transition:
+      transform 130ms ease,
+      box-shadow 130ms ease;
   }
 
   .primary-link:hover,
