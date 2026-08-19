@@ -301,6 +301,8 @@
 </Modal>
 
 <style lang="scss">
+  @use "$lib/styles/global.scss" as *;
+
   .search-tools {
     display: flex;
     align-items: stretch;
@@ -328,22 +330,23 @@
     min-width: 124px;
     min-height: 52px;
     padding: 12px 15px;
-    border: 1px solid rgba(29, 78, 216, 0.22);
+    border: 1px solid $nav-border;
     border-radius: 14px;
     background: rgba(255, 255, 255, 0.86);
-    color: var(--primary-dark);
+    color: $primary;
     cursor: pointer;
     font: 800 0.94rem/1 "Inter", system-ui, -apple-system, sans-serif;
-    box-shadow: 0 12px 26px rgba(23, 61, 140, 0.1);
+    box-shadow: 0 12px 26px $nav-shadow;
     transition: background 140ms ease, border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
+    z-index: 0;
   }
 
   .filter-tab:hover,
   .filter-tab:focus-visible,
   .filter-tab.is-active {
-    background: rgba(56, 189, 248, 0.18);
-    border-color: rgba(29, 78, 216, 0.42);
-    box-shadow: 0 15px 30px rgba(37, 99, 235, 0.14);
+    background: $link-focus;
+    border-color: darken($nav-border, 30);
+    box-shadow: 0 15px 30px $link-shadow;
     outline: none;
     transform: translateY(-1px);
   }
@@ -374,7 +377,7 @@
   }
 
   .filter-icon::after {
-    bottom: 0;
+    bottom: 6px;
     width: 12px;
   }
 
