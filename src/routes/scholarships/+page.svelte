@@ -263,11 +263,6 @@
           <p class="eyebrow">Scholarship</p>
           <h2>{activeScholarship.name}</h2>
         </div>
-
-        <div class={`status-card ${activeScholarship.countdownClass()}`}>
-          <span>{activeScholarship.countdownLabel()}</span>
-          <strong>{activeScholarship.formattedDeadline()}</strong>
-        </div>
       </header>
 
       <section class="detail-grid" aria-label="Scholarship details">
@@ -490,10 +485,10 @@
   }
 
   .empty-state button {
-    border: 1px solid rgba(29, 78, 216, 0.2);
+    border: 1px solid $nav-border;
     border-radius: 10px;
-    background: rgba(56, 189, 248, 0.16);
-    color: var(--primary-dark);
+    background: $link-focus;
+    color: $primary;
     cursor: pointer;
     font:
       800 0.9rem/1 "Inter",
@@ -514,7 +509,7 @@
     gap: 18px;
     align-items: start;
     padding: 0 44px 18px 0;
-    border-bottom: 1px solid rgba(29, 78, 216, 0.12);
+    border-bottom: 1px solid $nav-border;
   }
 
   .meta {
@@ -525,7 +520,7 @@
 
   .meta h2 {
     margin: 0;
-    color: #0b1d36;
+    color: $primary;
     font-size: clamp(1.35rem, 2.5vw, 1.9rem);
     line-height: 1.18;
   }
@@ -533,7 +528,7 @@
   .eyebrow,
   .section-label {
     margin: 0;
-    color: rgba(15, 60, 164, 0.82);
+    color: $primary;
     font-size: 0.72rem;
     font-weight: 800;
     letter-spacing: 0.08em;
@@ -546,10 +541,10 @@
     gap: 4px;
     min-width: 132px;
     padding: 12px 14px;
-    border: 1px solid rgba(29, 78, 216, 0.16);
+    border: 1px solid $nav-border;
     border-radius: 14px;
-    background: rgba(56, 189, 248, 0.13);
-    color: #0b2f66;
+    background: $link-focus;
+    color: $text;
     text-align: right;
   }
 
@@ -561,23 +556,23 @@
   }
 
   .status-card strong {
-    color: #1d4ed8;
+    color: $primary;
     font-size: 1rem;
   }
 
   .status-card.calm {
-    background: rgba(104, 181, 123, 0.14);
-    border-color: rgba(104, 181, 123, 0.34);
+    background: $calm;
+    border-color: darken($calm, 10);
   }
 
   .status-card.warm {
-    background: rgba(246, 195, 68, 0.2);
-    border-color: rgba(246, 195, 68, 0.42);
+    background: $warm;
+    border-color: darken($warm, 10);
   }
 
   .status-card.hot {
-    background: rgba(179, 38, 30, 0.12);
-    border-color: rgba(179, 38, 30, 0.26);
+    background: $hot;
+    border-color: darken($hot, 10);
   }
 
   .status-card.passed {
@@ -598,13 +593,13 @@
     gap: 7px;
     min-height: 82px;
     padding: 12px;
-    border: 1px solid rgba(29, 78, 216, 0.12);
+    border: 1px solid $nav-border;
     border-radius: 14px;
     background: rgba(247, 250, 255, 0.86);
   }
 
   .detail-tile span {
-    color: var(--muted);
+    color: $eyebrow;
     font-size: 0.73rem;
     font-weight: 800;
     letter-spacing: 0.06em;
@@ -612,7 +607,7 @@
   }
 
   .detail-tile strong {
-    color: #0b1d36;
+    color: $text;
     font-size: 0.95rem;
     line-height: 1.28;
   }
@@ -628,7 +623,7 @@
     display: grid;
     gap: 10px;
     padding: 16px;
-    border: 1px solid rgba(29, 78, 216, 0.12);
+    border: 1px solid rgba(199, 115, 115, 0.12);
     border-radius: 16px;
     background: rgba(255, 255, 255, 0.72);
   }
@@ -656,8 +651,8 @@
     font-size: 0.85rem;
     letter-spacing: 0.02em;
     text-transform: uppercase;
-    background: rgba(56, 189, 248, 0.2);
-    color: #0b2f66;
+    background: rgba(248, 133, 56, 0.2);
+    color: $primary
   }
 
   .countdown.calm {
@@ -685,9 +680,9 @@
   }
 
   .countdown.passed {
-    background: rgba(90, 112, 144, 0.14);
-    color: #4f5f7d;
-    box-shadow: inset 0 0 0 1px rgba(90, 112, 144, 0.3);
+    background: rgba(144, 90, 90, 0.14);
+    color: $primary;
+    box-shadow: inset 0 0 0 1px $nav-shadow;
     text-decoration: line-through;
   }
 
@@ -741,11 +736,11 @@
     gap: 8px;
     padding: 12px 14px;
     border-radius: 12px;
-    background: linear-gradient(135deg, #38bdf8, #1d4ed8);
+    background: linear-gradient(135deg, $gold, $red);
     color: #ffffff;
     text-decoration: none;
     font-weight: 800;
-    box-shadow: 0 12px 26px rgba(37, 99, 235, 0.22);
+    box-shadow: 0 12px 26px $nav-shadow;
     transition:
       transform 130ms ease,
       box-shadow 130ms ease;
@@ -755,7 +750,7 @@
   .primary-link:focus-visible {
     outline: none;
     transform: translateY(-1px);
-    box-shadow: 0 16px 30px rgba(37, 99, 235, 0.26);
+    box-shadow: 0 16px 30px $nav-shadow;
   }
 
   .tags {

@@ -12,6 +12,7 @@
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lato:wght@300;400;600;700&display=swap"
     rel="stylesheet"
   />
+  <title>Catalog | C3SS</title>
 </svelte:head>
 
 <div class="app-shell">
@@ -26,7 +27,7 @@
       >
       <div>
         <p class="eyebrow">College & Career Center</p>
-        <p class="title">C3 Opportunities</p>
+        <p class="title">Scholarships & Summer Programs Catalog</p>
       </div>
     </div>
     <nav class="nav">

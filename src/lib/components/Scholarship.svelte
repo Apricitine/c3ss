@@ -150,7 +150,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    flex: 1 1 16rem;
+    flex: 1 1 4rem;
     min-width: 0;
     flex-wrap: wrap;
   }
