@@ -35,7 +35,9 @@
       }
     }
 
-    return [...options.values()].sort((first, second) => first.name.localeCompare(second.name))
+    return [...options.values()].sort((first, second) =>
+      first.name.localeCompare(second.name),
+    )
   })
 
   const getFiniteAwardValues = (scholarship: Scholarship) =>
@@ -57,10 +59,14 @@
         : [prize.amount, prize.amount]
 
       lowest = Math.min(lowest, min)
-      highest = max === "full-tuition" ? Number.POSITIVE_INFINITY : Math.max(highest, max)
+      highest =
+        max === "full-tuition"
+          ? Number.POSITIVE_INFINITY
+          : Math.max(highest, max)
     }
 
-    if (!Number.isFinite(lowest) || highest === Number.NEGATIVE_INFINITY) return null
+    if (!Number.isFinite(lowest) || highest === Number.NEGATIVE_INFINITY)
+      return null
 
     return { min: lowest, max: highest }
   }
@@ -78,20 +84,27 @@
 
   let isAwardRangeFiltered = $derived(
     awardBounds.max > awardBounds.min &&
-      (selectedMinAward > awardBounds.min || selectedMaxAward < awardBounds.max)
+      (selectedMinAward > awardBounds.min ||
+        selectedMaxAward < awardBounds.max),
   )
 
-  let activeFilterCount = $derived(selectedFilters.length + (isAwardRangeFiltered ? 1 : 0))
+  let activeFilterCount = $derived(
+    selectedFilters.length + (isAwardRangeFiltered ? 1 : 0),
+  )
 
   const openScholarship = (scholarship: Scholarship, event: MouseEvent) => {
-    const sourceCard = event.currentTarget instanceof HTMLElement ? event.currentTarget : null
+    const sourceCard =
+      event.currentTarget instanceof HTMLElement ? event.currentTarget : null
 
     activeScholarship = scholarship
     activeCardRect = sourceCard?.getBoundingClientRect() ?? null
     showModal = true
   }
 
-  const sortScholarships = (term: string, source: Scholarship[]): Scholarship[] => {
+  const sortScholarships = (
+    term: string,
+    source: Scholarship[],
+  ): Scholarship[] => {
     const query = term.trim()
 
     if (!query) return [...source]
@@ -101,7 +114,9 @@
         scholarship,
         similarity: fuzzy(query, scholarship.name),
       }))
-      .sort((firstItem, secondItem) => secondItem.similarity - firstItem.similarity)
+      .sort(
+        (firstItem, secondItem) => secondItem.similarity - firstItem.similarity,
+      )
       .map(({ scholarship }) => scholarship)
   }
 
@@ -112,11 +127,17 @@
   }
 
   const setMinAward = (value: number) => {
-    selectedMinAward = Math.min(Math.max(value, awardBounds.min), selectedMaxAward)
+    selectedMinAward = Math.min(
+      Math.max(value, awardBounds.min),
+      selectedMaxAward,
+    )
   }
 
   const setMaxAward = (value: number) => {
-    selectedMaxAward = Math.max(Math.min(value, awardBounds.max), selectedMinAward)
+    selectedMaxAward = Math.max(
+      Math.min(value, awardBounds.max),
+      selectedMinAward,
+    )
   }
 
   const resetFilters = () => {
@@ -125,23 +146,30 @@
     selectedMaxAward = awardBounds.max
   }
 
-  const formatGradeList = (grades: number[]) => grades.map((grade) => `Grade ${grade}`).join(", ")
+  const formatGradeList = (grades: number[]) =>
+    grades.map((grade) => `Grade ${grade}`).join(", ")
 
   const matchesFilters = (scholarship: Scholarship) => {
     const hasSelectedFilters =
       selectedFilters.length === 0 ||
-      selectedFilters.every((selectedFilter) => scholarship.filters.includes(selectedFilter))
+      selectedFilters.every((selectedFilter) =>
+        scholarship.filters.includes(selectedFilter),
+      )
 
     if (!hasSelectedFilters) return false
     if (!isAwardRangeFiltered) return true
 
     const awardRange = getAwardRange(scholarship)
 
-    return awardRange !== null && awardRange.max >= selectedMinAward && awardRange.min <= selectedMaxAward
+    return (
+      awardRange !== null &&
+      awardRange.max >= selectedMinAward &&
+      awardRange.min <= selectedMaxAward
+    )
   }
 
   let renderedScholarships = $derived.by(() =>
-    sortScholarships(searchTerm, scholarships.filter(matchesFilters))
+    sortScholarships(searchTerm, scholarships.filter(matchesFilters)),
   )
 
   $effect(() => {
@@ -178,10 +206,13 @@
 </div>
 
 {#if filtersOpen}
-  <div class="filter-transition" transition:slide={{ duration: 180, axis: "y" }}>
+  <div
+    class="filter-transition"
+    transition:slide={{ duration: 180, axis: "y" }}
+  >
     <FilterSelect
       filters={filterOptions}
-      selectedFilters={selectedFilters}
+      {selectedFilters}
       minAward={selectedMinAward}
       maxAward={selectedMaxAward}
       rangeMin={awardBounds.min}
@@ -201,7 +232,8 @@
     {#each renderedScholarships as scholarship (scholarship.id)}
       <div
         class="scholarship-card-slot"
-        class:source-hidden={showModal && activeScholarship?.id === scholarship.id}
+        class:source-hidden={showModal &&
+          activeScholarship?.id === scholarship.id}
         aria-hidden={showModal && activeScholarship?.id === scholarship.id}
       >
         <ScholarshipCard
@@ -231,11 +263,6 @@
           <p class="eyebrow">Scholarship</p>
           <h2>{activeScholarship.name}</h2>
         </div>
-
-        <div class={`status-card ${activeScholarship.countdownClass()}`}>
-          <span>{activeScholarship.countdownLabel()}</span>
-          <strong>{activeScholarship.formattedDeadline()}</strong>
-        </div>
       </header>
 
       <section class="detail-grid" aria-label="Scholarship details">
@@ -261,7 +288,8 @@
         {#if activeScholarship.availableGrades?.length}
           <div class="detail-tile">
             <span>Eligible grades</span>
-            <strong>{formatGradeList(activeScholarship.availableGrades)}</strong>
+            <strong>{formatGradeList(activeScholarship.availableGrades)}</strong
+            >
           </div>
         {/if}
       </section>
@@ -289,7 +317,11 @@
               <p class="section-label">Categories</p>
               <div class="tags">
                 {#each activeScholarship.displayFilters() as filter (filter.key)}
-                  <Tag color={filter.color} name={filter.name} description={filter.description} />
+                  <Tag
+                    color={filter.color}
+                    name={filter.name}
+                    description={filter.description}
+                  />
                 {/each}
               </div>
             </div>
@@ -301,6 +333,8 @@
 </Modal>
 
 <style lang="scss">
+  @use "$lib/styles/global.scss" as *;
+
   .search-tools {
     display: flex;
     align-items: stretch;
@@ -313,11 +347,12 @@
     min-width: 0;
     margin: 0;
     padding: 0;
+    height: 7vh;
+    min-height: 52px;
   }
 
   .search-tools :global(.search-bar) {
     width: 100%;
-    min-height: 52px;
   }
 
   .filter-tab {
@@ -328,22 +363,31 @@
     min-width: 124px;
     min-height: 52px;
     padding: 12px 15px;
-    border: 1px solid rgba(29, 78, 216, 0.22);
+    border: 1px solid $nav-border;
     border-radius: 14px;
     background: rgba(255, 255, 255, 0.86);
-    color: var(--primary-dark);
+    color: $primary;
     cursor: pointer;
-    font: 800 0.94rem/1 "Inter", system-ui, -apple-system, sans-serif;
-    box-shadow: 0 12px 26px rgba(23, 61, 140, 0.1);
-    transition: background 140ms ease, border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
+    font:
+      800 0.94rem/1 "Inter",
+      system-ui,
+      -apple-system,
+      sans-serif;
+    box-shadow: 0 12px 26px $nav-shadow;
+    transition:
+      background 140ms ease,
+      border-color 140ms ease,
+      box-shadow 140ms ease,
+      transform 140ms ease;
+    z-index: 0;
   }
 
   .filter-tab:hover,
   .filter-tab:focus-visible,
   .filter-tab.is-active {
-    background: rgba(56, 189, 248, 0.18);
-    border-color: rgba(29, 78, 216, 0.42);
-    box-shadow: 0 15px 30px rgba(37, 99, 235, 0.14);
+    background: $link-focus;
+    border-color: darken($nav-border, 30);
+    box-shadow: 0 15px 30px $link-shadow;
     outline: none;
     transform: translateY(-1px);
   }
@@ -366,7 +410,9 @@
     border-radius: 999px;
     background: currentColor;
     box-shadow: 0 6px 0 currentColor;
-    transition: transform 140ms ease, width 140ms ease;
+    transition:
+      transform 140ms ease,
+      width 140ms ease;
   }
 
   .filter-icon::before {
@@ -374,7 +420,7 @@
   }
 
   .filter-icon::after {
-    bottom: 0;
+    bottom: 6px;
     width: 12px;
   }
 
@@ -394,7 +440,7 @@
     height: 22px;
     padding: 0 6px;
     border-radius: 999px;
-    background: var(--primary);
+    background: $primary;
     color: #ffffff;
     font-size: 0.78rem;
   }
@@ -411,6 +457,7 @@
 
   .scholarship-card-slot {
     transition: opacity 160ms ease;
+    max-width: 75vw;
   }
 
   .scholarship-card-slot.source-hidden {
@@ -425,10 +472,10 @@
     min-height: 220px;
     margin: 18px 0 32px;
     padding: 30px;
-    border: 1px dashed rgba(29, 78, 216, 0.28);
+    border: 1px dashed $nav-border;
     border-radius: 16px;
     background: rgba(255, 255, 255, 0.72);
-    color: var(--muted);
+    color: $eyebrow;
     text-align: center;
   }
 
@@ -438,12 +485,16 @@
   }
 
   .empty-state button {
-    border: 1px solid rgba(29, 78, 216, 0.2);
+    border: 1px solid $nav-border;
     border-radius: 10px;
-    background: rgba(56, 189, 248, 0.16);
-    color: var(--primary-dark);
+    background: $link-focus;
+    color: $primary;
     cursor: pointer;
-    font: 800 0.9rem/1 "Inter", system-ui, -apple-system, sans-serif;
+    font:
+      800 0.9rem/1 "Inter",
+      system-ui,
+      -apple-system,
+      sans-serif;
     padding: 10px 12px;
   }
 
@@ -458,7 +509,7 @@
     gap: 18px;
     align-items: start;
     padding: 0 44px 18px 0;
-    border-bottom: 1px solid rgba(29, 78, 216, 0.12);
+    border-bottom: 1px solid $nav-border;
   }
 
   .meta {
@@ -469,7 +520,7 @@
 
   .meta h2 {
     margin: 0;
-    color: #0b1d36;
+    color: $primary;
     font-size: clamp(1.35rem, 2.5vw, 1.9rem);
     line-height: 1.18;
   }
@@ -477,7 +528,7 @@
   .eyebrow,
   .section-label {
     margin: 0;
-    color: rgba(15, 60, 164, 0.82);
+    color: $primary;
     font-size: 0.72rem;
     font-weight: 800;
     letter-spacing: 0.08em;
@@ -490,10 +541,10 @@
     gap: 4px;
     min-width: 132px;
     padding: 12px 14px;
-    border: 1px solid rgba(29, 78, 216, 0.16);
+    border: 1px solid $nav-border;
     border-radius: 14px;
-    background: rgba(56, 189, 248, 0.13);
-    color: #0b2f66;
+    background: $link-focus;
+    color: $text;
     text-align: right;
   }
 
@@ -505,23 +556,23 @@
   }
 
   .status-card strong {
-    color: #1d4ed8;
+    color: $primary;
     font-size: 1rem;
   }
 
   .status-card.calm {
-    background: rgba(104, 181, 123, 0.14);
-    border-color: rgba(104, 181, 123, 0.34);
+    background: $calm;
+    border-color: darken($calm, 10);
   }
 
   .status-card.warm {
-    background: rgba(246, 195, 68, 0.2);
-    border-color: rgba(246, 195, 68, 0.42);
+    background: $warm;
+    border-color: darken($warm, 10);
   }
 
   .status-card.hot {
-    background: rgba(179, 38, 30, 0.12);
-    border-color: rgba(179, 38, 30, 0.26);
+    background: $hot;
+    border-color: darken($hot, 10);
   }
 
   .status-card.passed {
@@ -542,13 +593,13 @@
     gap: 7px;
     min-height: 82px;
     padding: 12px;
-    border: 1px solid rgba(29, 78, 216, 0.12);
+    border: 1px solid $nav-border;
     border-radius: 14px;
     background: rgba(247, 250, 255, 0.86);
   }
 
   .detail-tile span {
-    color: var(--muted);
+    color: $eyebrow;
     font-size: 0.73rem;
     font-weight: 800;
     letter-spacing: 0.06em;
@@ -556,7 +607,7 @@
   }
 
   .detail-tile strong {
-    color: #0b1d36;
+    color: $text;
     font-size: 0.95rem;
     line-height: 1.28;
   }
@@ -572,7 +623,7 @@
     display: grid;
     gap: 10px;
     padding: 16px;
-    border: 1px solid rgba(29, 78, 216, 0.12);
+    border: 1px solid rgba(199, 115, 115, 0.12);
     border-radius: 16px;
     background: rgba(255, 255, 255, 0.72);
   }
@@ -600,8 +651,8 @@
     font-size: 0.85rem;
     letter-spacing: 0.02em;
     text-transform: uppercase;
-    background: rgba(56, 189, 248, 0.2);
-    color: #0b2f66;
+    background: rgba(248, 133, 56, 0.2);
+    color: $primary
   }
 
   .countdown.calm {
@@ -629,9 +680,9 @@
   }
 
   .countdown.passed {
-    background: rgba(90, 112, 144, 0.14);
-    color: #4f5f7d;
-    box-shadow: inset 0 0 0 1px rgba(90, 112, 144, 0.3);
+    background: rgba(144, 90, 90, 0.14);
+    color: $primary;
+    box-shadow: inset 0 0 0 1px $nav-shadow;
     text-decoration: line-through;
   }
 
@@ -685,19 +736,21 @@
     gap: 8px;
     padding: 12px 14px;
     border-radius: 12px;
-    background: linear-gradient(135deg, #38bdf8, #1d4ed8);
+    background: linear-gradient(135deg, $gold, $red);
     color: #ffffff;
     text-decoration: none;
     font-weight: 800;
-    box-shadow: 0 12px 26px rgba(37, 99, 235, 0.22);
-    transition: transform 130ms ease, box-shadow 130ms ease;
+    box-shadow: 0 12px 26px $nav-shadow;
+    transition:
+      transform 130ms ease,
+      box-shadow 130ms ease;
   }
 
   .primary-link:hover,
   .primary-link:focus-visible {
     outline: none;
     transform: translateY(-1px);
-    box-shadow: 0 16px 30px rgba(37, 99, 235, 0.26);
+    box-shadow: 0 16px 30px $nav-shadow;
   }
 
   .tags {

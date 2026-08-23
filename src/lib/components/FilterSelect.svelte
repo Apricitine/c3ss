@@ -123,15 +123,16 @@
 </section>
 
 <style lang="scss">
+  @use "$lib/styles/global.scss" as *;
   .filter-panel {
     display: grid;
     gap: 18px;
     margin: -4px 0 20px;
     padding: 18px;
-    border: 1px solid rgba(29, 78, 216, 0.16);
+    border: 1px solid $nav-border;
     border-radius: 16px;
     background: rgba(255, 255, 255, 0.9);
-    box-shadow: 0 16px 34px rgba(23, 61, 140, 0.1);
+    box-shadow: 0 16px 34px $nav-shadow;
   }
 
   .panel-header,
@@ -150,7 +151,7 @@
   }
 
   .eyebrow {
-    color: var(--primary-dark);
+    color: $text;
     font-size: 0.76rem;
     font-weight: 800;
     letter-spacing: 0.08em;
@@ -159,15 +160,15 @@
 
   .result-count {
     margin-top: 3px;
-    color: var(--muted);
+    color: $eyebrow;
     font-weight: 700;
   }
 
   .reset-button {
-    border: 1px solid rgba(29, 78, 216, 0.18);
+    border: 1px solid $nav-border;
     border-radius: 10px;
-    background: rgba(56, 189, 248, 0.12);
-    color: var(--primary-dark);
+    background: $link-focus;
+    color: $primary;
     cursor: pointer;
     font: 800 0.86rem/1 "Inter", system-ui, -apple-system, sans-serif;
     padding: 9px 12px;
@@ -176,8 +177,8 @@
 
   .reset-button:hover,
   .reset-button:focus-visible {
-    background: rgba(56, 189, 248, 0.22);
-    border-color: rgba(29, 78, 216, 0.32);
+    background: darken($link-focus, 5);
+    border-color: darken($nav-border, 5);;
     outline: none;
     transform: translateY(-1px);
   }
@@ -188,13 +189,13 @@
   }
 
   .section-title {
-    color: var(--text);
+    color: $text;
     font-size: 0.92rem;
     font-weight: 800;
   }
 
   .price-label {
-    color: var(--primary-dark);
+    color: $primary;
     font-size: 0.9rem;
     font-weight: 800;
   }
@@ -202,7 +203,7 @@
   
   .empty-filter-note {
     margin: 0;
-    color: var(--muted);
+    color: $eyebrow;
     font-size: 0.9rem;
     font-weight: 700;
   }
@@ -268,13 +269,13 @@
 
   .range-track::before {
     inset-inline: 0;
-    background: rgba(29, 78, 216, 0.14);
+    background: $link-shadow;
   }
 
   .range-track::after {
     left: var(--range-start);
     right: calc(100% - var(--range-end));
-    background: linear-gradient(90deg, var(--accent), var(--primary));
+    background: linear-gradient(90deg, $link-shadow, $primary);
   }
 
   .range-input {
@@ -304,8 +305,8 @@
     border-radius: 50%;
     -webkit-appearance: none;
     appearance: none;
-    background: var(--primary);
-    box-shadow: 0 6px 14px rgba(23, 61, 140, 0.24);
+    background: $primary;
+    box-shadow: 0 6px 14px $nav-shadow;
     cursor: pointer;
     pointer-events: auto;
   }
@@ -315,8 +316,8 @@
     height: 16px;
     border: 3px solid #ffffff;
     border-radius: 50%;
-    background: var(--primary);
-    box-shadow: 0 6px 14px rgba(23, 61, 140, 0.24);
+    background: $primary;
+    box-shadow: 0 6px 14px $nav-shadow;
     cursor: pointer;
     pointer-events: auto;
   }
@@ -345,7 +346,7 @@
     display: flex;
     justify-content: space-between;
     gap: 12px;
-    color: var(--muted);
+    color: $eyebrow;
     font-size: 0.78rem;
     font-weight: 800;
   }
