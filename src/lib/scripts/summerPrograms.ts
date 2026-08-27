@@ -1,18 +1,3 @@
-
-const formatCurrency = (value: number) =>
-  value.toLocaleString("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  })
-
-export type estimated_costRange = [number, number | "free"]
-
-export type Estimated_cost = {
-  place: number
-  amount: number | estimated_costRange
-}
-
 export const FILTER_COLORS = {
   cyan: "#52cfeb",
   red: "#eb5752",
@@ -48,11 +33,6 @@ const filterDefinitions = {
     description: "The summer program considers financial need.",
     color: "gold",
   },
-//   experienceincluded: {
-//     name: "Experience Included",
-//     description: "The summer program offers an additional experience on top of the financial estimated_cost.",
-//     color: "red",
-//   },
   literaryarts: {
     name: "Literary Arts",
     description: "The summer program has some relevancy to the literary arts.",
@@ -68,11 +48,6 @@ const filterDefinitions = {
     description: "The summer program only considers merit in applicants.",
     color: "gold",
   },
-//   majorspecific: {
-//     name: "Major-Specific",
-//     description: "The summer program only accepts applicants pursuing a specific major in college/other program.",
-//     color: "cyan",
-//   },
 } as const satisfies Record<string, FilterDefinition>
 
 export type SummerFilterKey = keyof typeof filterDefinitions
@@ -90,7 +65,6 @@ export type SummerDTO = {
   primary_link: string
   filters?: SummerFilterKey[] | null
   availableGrades: number[]
-  estimated_cost: Estimated_cost[]
   location?: string
 }
 
@@ -103,7 +77,6 @@ export class Summer implements SummerDTO {
   primary_link: string
   filters: SummerFilterKey[]
   availableGrades: number[]
-  estimated_cost: Estimated_cost[]
   location?: string
   constructor(dto: SummerDTO) {
     this.id = dto.id
@@ -114,7 +87,6 @@ export class Summer implements SummerDTO {
     this.primary_link = dto.primary_link
     this.filters = dto.filters ?? []
     this.availableGrades = dto.availableGrades
-    this.estimated_cost = dto.estimated_cost ?? []
     this.location = dto.location
   }
 
@@ -157,35 +129,6 @@ export class Summer implements SummerDTO {
     return `${days} days`
   }
 
-  estimated_costRange() {
-    let lowest = Number.POSITIVE_INFINITY
-    let highest: number | "free" = Number.NEGATIVE_INFINITY
-
-    if (!this.estimated_cost || this.estimated_cost.length === 0) return null
-
-    for (const prize of this.estimated_cost) {
-      const [min, max] = Array.isArray(prize.amount)
-        ? prize.amount
-        : [prize.amount, prize.amount]
-
-      lowest = Math.min(lowest, min)
-      highest =
-        highest === "free"
-          ? "free"
-          : max === "free"
-            ? "free"
-            : Math.max(highest, max)
-    }
-
-    if (!Number.isFinite(lowest) || (highest !== "free" && !Number.isFinite(highest))) {
-      return null
-    }
-
-    return lowest === highest
-      ? formatCurrency(lowest)
-      : `${formatCurrency(lowest)} – ${highest === "free" ? "free" : formatCurrency(highest)}`
-  }
-
   displayFilters(): SummerFilter[] {
     return this.filters.flatMap((key) => {
       const definition = filterDefinitions[key]
@@ -203,7 +146,6 @@ export class Summer implements SummerDTO {
       primary_link: this.primary_link,
       filters: this.filters,
       availableGrades: this.availableGrades,
-      estimated_cost: this.estimated_cost,
       location: this.location,
     }
   }

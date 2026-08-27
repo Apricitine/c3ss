@@ -188,7 +188,7 @@
 </script>
 
 <div class="search-tools">
-  <Search bind:searchTerm />
+  <Search bind:searchTerm thing="scholarships"/>
   <button
     type="button"
     class="filter-tab"

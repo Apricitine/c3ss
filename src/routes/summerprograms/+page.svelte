@@ -3,6 +3,7 @@
   import SummerProgramCard from "$lib/components/SummerPrograms.svelte"
   import Tag from "$lib/components/Tag.svelte"
   import { fuzzy } from "fast-fuzzy"
+  import { slide } from "svelte/transition"
   import { 
     Summer, 
     type SummerDTO,
@@ -100,10 +101,11 @@
       activeCardRect = null
     }
   })
+
 </script>
 
 <div class="search-tools">
-  <Search bind:searchTerm />
+  <Search bind:searchTerm thing="summer programs"/>
   <button
     type="button"
     class="filter-tab"
@@ -136,68 +138,62 @@
   </div>
 {/if}
 
-{#if renderedScholarships.length}
+{#if renderedSummerPrograms.length}
   <section class="scholarship-grid">
-    {#each renderedScholarships as scholarship (scholarship.id)}
+    {#each renderedSummerPrograms as summerProgram (summerProgram.id)}
       <div
         class="scholarship-card-slot"
         class:source-hidden={showModal &&
-          activeScholarship?.id === scholarship.id}
-        aria-hidden={showModal && activeScholarship?.id === scholarship.id}
+          activeSummerProgram?.id === summerProgram.id}
+        aria-hidden={showModal && activeSummerProgram?.id === summerProgram.id}
       >
-        <ScholarshipCard
-          onclick={(event) => openScholarship(scholarship, event)}
-          name={scholarship.name}
-          deadline={scholarship.formattedDeadline()}
-          daysLeft={scholarship.daysUntil()}
-          description={scholarship.description}
-          endowmentRange={scholarship.endowmentRange()}
-          filters={scholarship.displayFilters()}
+        <SummerProgramCard
+          onclick={(event) => openSummerProgram(summerProgram, event)}
+          name={summerProgram.name}
+          deadline={summerProgram.formattedDeadline()}
+          daysLeft={summerProgram.daysUntil()}
+          description={summerProgram.description}
+          filters={summerProgram.displayFilters()}
         />
       </div>
     {/each}
   </section>
 {:else}
   <div class="empty-state">
-    <p>No scholarships match this search.</p>
+    <p>No summer programs match this search.</p>
     <button type="button" onclick={resetFilters}>Reset filters</button>
   </div>
 {/if}
 
 <Modal bind:showModal sourceRect={activeCardRect}>
-  {#if activeScholarship}
-    <article class="scholarship-modal">
+  {#if activeSummerProgram}
+    <article class="summerprogram-modal">
       <header class="modal-header">
         <div class="meta">
-          <p class="eyebrow">Scholarship</p>
-          <h2>{activeScholarship.name}</h2>
+          <p class="eyebrow">Summer Program</p>
+          <h2>{activeSummerProgram.name}</h2>
         </div>
       </header>
 
-      <section class="detail-grid" aria-label="Scholarship details">
-        {#if activeScholarship.endowmentRange()}
-          <div class="detail-tile">
-            <span>Award</span>
-            <strong>{activeScholarship.endowmentRange()}</strong>
-          </div>
-        {/if}
+      <section class="detail-grid" aria-label="Summer program details">
+        
 
         <div class="detail-tile">
           <span>Deadline</span>
-          <strong>{activeScholarship.formattedDeadline()}</strong>
+          <strong>{activeSummerProgram.formattedDeadline()}</strong>
         </div>
 
         <div class="detail-tile">
           <span>Status</span>
-          <strong class={`countdown ${activeScholarship.countdownClass()}`}>
-            {activeScholarship.countdownLabel()}
+          <strong class={`countdown ${activeSummerProgram.countdownClass()}`}>
+            {activeSummerProgram.countdownLabel()}
           </strong>
         </div>
 
-        {#if activeScholarship.availableGrades?.length}
+        {#if activeSummerProgram.availableGrades?.length}
           <div class="detail-tile">
             <span>Eligible grades</span>
-            <strong>{formatGradeList(activeScholarship.availableGrades)}</strong
+            <strong>{formatGradeList(activeSummerProgram.availableGrades)}</strong
             >
           </div>
         {/if}
@@ -206,14 +202,14 @@
       <div class="modal-content-grid">
         <section class="modal-section overview-section">
           <p class="section-label">Overview</p>
-          <p class="modal-description">{activeScholarship.description}</p>
+          <p class="modal-description">{activeSummerProgram.description}</p>
         </section>
 
         <aside class="modal-section sidebar-section">
-          {#if activeScholarship.primary_link}
+          {#if activeSummerProgram.primary_link}
             <a
               class="primary-link"
-              href={activeScholarship.primary_link}
+              href={activeSummerProgram.primary_link}
               target="_blank"
               rel="noreferrer"
             >
@@ -221,11 +217,11 @@
             </a>
           {/if}
 
-          {#if activeScholarship.displayFilters().length}
+          {#if activeSummerProgram.displayFilters().length}
             <div class="tag-section">
               <p class="section-label">Categories</p>
               <div class="tags">
-                {#each activeScholarship.displayFilters() as filter (filter.key)}
+                {#each activeSummerProgram.displayFilters() as filter (filter.key)}
                   <Tag
                     color={filter.color}
                     name={filter.name}
