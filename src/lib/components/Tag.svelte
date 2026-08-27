@@ -41,7 +41,7 @@
         gap: 6px;
         padding: 6px 10px;
         border-radius: 999px;
-        color: #eaeaea;
+        color: #ffffff;
         font-weight: 700;
         font-size: 0.82rem;
         letter-spacing: 0.01em;
