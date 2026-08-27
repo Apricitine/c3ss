@@ -86,6 +86,7 @@
       )
 
     if (!hasSelectedFilters) return false
+    return true
   }
 
   let renderedSummerPrograms = $derived.by(() =>
@@ -111,7 +112,7 @@
     class="filter-tab"
     class:is-active={filtersOpen}
     aria-expanded={filtersOpen}
-    aria-controls="scholarship-filters"
+    aria-controls="summerprogram-filters"
     onclick={() => (filtersOpen = !filtersOpen)}
   >
     <span class="filter-icon" aria-hidden="true"></span>

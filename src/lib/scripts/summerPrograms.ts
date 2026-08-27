@@ -59,22 +59,31 @@ export type SummerFilter = FilterDefinition & {
 export type SummerDTO = {
   id: number
   name: string
-  created: string
-  description: string
-  deadline: string
-  primary_link: string
-  filters?: SummerFilterKey[] | null
-  availableGrades: number[]
+  created: string | null
+  description: string | null
+  deadline: string | null
+  primary_link: string | null
+  filters?: unknown
+  availableGrades?: number[] | null
   location?: string
+}
+
+const isSummerFilterKey = (value: unknown): value is SummerFilterKey =>
+  typeof value === "string" && value in filterDefinitions
+
+const normalizeFilters = (filters: unknown): SummerFilterKey[] => {
+  const values = Array.isArray(filters) ? filters : [filters]
+
+  return values.filter(isSummerFilterKey)
 }
 
 export class Summer implements SummerDTO {
   id: number
   name: string
-  created: string
+  created: string | null
   description: string
-  deadline: string
-  primary_link: string
+  deadline: string | null
+  primary_link: string | null
   filters: SummerFilterKey[]
   availableGrades: number[]
   location?: string
@@ -82,11 +91,11 @@ export class Summer implements SummerDTO {
     this.id = dto.id
     this.name = dto.name
     this.created = dto.created
-    this.description = dto.description
+    this.description = dto.description ?? "No description available."
     this.deadline = dto.deadline
     this.primary_link = dto.primary_link
-    this.filters = dto.filters ?? []
-    this.availableGrades = dto.availableGrades
+    this.filters = normalizeFilters(dto.filters)
+    this.availableGrades = dto.availableGrades ?? []
     this.location = dto.location
   }
 
@@ -94,21 +103,28 @@ export class Summer implements SummerDTO {
     return new Summer(dto)
   }
 
-  get deadlineDate() {
-    return new Date(this.deadline)
+  get deadlineDate(): Date | null {
+    if (!this.deadline) return null
+
+    const date = new Date(this.deadline)
+    return Number.isNaN(date.getTime()) ? null : date
   }
 
   formattedDeadline() {
     const date = this.deadlineDate
+    if (!date) return "Not listed"
+
     return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
   }
 
   daysUntil(reference: Date = new Date()) {
+    const target = this.deadlineDate
+    if (!target) return null
+
     const msPerDay = 1000 * 60 * 60 * 24
     const today = new Date(reference)
     today.setHours(0, 0, 0, 0)
 
-    const target = new Date(this.deadline)
     target.setHours(0, 0, 0, 0)
 
     return Math.ceil((target.getTime() - today.getTime()) / msPerDay)
@@ -116,6 +132,7 @@ export class Summer implements SummerDTO {
 
   countdownClass(reference?: Date) {
     const days = this.daysUntil(reference)
+    if (days === null) return "calm" as const
     if (days < 0) return "passed" as const
     if (days <= 3) return "hot" as const
     if (days <= 10) return "warm" as const
@@ -124,6 +141,7 @@ export class Summer implements SummerDTO {
 
   countdownLabel(reference?: Date, { short = false } = {}) {
     const days = this.daysUntil(reference)
+    if (days === null) return "No deadline"
     if (days < 0) return "Passed"
     if (short) return `${days}d`
     return `${days} days`
