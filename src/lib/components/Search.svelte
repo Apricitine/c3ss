@@ -1,5 +1,6 @@
 <script lang="ts">
   export let searchTerm: string
+  export let thing: string
 </script>
 
 <div class="search-shell">
@@ -8,7 +9,7 @@
     <input
       type="search"
       class="search-field"
-      placeholder="Search scholarships…"
+      placeholder={`Search ${thing}...`}
       autocomplete="off"
       bind:value={searchTerm}
       on:input

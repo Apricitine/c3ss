@@ -1,11 +1,11 @@
 <script lang="ts">
   import Tag from "$lib/components/Tag.svelte"
-  import type { SummerFilter } from "$lib/scripts/summerprograms"
+  import type { SummerFilter } from "$lib/scripts/summerPrograms"
 
   interface Props {
     name: string
     deadline: string
-    daysLeft: number
+    daysLeft: number | null
     description: string
     estimated_cost?: string | null
     filters?: SummerFilter[]
@@ -13,15 +13,23 @@
   }
 
   let props: Props = $props()
+  let descriptionElement: HTMLParagraphElement | null = null
+  let isDescriptionClipped = $state(false)
 
   const countdownClass = () => {
+    if (props.daysLeft === null) return "calm"
     if (props.daysLeft < 0) return "passed"
     if (props.daysLeft <= 3) return "hot"
     if (props.daysLeft <= 10) return "warm"
     return "calm"
   }
 
-  const countdownLabel = () => (props.daysLeft < 0 ? "Passed" : `${props.daysLeft}d`)
+  const countdownLabel = () =>
+    props.daysLeft === null
+      ? "No deadline"
+      : props.daysLeft < 0
+        ? "Passed"
+        : `${props.daysLeft}d`
 
   const handleKeydown = (event: KeyboardEvent) => {
     if (event.key === "Enter" || event.key === " ") {
@@ -29,10 +37,31 @@
       props.onclick?.(event as unknown as MouseEvent)
     }
   }
+
+  const updateDescriptionClip = () => {
+    if (!descriptionElement) return
+    isDescriptionClipped = descriptionElement.scrollHeight > descriptionElement.clientHeight + 1
+  }
+
+  $effect(() => {
+    props.description
+    queueMicrotask(updateDescriptionClip)
+  })
+
+  $effect(() => {
+    if (!descriptionElement) return
+
+    const observer = new ResizeObserver(updateDescriptionClip)
+
+    observer.observe(descriptionElement)
+    updateDescriptionClip()
+
+    return () => observer.disconnect()
+  })
 </script>
 
 <section
-  class="Summer-card"
+  class="summer-program-card"
   role="button"
   tabindex="0"
   onclick={props.onclick}
@@ -63,21 +92,40 @@
     </div>
   </div>
 
-  <p class="description">{props.description}</p>
+  <div class="description-block">
+    <div class="description-preview">
+      <p bind:this={descriptionElement} class="description">{props.description}</p>
+
+      {#if isDescriptionClipped}
+        <div class="description-fade" aria-hidden="true"></div>
+      {/if}
+    </div>
+
+    {#if isDescriptionClipped}
+      <span class="description-hint" aria-hidden="true">Click to see more</span>
+    {/if}
+  </div>
 </section>
 
 <style lang="scss">
-  .Summer-card {
+  @use "$lib/styles/global.scss" as *;
+
+  * {
+    box-sizing: border-box;
+  }
+
+  .summer-program-card {
     display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 0.75rem 1rem;
+    gap: 0.75rem;
     align-items: start;
     width: 100%;
+    min-width: 0;
+    container-type: inline-size;
     padding: 1rem 1.25rem;
     border-radius: 14px;
-    background: linear-gradient(135deg, #f4f7ff, #f9fbff);
-    border: 1px solid rgba(29, 78, 216, 0.18);
-    box-shadow: 0 12px 30px rgba(23, 61, 140, 0.12);
+    background: linear-gradient(135deg, $surface, $bg);
+    border: 1px solid $nav-border;
+    box-shadow: 0 12px 30px $nav-shadow;
     cursor: pointer;
     transition: transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease;
     font-family: "Lato", "Inter", system-ui, -apple-system, sans-serif;
@@ -85,13 +133,13 @@
     &:hover,
     &:focus-visible {
       transform: translateY(-2px);
-      box-shadow: 0 16px 36px rgba(37, 99, 235, 0.18);
-      border-color: rgba(29, 78, 216, 0.4);
+      box-shadow: 0 16px 36px $link-shadow;
+      border-color: rgba($primary, 0.4);
       outline: none;
     }
 
     &:focus-visible {
-      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.32), 0 14px 32px rgba(37, 99, 235, 0.16);
+      box-shadow: 0 0 0 3px $link-focus, 0 14px 32px $link-shadow;
     }
   }
 
@@ -107,7 +155,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    flex: 1 1 auto;
+    flex: 1 1 4rem;
     min-width: 0;
     flex-wrap: wrap;
   }
@@ -115,7 +163,7 @@
   .name {
     font-weight: 800;
     font-size: 1.05rem;
-    color: #1d4ed8;
+    color: $primary;
     line-height: 1.4;
     min-width: 0;
     overflow: hidden;
@@ -124,9 +172,9 @@
   }
 
   .award {
-    background: rgba(16, 185, 129, 0.14);
-    color: #0f5132;
-    border: 1px solid rgba(16, 185, 129, 0.32);
+    background: rgba($calm, 0.14);
+    color: $text;
+    border: 1px solid rgba($calm, 0.32);
     border-radius: 999px;
     padding: 4px 10px;
     font-weight: 700;
@@ -135,9 +183,10 @@
   }
 
   .filter-tags {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: 8px;
+    min-width: 0;
     flex-wrap: wrap;
   }
 
@@ -146,10 +195,12 @@
     align-items: center;
     gap: 10px;
     padding: 0.4rem 0.65rem;
-    background: rgba(56, 189, 248, 0.16);
+    background: rgba($primary, 0.08);
     border-radius: 10px;
-    border: 1px solid rgba(56, 189, 248, 0.3);
-    color: #0b2f66;
+    border: 1px solid $nav-border;
+    color: $text;
+    flex: 0 0 auto;
+    max-width: 100%;
   }
 
   .deadline-text {
@@ -162,13 +213,13 @@
       font-size: 0.75rem;
       text-transform: uppercase;
       letter-spacing: 0.04em;
-      color: rgba(15, 60, 164, 0.7);
+      color: $eyebrow;
     }
 
     strong {
       font-size: 0.95rem;
       font-weight: 800;
-      color: #1d4ed8;
+      color: $primary;
     }
   }
 
@@ -181,35 +232,35 @@
     font-weight: 800;
     font-size: 0.82rem;
     letter-spacing: 0.02em;
-    background: rgba(56, 189, 248, 0.2);
-    color: #0b2f66;
-    box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.4);
+    background: rgba($primary, 0.12);
+    color: $primary;
+    box-shadow: inset 0 0 0 1px rgba($primary, 0.32);
   }
 
   .countdown.calm {
-    background: rgba(104, 181, 123, 0.18);
-    color: #2b4c35;
-    box-shadow: inset 0 0 0 1px rgba(104, 181, 123, 0.4);
+    background: rgba($calm, 0.18);
+    color: $calm;
+    box-shadow: inset 0 0 0 1px rgba($calm, 0.4);
   }
 
   .countdown.warm {
-    background: rgba(246, 195, 68, 0.28);
-    color: #7a2a1f;
-    box-shadow: inset 0 0 0 1px rgba(246, 195, 68, 0.5);
+    background: rgba($warm, 0.18);
+    color: $warm;
+    box-shadow: inset 0 0 0 1px rgba($warm, 0.5);
     animation: pulse 1s ease-in-out infinite;
   }
 
   .countdown.hot {
-    background: rgba(179, 38, 30, 0.22);
-    color: #b3261e;
-    box-shadow: inset 0 0 0 1px rgba(179, 38, 30, 0.5), 0 0 0 6px rgba(179, 38, 30, 0.12);
+    background: rgba($primary, 0.18);
+    color: $primary;
+    box-shadow: inset 0 0 0 1px rgba($primary, 0.5), 0 0 0 6px rgba($primary, 0.12);
     animation: pulse-fast 0.9s ease-in-out infinite, shake 1.0s ease-in-out infinite;
   }
 
   .countdown.passed {
-    background: rgba(90, 112, 144, 0.14);
-    color: #4f5f7d;
-    box-shadow: inset 0 0 0 1px rgba(90, 112, 144, 0.3);
+    background: rgba($text, 0.08);
+    color: $eyebrow;
+    box-shadow: inset 0 0 0 1px rgba($text, 0.2);
     text-decoration: line-through;
   }
 
@@ -230,22 +281,42 @@
     75% { transform: translateX(-0.5px); }
   }
 
-  .description {
-    grid-column: 1 / -1;
-    margin: 0;
-    color: #3b4b6a;
-    line-height: 1.5;
-    font-size: 0.98rem;
-    display: -webkit-box;
+  .description-block {
+    display: grid;
+    gap: 0.35rem;
+  }
+
+  .description-preview {
+    position: relative;
     overflow: hidden;
   }
 
-  @media (max-width: 720px) {
-    .Summer-card {
-      grid-template-columns: 1fr;
-      gap: 0.5rem;
-    }
+  .description {
+    margin: 0;
+    color: $text;
+    line-height: 1.5;
+    font-size: 0.98rem;
+    max-height: calc(4 * 1em * 1.5);
+    overflow: hidden;
+    padding-right: 0.1rem;
+  }
 
+  .description-fade {
+    position: absolute;
+    inset: auto 0 0;
+    height: 3.25rem;
+    background: linear-gradient(180deg, rgba($bg, 0) 0%, rgba($bg, 0.96) 78%);
+    pointer-events: none;
+  }
+
+  .description-hint {
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: $primary;
+    letter-spacing: 0.02em;
+  }
+
+  @container (max-width: 40rem) {
     .header {
       flex-direction: column;
       align-items: flex-start;
@@ -261,8 +332,8 @@
     }
   }
 
-  @media (max-width: 480px) {
-    .Summer-card {
+  @container (max-width: 30rem) {
+    .summer-program-card {
       padding: 0.9rem 1rem;
       border-radius: 12px;
     }

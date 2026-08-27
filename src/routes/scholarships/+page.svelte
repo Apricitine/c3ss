@@ -188,7 +188,7 @@
 </script>
 
 <div class="search-tools">
-  <Search bind:searchTerm />
+  <Search bind:searchTerm thing="scholarships"/>
   <button
     type="button"
     class="filter-tab"
@@ -546,18 +546,6 @@
     background: $link-focus;
     color: $text;
     text-align: right;
-  }
-
-  .status-card span {
-    font-size: 0.78rem;
-    font-weight: 900;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
-
-  .status-card strong {
-    color: $primary;
-    font-size: 1rem;
   }
 
   .status-card.calm {

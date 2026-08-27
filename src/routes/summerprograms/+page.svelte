@@ -1,122 +1,360 @@
-
 <script lang="ts">
   import Modal from "$lib/components/Modal.svelte"
   import SummerProgramCard from "$lib/components/SummerPrograms.svelte"
   import Tag from "$lib/components/Tag.svelte"
   import { fuzzy } from "fast-fuzzy"
-  import { Summer, type SummerDTO } from "$lib/scripts/summerprograms"
+  import { slide } from "svelte/transition"
+  import { 
+    Summer, 
+    type SummerDTO,
+    type SummerFilterKey,
+    type SummerFilter
+  } from "$lib/scripts/summerPrograms"
   import Search from "$lib/components/Search.svelte"
-  import IntersectionObserver from "$lib/components/IntersectionObserver.svelte"
+  import FilterSelectSummerPrograms from "$lib/components/FilterSelectSummerPrograms.svelte"
 
-  let { data }: { data: { summers: SummerDTO[] } } = $props()
+  let { data }: { data: { summerPrograms: SummerDTO[] } } = $props()
 
   let showModal = $state(false)
-  let activeScholarship = $state<Summer | null>(null)
+  let filtersOpen = $state(false)
+  let activeSummerProgram = $state<Summer | null>(null)
   let activeCardRect = $state<DOMRect | null>(null)
   let searchTerm = $state("")
-  let scholarships = $derived(data.summers.map(Summer.from))
+  let selectedFilters = $state<SummerFilterKey[]>([])
+  let summerPrograms = $derived(data.summerPrograms.map(Summer.from))
 
-  const openScholarship = (scholarship: Summer, event: MouseEvent) => {
-    const sourceCard = event.currentTarget instanceof HTMLElement ? event.currentTarget : null
+  let filterOptions = $derived.by(() => {
+    const options = new Map<SummerFilterKey, SummerFilter>()
 
-    activeScholarship = scholarship
+    for (const summerProgram of summerPrograms) {
+      for (const filter of summerProgram.displayFilters()) {
+        options.set(filter.key, filter)
+      }
+    }
+
+    return [...options.values()].sort((first, second) =>
+      first.name.localeCompare(second.name),
+    )
+  })
+
+  const openSummerProgram = (summerProgram: Summer, event: MouseEvent) => {
+    const sourceCard =
+      event.currentTarget instanceof HTMLElement ? event.currentTarget : null
+
+    activeSummerProgram = summerProgram
     activeCardRect = sourceCard?.getBoundingClientRect() ?? null
     showModal = true
   }
 
-  const sortScholarships = (term: string): Summer[] => {
+  const sortSummerPrograms = (
+    term: string,
+    source: Summer[],
+  ): Summer[] => {
     const query = term.trim()
 
-    return [...scholarships]
-      .map((scholarship) => ({
-        scholarship,
-        similarity: fuzzy(query, scholarship.name),
+    if (!query) return [...source]
+
+    return [...source]
+      .map((summerProgram) => ({
+        summerProgram,
+        similarity: fuzzy(query, summerProgram.name),
       }))
-      .sort((firstItem, secondItem) => secondItem.similarity - firstItem.similarity)
-      .map(({ scholarship }) => scholarship)
+      .sort(
+        (firstItem, secondItem) => secondItem.similarity - firstItem.similarity,
+      )
+      .map(({ summerProgram }) => summerProgram)
   }
 
-  let renderedScholarships: Summer[] = $state(sortScholarships(""))
+  const toggleFilter = (filter: SummerFilterKey) => {
+    selectedFilters = selectedFilters.includes(filter)
+      ? selectedFilters.filter((selectedFilter) => selectedFilter !== filter)
+      : [...selectedFilters, filter]
+  }
+
+  const resetFilters = () => {
+    selectedFilters = []
+  }
+
+  const formatGradeList = (grades: number[]) =>
+    grades.map((grade) => `Grade ${grade}`).join(", ")
+
+  const matchesFilters = (summerProgram: Summer) => {
+    const hasSelectedFilters =
+      selectedFilters.length === 0 ||
+      selectedFilters.every((selectedFilter) =>
+        summerProgram.filters.includes(selectedFilter),
+      )
+
+    if (!hasSelectedFilters) return false
+    return true
+  }
+
+  let renderedSummerPrograms = $derived.by(() =>
+    sortSummerPrograms(searchTerm, summerPrograms.filter(matchesFilters)),
+  )
+
+  let activeFilterCount = $derived(
+    selectedFilters.length
+  )
 
   $effect(() => {
     if (!showModal) {
       activeCardRect = null
     }
   })
+
 </script>
 
-<Search
-  bind:searchTerm
-  on:input={() => (renderedScholarships = sortScholarships(searchTerm))}
-/>
+<div class="search-tools">
+  <Search bind:searchTerm thing="summer programs"/>
+  <button
+    type="button"
+    class="filter-tab"
+    class:is-active={filtersOpen}
+    aria-expanded={filtersOpen}
+    aria-controls="summerprogram-filters"
+    onclick={() => (filtersOpen = !filtersOpen)}
+  >
+    <span class="filter-icon" aria-hidden="true"></span>
+    <span>Filters</span>
+    {#if activeFilterCount}
+      <span class="filter-count">{activeFilterCount}</span>
+    {/if}
+  </button>
+</div>
 
-<section class="scholarship-grid">
-  {#each renderedScholarships as scholarship (scholarship.id)}
-    <div
-      class="scholarship-card-slot"
-      class:source-hidden={showModal && activeScholarship?.id === scholarship.id}
-      aria-hidden={showModal && activeScholarship?.id === scholarship.id}
-    >
-      <SummerProgramCard
-        onclick={(event) => openScholarship(scholarship, event)}
-        name={scholarship.name}
-        deadline={scholarship.formattedDeadline()}
-        daysLeft={scholarship.daysUntil()}
-        description={scholarship.description}
-        estimated_cost={scholarship.estimated_costRange()}
-        filters={scholarship.displayFilters()}
-      />
-    </div>
-  {/each}
-</section>
+{#if filtersOpen}
+  <div
+    class="filter-transition"
+    transition:slide={{ duration: 180, axis: "y" }}
+  >
+    <FilterSelectSummerPrograms
+      filters={filterOptions}
+      {selectedFilters}
+      resultCount={renderedSummerPrograms.length}
+      totalCount={summerPrograms.length}
+      onFilterToggle={toggleFilter}
+      onReset={resetFilters}
+    />
+  </div>
+{/if}
+
+{#if renderedSummerPrograms.length}
+  <section class="scholarship-grid">
+    {#each renderedSummerPrograms as summerProgram (summerProgram.id)}
+      <div
+        class="scholarship-card-slot"
+        class:source-hidden={showModal &&
+          activeSummerProgram?.id === summerProgram.id}
+        aria-hidden={showModal && activeSummerProgram?.id === summerProgram.id}
+      >
+        <SummerProgramCard
+          onclick={(event) => openSummerProgram(summerProgram, event)}
+          name={summerProgram.name}
+          deadline={summerProgram.formattedDeadline()}
+          daysLeft={summerProgram.daysUntil()}
+          description={summerProgram.description}
+          filters={summerProgram.displayFilters()}
+        />
+      </div>
+    {/each}
+  </section>
+{:else}
+  <div class="empty-state">
+    <p>No summer programs match this search.</p>
+    <button type="button" onclick={resetFilters}>Reset filters</button>
+  </div>
+{/if}
 
 <Modal bind:showModal sourceRect={activeCardRect}>
-  {#if activeScholarship}
-    <header class="modal-header">
-      <div class="meta">
-        <p class="eyebrow">Scholarship</p>
-        <h2>{activeScholarship.name}</h2>
-        {#if activeScholarship.estimated_costRange()}
-          <p class="award-inline">
-            {activeScholarship.estimated_costRange()}
-          </p>
-        {/if}
-      </div>
-      <div class="deadline">
-        <span class={`countdown ${activeScholarship.countdownClass()}`}>
-          {activeScholarship.countdownLabel()}
-        </span>
-        <div class="deadline-text">
-          <span>Deadline</span>
-          <strong>{activeScholarship.formattedDeadline()}</strong>
+  {#if activeSummerProgram}
+    <article class="summerprogram-modal">
+      <header class="modal-header">
+        <div class="meta">
+          <p class="eyebrow">Summer Program</p>
+          <h2>{activeSummerProgram.name}</h2>
         </div>
+      </header>
+
+      <section class="detail-grid" aria-label="Summer program details">
+        
+
+        <div class="detail-tile">
+          <span>Deadline</span>
+          <strong>{activeSummerProgram.formattedDeadline()}</strong>
+        </div>
+
+        <div class="detail-tile">
+          <span>Status</span>
+          <strong class={`countdown ${activeSummerProgram.countdownClass()}`}>
+            {activeSummerProgram.countdownLabel()}
+          </strong>
+        </div>
+
+        {#if activeSummerProgram.availableGrades?.length}
+          <div class="detail-tile">
+            <span>Eligible grades</span>
+            <strong>{formatGradeList(activeSummerProgram.availableGrades)}</strong
+            >
+          </div>
+        {/if}
+      </section>
+
+      <div class="modal-content-grid">
+        <section class="modal-section overview-section">
+          <p class="section-label">Overview</p>
+          <p class="modal-description">{activeSummerProgram.description}</p>
+        </section>
+
+        <aside class="modal-section sidebar-section">
+          {#if activeSummerProgram.primary_link}
+            <a
+              class="primary-link"
+              href={activeSummerProgram.primary_link}
+              target="_blank"
+              rel="noreferrer"
+            >
+              View full details
+            </a>
+          {/if}
+
+          {#if activeSummerProgram.displayFilters().length}
+            <div class="tag-section">
+              <p class="section-label">Categories</p>
+              <div class="tags">
+                {#each activeSummerProgram.displayFilters() as filter (filter.key)}
+                  <Tag
+                    color={filter.color}
+                    name={filter.name}
+                    description={filter.description}
+                  />
+                {/each}
+              </div>
+            </div>
+          {/if}
+        </aside>
       </div>
-    </header>
-
-    <p class="description">{activeScholarship.description}</p>
-
-    {#if activeScholarship.primary_link}
-      <a
-        class="primary-link"
-        href={activeScholarship.primary_link}
-        target="_blank"
-        rel="noreferrer"
-      >
-        View full details
-      </a>
-    {/if}
-
-    {#if activeScholarship.displayFilters().length}
-      <div class="tags">
-        {#each activeScholarship.displayFilters() as filter (filter.key)}
-          <Tag color={filter.color} name={filter.name} description={filter.description} />
-        {/each}
-      </div>
-    {/if}
+    </article>
   {/if}
 </Modal>
 
 <style lang="scss">
+  @use "$lib/styles/global.scss" as *;
+
+  .search-tools {
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+    margin: 0 0 18px;
+  }
+
+  .search-tools :global(.search-shell) {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    height: 7vh;
+    min-height: 52px;
+  }
+
+  .search-tools :global(.search-bar) {
+    width: 100%;
+  }
+
+  .filter-tab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    min-width: 124px;
+    min-height: 52px;
+    padding: 12px 15px;
+    border: 1px solid $nav-border;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.86);
+    color: $primary;
+    cursor: pointer;
+    font:
+      800 0.94rem/1 "Inter",
+      system-ui,
+      -apple-system,
+      sans-serif;
+    box-shadow: 0 12px 26px $nav-shadow;
+    transition:
+      background 140ms ease,
+      border-color 140ms ease,
+      box-shadow 140ms ease,
+      transform 140ms ease;
+    z-index: 0;
+  }
+
+  .filter-tab:hover,
+  .filter-tab:focus-visible,
+  .filter-tab.is-active {
+    background: $link-focus;
+    border-color: darken($nav-border, 30);
+    box-shadow: 0 15px 30px $link-shadow;
+    outline: none;
+    transform: translateY(-1px);
+  }
+
+  .filter-icon {
+    position: relative;
+    display: inline-block;
+    width: 18px;
+    height: 14px;
+    transition: transform 140ms ease;
+  }
+
+  .filter-icon::before,
+  .filter-icon::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    width: 18px;
+    height: 2px;
+    border-radius: 999px;
+    background: currentColor;
+    box-shadow: 0 6px 0 currentColor;
+    transition:
+      transform 140ms ease,
+      width 140ms ease;
+  }
+
+  .filter-icon::before {
+    top: 0;
+  }
+
+  .filter-icon::after {
+    bottom: 6px;
+    width: 12px;
+  }
+
+  .filter-tab.is-active .filter-icon {
+    transform: translateY(1px);
+  }
+
+  .filter-tab.is-active .filter-icon::after {
+    width: 18px;
+    transform: translateX(3px);
+  }
+
+  .filter-count {
+    display: inline-grid;
+    place-items: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: $primary;
+    color: #ffffff;
+    font-size: 0.78rem;
+  }
+
+  .filter-transition {
+    overflow: hidden;
+  }
+
   .scholarship-grid {
     display: grid;
     gap: 14px;
@@ -125,6 +363,7 @@
 
   .scholarship-card-slot {
     transition: opacity 160ms ease;
+    max-width: 75vw;
   }
 
   .scholarship-card-slot.source-hidden {
@@ -132,68 +371,180 @@
     pointer-events: none;
   }
 
-  .modal-header {
-    display: flex;
-    justify-content: space-between;
+  .empty-state {
+    display: grid;
+    place-items: center;
     gap: 12px;
-    align-items: flex-start;
+    min-height: 220px;
+    margin: 18px 0 32px;
+    padding: 30px;
+    border: 1px dashed $nav-border;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.72);
+    color: $eyebrow;
+    text-align: center;
+  }
+
+  .empty-state p {
+    margin: 0;
+    font-weight: 800;
+  }
+
+  .empty-state button {
+    border: 1px solid $nav-border;
+    border-radius: 10px;
+    background: $link-focus;
+    color: $primary;
+    cursor: pointer;
+    font:
+      800 0.9rem/1 "Inter",
+      system-ui,
+      -apple-system,
+      sans-serif;
+    padding: 10px 12px;
+  }
+
+  .scholarship-modal {
+    display: grid;
+    gap: 18px;
+  }
+
+  .modal-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 18px;
+    align-items: start;
+    padding: 0 44px 18px 0;
+    border-bottom: 1px solid $nav-border;
+  }
+
+  .meta {
+    display: grid;
+    gap: 6px;
+    min-width: 0;
   }
 
   .meta h2 {
-    margin: 2px 0 0;
-    font-size: 1.2rem;
-  }
-
-  .eyebrow {
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    font-weight: 700;
-    font-size: 0.75rem;
-    color: rgba(15, 60, 164, 0.9);
     margin: 0;
+    color: $primary;
+    font-size: clamp(1.35rem, 2.5vw, 1.9rem);
+    line-height: 1.18;
   }
 
-  .award-inline {
-    margin: 4px 0 0;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 10px;
-    border-radius: 10px;
-    background: rgba(16, 185, 129, 0.12);
-    border: 1px solid rgba(16, 185, 129, 0.25);
-    color: #0f5132;
-    font-weight: 700;
-    width: fit-content;
-  }
-
-  .deadline {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    padding: 0.45rem 0.7rem;
-    background: rgba(56, 189, 248, 0.16);
-    border: 1px solid rgba(56, 189, 248, 0.32);
-    border-radius: 10px;
-  }
-
-  .deadline-text {
-    display: grid;
-    align-items: center;
-    text-align: right;
-    line-height: 1.1;
-  }
-
-  .deadline-text span {
+  .eyebrow,
+  .section-label {
+    margin: 0;
+    color: $primary;
     font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #0f3ca4;
   }
 
-  .deadline-text strong {
+  .status-card {
+    display: grid;
+    justify-items: end;
+    gap: 4px;
+    min-width: 132px;
+    padding: 12px 14px;
+    border: 1px solid $nav-border;
+    border-radius: 14px;
+    background: $link-focus;
+    color: $text;
+    text-align: right;
+  }
+
+  .status-card span {
+    font-size: 0.78rem;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .status-card strong {
+    color: $primary;
     font-size: 1rem;
-    color: #1d4ed8;
+  }
+
+  .status-card.calm {
+    background: $calm;
+    border-color: darken($calm, 10);
+  }
+
+  .status-card.warm {
+    background: $warm;
+    border-color: darken($warm, 10);
+  }
+
+  .status-card.hot {
+    background: $hot;
+    border-color: darken($hot, 10);
+  }
+
+  .status-card.passed {
+    background: rgba(90, 112, 144, 0.12);
+    border-color: rgba(90, 112, 144, 0.26);
+    color: #4f5f7d;
+  }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .detail-tile {
+    display: grid;
+    align-content: start;
+    gap: 7px;
+    min-height: 82px;
+    padding: 12px;
+    border: 1px solid $nav-border;
+    border-radius: 14px;
+    background: rgba(247, 250, 255, 0.86);
+  }
+
+  .detail-tile span {
+    color: $eyebrow;
+    font-size: 0.73rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .detail-tile strong {
+    color: $text;
+    font-size: 0.95rem;
+    line-height: 1.28;
+  }
+
+  .modal-content-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(190px, 0.38fr);
+    gap: 14px;
+    align-items: start;
+  }
+
+  .modal-section {
+    display: grid;
+    gap: 10px;
+    padding: 16px;
+    border: 1px solid rgba(199, 115, 115, 0.12);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.72);
+  }
+
+  .overview-section {
+    min-height: 170px;
+  }
+
+  .sidebar-section {
+    gap: 14px;
+  }
+
+  .tag-section {
+    display: grid;
+    gap: 10px;
   }
 
   .countdown {
@@ -206,8 +557,8 @@
     font-size: 0.85rem;
     letter-spacing: 0.02em;
     text-transform: uppercase;
-    background: rgba(56, 189, 248, 0.2);
-    color: #0b2f66;
+    background: rgba(248, 133, 56, 0.2);
+    color: $primary
   }
 
   .countdown.calm {
@@ -235,9 +586,9 @@
   }
 
   .countdown.passed {
-    background: rgba(90, 112, 144, 0.14);
-    color: #4f5f7d;
-    box-shadow: inset 0 0 0 1px rgba(90, 112, 144, 0.3);
+    background: rgba(144, 90, 90, 0.14);
+    color: $primary;
+    box-shadow: inset 0 0 0 1px $nav-shadow;
     text-decoration: line-through;
   }
 
@@ -277,30 +628,73 @@
     }
   }
 
-  .description {
+  .modal-description {
     margin: 0;
     color: var(--text);
-    line-height: 1.55;
+    font-size: 1rem;
+    line-height: 1.65;
   }
 
   .primary-link {
-    display: inline-flex;
+    display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
-    padding: 10px 12px;
-    border-radius: 10px;
-    background: linear-gradient(135deg, #38bdf8, #1d4ed8);
-    color: #0b1f3b;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, $gold, $red);
+    color: #ffffff;
     text-decoration: none;
     font-weight: 800;
-    box-shadow: 0 12px 26px rgba(37, 99, 235, 0.22);
-    width: fit-content;
+    box-shadow: 0 12px 26px $nav-shadow;
+    transition:
+      transform 130ms ease,
+      box-shadow 130ms ease;
+  }
+
+  .primary-link:hover,
+  .primary-link:focus-visible {
+    outline: none;
+    transform: translateY(-1px);
+    box-shadow: 0 16px 30px $nav-shadow;
   }
 
   .tags {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-top: 6px;
+  }
+
+  @media (max-width: 640px) {
+    .search-tools {
+      flex-direction: column;
+    }
+
+    .filter-tab {
+      width: 100%;
+    }
+
+    .modal-header,
+    .modal-content-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .modal-header {
+      padding-right: 38px;
+    }
+
+    .status-card {
+      justify-items: start;
+      width: 100%;
+      text-align: left;
+    }
+
+    .detail-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .overview-section {
+      min-height: 0;
+    }
   }
 </style>
