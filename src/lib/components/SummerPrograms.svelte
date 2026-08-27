@@ -1,14 +1,15 @@
 <script lang="ts">
   import Tag from "$lib/components/Tag.svelte"
-  import type { ScholarshipFilter } from "$lib/scripts/scholarships"
+  import type { SummerFilter } from "$lib/scripts/summerprograms"
 
   interface Props {
     name: string
-    deadline: string
-    daysLeft: number
+    deadline: string | null
+    daysLeft: number | null
     description: string
-    endowmentRange?: string | null
-    filters?: ScholarshipFilter[]
+    estimated_cost?: string | null
+    location?: string
+    filters?: SummerFilter[]
     onclick?: (event: MouseEvent) => void
   }
 
@@ -17,13 +18,15 @@
   let isDescriptionClipped = $state(false)
 
   const countdownClass = () => {
+    if (props.daysLeft === null) return "none"
     if (props.daysLeft < 0) return "passed"
     if (props.daysLeft <= 3) return "hot"
     if (props.daysLeft <= 10) return "warm"
     return "calm"
   }
 
-  const countdownLabel = () => (props.daysLeft < 0 ? "Passed" : `${props.daysLeft}d`)
+  const countdownLabel = () =>
+    props.daysLeft === null ? "" : props.daysLeft < 0 ? "Passed" : `${props.daysLeft}d`
 
   const handleKeydown = (event: KeyboardEvent) => {
     if (event.key === "Enter" || event.key === " ") {
@@ -55,7 +58,7 @@
 </script>
 
 <section
-  class="scholarship-card"
+  class="Summer-card"
   role="button"
   tabindex="0"
   onclick={props.onclick}
@@ -64,8 +67,11 @@
   <div class="header">
     <div class="header-left">
       <div class="name">{props.name}</div>
-      {#if props.endowmentRange}
-        <span class="award">{props.endowmentRange}</span>
+      {#if props.estimated_cost}
+        <span class="award">{props.estimated_cost}</span>
+      {/if}
+      {#if props.location}
+        <span class="location">{props.location}</span>
       {/if}
       {#if props.filters?.length}
         <div class="filter-tags">
@@ -75,15 +81,17 @@
         </div>
       {/if}
     </div>
-    <div class="deadline">
-      <span class={`countdown ${countdownClass()}`}>
-        {countdownLabel()}
-      </span>
-      <div class="deadline-text">
-        <span>Deadline</span>
-        <strong>{props.deadline}</strong>
+    {#if props.deadline}
+      <div class="deadline">
+        <span class={`countdown ${countdownClass()}`}>
+          {countdownLabel()}
+        </span>
+        <div class="deadline-text">
+          <span>Deadline</span>
+          <strong>{props.deadline}</strong>
+        </div>
       </div>
-    </div>
+    {/if}
   </div>
 
   <div class="description-block">
@@ -108,7 +116,7 @@
     box-sizing: border-box;
   }
 
-  .scholarship-card {
+  .Summer-card {
     display: grid;
     gap: 0.75rem;
     align-items: start;
@@ -170,6 +178,17 @@
     background: rgba($calm, 0.14);
     color: $text;
     border: 1px solid rgba($calm, 0.32);
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-weight: 700;
+    font-size: 0.82rem;
+    white-space: nowrap;
+  }
+
+  .location {
+    background: rgba($primary, 0.08);
+    color: $text;
+    border: 1px solid $nav-border;
     border-radius: 999px;
     padding: 4px 10px;
     font-weight: 700;
@@ -328,7 +347,7 @@
   }
 
   @container (max-width: 30rem) {
-    .scholarship-card {
+    .Summer-card {
       padding: 0.9rem 1rem;
       border-radius: 12px;
     }

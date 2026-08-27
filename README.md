@@ -1,6 +1,6 @@
-# College and Career Center Scholarships and Internships Catalog (C3SI)
+# College and Career Center Scholarships and Summer Programs Catalog (C3SS)
 
-The C3SI is a Scholarship and Internship search catalog for the LCHS College and Career Center. It provides the user with a database of information of scholarships and internships available locally, statewide, nationwide, and globally to La Canada High School Students with fast searching and filtering capabilities. Try it out at **[betac3si.lciteam.club](https://betac3si.lciteam.club)**!
+The C3SS is a scholarship and summer program search catalog for the LCHS College and Career Center, meant specifically for students attending LCHS. It provides the user with a database of information of scholarships and summer programs available locally, statewide, nationwide, and globally to La Canada High School Students with fast searching and filtering capabilities. Try it out at **[betac3ss.lciteam.club](https://betac3ss.lciteam.club)**!
 
 ## Starting a Dev Server
 

@@ -1,3 +1,4 @@
+
 const formatCurrency = (value: number) =>
   value.toLocaleString("en-US", {
     style: "currency",
@@ -5,11 +6,11 @@ const formatCurrency = (value: number) =>
     maximumFractionDigits: 0,
   })
 
-export type EndowmentRange = [number, number | "full-tuition"]
+export type estimated_costRange = [number, number | "free"]
 
-export type Endowment = {
+export type Estimated_cost = {
   place: number
-  amount: number | EndowmentRange
+  amount: number | estimated_costRange
 }
 
 export const FILTER_COLORS = {
@@ -34,98 +35,106 @@ export type FilterDefinition = {
 const filterDefinitions = {
   science: {
     name: "Science",
-    description: "The scholarship has some relevancy to science.",
+    description: "The summer program has some relevancy to science.",
     color: "green",
   },
   ethnic: {
     name: "Ethnic",
-    description: "The scholarship is intended for a specific ethnic community.",
+    description: "The summer program is intended for a specific ethnic community.",
     color: "purple",
   },
   needbased: {
     name: "Need-Based",
-    description: "The scholarship considers financial need.",
+    description: "The summer program considers financial need.",
     color: "gold",
   },
-  experienceincluded: {
-    name: "Experience Included",
-    description: "The scholarship offers an additional experience on top of the financial endowment.",
-    color: "red",
-  },
+//   experienceincluded: {
+//     name: "Experience Included",
+//     description: "The summer program offers an additional experience on top of the financial estimated_cost.",
+//     color: "red",
+//   },
   literaryarts: {
     name: "Literary Arts",
-    description: "The scholarship has some relevancy to the literary arts.",
+    description: "The summer program has some relevancy to the literary arts.",
     color: "orange",
   },
   advocacy: {
     name: "Advocacy",
-    description: "The scholarship has some relevancy to political or social activism.",
+    description: "The summer program has some relevancy to political or social activism.",
     color: "orange",
   },
   meritonly: {
     name: "Merit Only",
-    description: "The scholarship only considers merit in applicants.",
+    description: "The summer program only considers merit in applicants.",
     color: "gold",
   },
-  majorspecific: {
-    name: "Major-Specific",
-    description: "The scholarship only accepts applicants pursuing a specific major in college/other program.",
-    color: "cyan",
-  },
+//   majorspecific: {
+//     name: "Major-Specific",
+//     description: "The summer program only accepts applicants pursuing a specific major in college/other program.",
+//     color: "cyan",
+//   },
 } as const satisfies Record<string, FilterDefinition>
 
-export type ScholarshipFilterKey = keyof typeof filterDefinitions
+export type SummerFilterKey = keyof typeof filterDefinitions
 
-export type ScholarshipFilter = FilterDefinition & {
-  key: ScholarshipFilterKey
+export type SummerFilter = FilterDefinition & {
+  key: SummerFilterKey
 }
 
-export type ScholarshipDTO = {
+export type SummerDTO = {
   id: number
   name: string
+  created: string
   description: string
-  deadline: string
+  deadline: string | null
   primary_link: string
-  filters?: ScholarshipFilterKey[] | null
+  filters?: SummerFilterKey[] | null
   availableGrades: number[]
-  endowment: Endowment[]
+  estimated_cost: Estimated_cost[]
+  location?: string
 }
 
-export class Scholarship implements ScholarshipDTO {
+export class Summer implements SummerDTO {
   id: number
   name: string
+  created: string
   description: string
-  deadline: string
+  deadline: string | null
   primary_link: string
-  filters: ScholarshipFilterKey[]
+  filters: SummerFilterKey[]
   availableGrades: number[]
-  endowment: Endowment[]
-
-  constructor(dto: ScholarshipDTO) {
+  estimated_cost: Estimated_cost[]
+  location?: string
+  constructor(dto: SummerDTO) {
     this.id = dto.id
     this.name = dto.name
+    this.created = dto.created
     this.description = dto.description
     this.deadline = dto.deadline
     this.primary_link = dto.primary_link
-    this.filters = dto.filters ?? []
+    this.filters = Array.isArray(dto.filters) ? dto.filters : []
     this.availableGrades = dto.availableGrades
-    this.endowment = dto.endowment ?? []
+    this.estimated_cost = dto.estimated_cost ?? []
+    this.location = dto.location
   }
 
-  static from(dto: ScholarshipDTO) {
-    return new Scholarship(dto)
+  static from(dto: SummerDTO) {
+    return new Summer(dto)
   }
 
   get deadlineDate() {
-    return new Date(this.deadline)
+    return this.deadline ? new Date(this.deadline) : null
   }
 
   formattedDeadline() {
     const date = this.deadlineDate
+    if (!date) return null
     return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
   }
 
   daysUntil(reference: Date = new Date()) {
+    if (!this.deadline) return null
+
     const msPerDay = 1000 * 60 * 60 * 24
     const today = new Date(reference)
     today.setHours(0, 0, 0, 0)
@@ -138,6 +147,7 @@ export class Scholarship implements ScholarshipDTO {
 
   countdownClass(reference?: Date) {
     const days = this.daysUntil(reference)
+    if (days === null) return "none" as const
     if (days < 0) return "passed" as const
     if (days <= 3) return "hot" as const
     if (days <= 10) return "warm" as const
@@ -146,57 +156,60 @@ export class Scholarship implements ScholarshipDTO {
 
   countdownLabel(reference?: Date, { short = false } = {}) {
     const days = this.daysUntil(reference)
+    if (days === null) return "No deadline"
     if (days < 0) return "Passed"
     if (short) return `${days}d`
     return `${days} days`
   }
 
-  endowmentRange() {
+  estimated_costRange() {
     let lowest = Number.POSITIVE_INFINITY
-    let highest: number | "full-tuition" = Number.NEGATIVE_INFINITY
+    let highest: number | "free" = Number.NEGATIVE_INFINITY
 
-    if (!this.endowment || this.endowment.length === 0) return null
+    if (!this.estimated_cost || this.estimated_cost.length === 0) return null
 
-    for (const prize of this.endowment) {
+    for (const prize of this.estimated_cost) {
       const [min, max] = Array.isArray(prize.amount)
         ? prize.amount
         : [prize.amount, prize.amount]
 
       lowest = Math.min(lowest, min)
       highest =
-        highest === "full-tuition"
-          ? "full-tuition"
-          : max === "full-tuition"
-            ? "full-tuition"
+        highest === "free"
+          ? "free"
+          : max === "free"
+            ? "free"
             : Math.max(highest, max)
     }
 
-    if (!Number.isFinite(lowest) || (highest !== "full-tuition" && !Number.isFinite(highest))) {
+    if (!Number.isFinite(lowest) || (highest !== "free" && !Number.isFinite(highest))) {
       return null
     }
 
     return lowest === highest
       ? formatCurrency(lowest)
-      : `${formatCurrency(lowest)} – ${highest === "full-tuition" ? "Full Tuition" : formatCurrency(highest)}`
+      : `${formatCurrency(lowest)} – ${highest === "free" ? "free" : formatCurrency(highest)}`
   }
 
-  displayFilters(): ScholarshipFilter[] {
+  displayFilters(): SummerFilter[] {
     return this.filters.flatMap((key) => {
       const definition = filterDefinitions[key]
       return definition ? [{ key, ...definition }] : []
     })
   }
 
-  toJSON(): ScholarshipDTO {
+  toJSON(): SummerDTO {
     return {
       id: this.id,
       name: this.name,
+      created: this.created,
       description: this.description,
       deadline: this.deadline,
       primary_link: this.primary_link,
       filters: this.filters,
       availableGrades: this.availableGrades,
-      endowment: this.endowment,
+      estimated_cost: this.estimated_cost,
+      location: this.location,
     }
   }
 }

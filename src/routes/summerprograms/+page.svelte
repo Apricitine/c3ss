@@ -1,36 +1,36 @@
 <script lang="ts">
   import Modal from "$lib/components/Modal.svelte"
-  import ScholarshipCard from "$lib/components/Scholarship.svelte"
+  import SummerProgramCard from "$lib/components/SummerPrograms.svelte"
   import Tag from "$lib/components/Tag.svelte"
   import { fuzzy } from "fast-fuzzy"
   import { slide } from "svelte/transition"
   import {
-    Scholarship,
-    type ScholarshipDTO,
-    type ScholarshipFilter,
-    type ScholarshipFilterKey,
-  } from "$lib/scripts/scholarships"
+    Summer,
+    type SummerDTO,
+    type SummerFilter,
+    type SummerFilterKey,
+  } from "$lib/scripts/summerprograms"
   import Search from "$lib/components/Search.svelte"
-  import FilterSelect from "$lib/components/FilterSelect.svelte"
+  import SummerFilterSelect from "$lib/components/SummerFilterSelect.svelte"
 
-  let { data }: { data: { scholarships: ScholarshipDTO[] } } = $props()
+  let { data }: { data: { summers: SummerDTO[] } } = $props()
 
   let showModal = $state(false)
   let filtersOpen = $state(false)
-  let activeScholarship = $state<Scholarship | null>(null)
+  let activeProgram = $state<Summer | null>(null)
   let activeCardRect = $state<DOMRect | null>(null)
   let searchTerm = $state("")
-  let selectedFilters = $state<ScholarshipFilterKey[]>([])
-  let selectedMinAward = $state(0)
-  let selectedMaxAward = $state(0)
-  let awardRangeInitialized = $state(false)
-  let scholarships = $derived(data.scholarships.map(Scholarship.from))
+  let selectedFilters = $state<SummerFilterKey[]>([])
+  let selectedMinCost = $state(0)
+  let selectedMaxCost = $state(0)
+  let costRangeInitialized = $state(false)
+  let programs = $derived(data.summers.map(Summer.from))
 
   let filterOptions = $derived.by(() => {
-    const options = new Map<ScholarshipFilterKey, ScholarshipFilter>()
+    const options = new Map<SummerFilterKey, SummerFilter>()
 
-    for (const scholarship of scholarships) {
-      for (const filter of scholarship.displayFilters()) {
+    for (const program of programs) {
+      for (const filter of program.displayFilters()) {
         options.set(filter.key, filter)
       }
     }
@@ -40,29 +40,26 @@
     )
   })
 
-  const getFiniteAwardValues = (scholarship: Scholarship) =>
-    scholarship.endowment.flatMap((prize) => {
+  const getFiniteCostValues = (program: Summer) =>
+    program.estimated_cost.flatMap((prize) => {
       const [min, max] = Array.isArray(prize.amount)
         ? prize.amount
         : [prize.amount, prize.amount]
 
-      return max === "full-tuition" ? [min] : [min, max]
+      return max === "free" ? [min] : [min, max]
     })
 
-  const getAwardRange = (scholarship: Scholarship) => {
+  const getCostRange = (program: Summer) => {
     let lowest = Number.POSITIVE_INFINITY
     let highest = Number.NEGATIVE_INFINITY
 
-    for (const prize of scholarship.endowment) {
+    for (const prize of program.estimated_cost) {
       const [min, max] = Array.isArray(prize.amount)
         ? prize.amount
         : [prize.amount, prize.amount]
 
       lowest = Math.min(lowest, min)
-      highest =
-        max === "full-tuition"
-          ? Number.POSITIVE_INFINITY
-          : Math.max(highest, max)
+      highest = max === "free" ? Number.POSITIVE_INFINITY : Math.max(highest, max)
     }
 
     if (!Number.isFinite(lowest) || highest === Number.NEGATIVE_INFINITY)
@@ -71,8 +68,8 @@
     return { min: lowest, max: highest }
   }
 
-  let awardBounds = $derived.by(() => {
-    const values = scholarships.flatMap(getFiniteAwardValues)
+  let costBounds = $derived.by(() => {
+    const values = programs.flatMap(getFiniteCostValues)
 
     if (!values.length) return { min: 0, max: 0 }
 
@@ -82,102 +79,87 @@
     }
   })
 
-  let isAwardRangeFiltered = $derived(
-    awardBounds.max > awardBounds.min &&
-      (selectedMinAward > awardBounds.min ||
-        selectedMaxAward < awardBounds.max),
+  let isCostRangeFiltered = $derived(
+    costBounds.max > costBounds.min &&
+      (selectedMinCost > costBounds.min || selectedMaxCost < costBounds.max),
   )
 
   let activeFilterCount = $derived(
-    selectedFilters.length + (isAwardRangeFiltered ? 1 : 0),
+    selectedFilters.length + (isCostRangeFiltered ? 1 : 0),
   )
 
-  const openScholarship = (scholarship: Scholarship, event: MouseEvent) => {
-    const sourceCard =
-      event.currentTarget instanceof HTMLElement ? event.currentTarget : null
+  const openProgram = (program: Summer, event: MouseEvent) => {
+    const sourceCard = event.currentTarget instanceof HTMLElement ? event.currentTarget : null
 
-    activeScholarship = scholarship
+    activeProgram = program
     activeCardRect = sourceCard?.getBoundingClientRect() ?? null
     showModal = true
   }
 
-  const sortScholarships = (
-    term: string,
-    source: Scholarship[],
-  ): Scholarship[] => {
+  const sortPrograms = (term: string, source: Summer[]): Summer[] => {
     const query = term.trim()
 
     if (!query) return [...source]
 
     return [...source]
-      .map((scholarship) => ({
-        scholarship,
-        similarity: fuzzy(query, scholarship.name),
+      .map((program) => ({
+        program,
+        similarity: fuzzy(query, program.name),
       }))
-      .sort(
-        (firstItem, secondItem) => secondItem.similarity - firstItem.similarity,
-      )
-      .map(({ scholarship }) => scholarship)
+      .sort((firstItem, secondItem) => secondItem.similarity - firstItem.similarity)
+      .map(({ program }) => program)
   }
 
-  const toggleFilter = (filter: ScholarshipFilterKey) => {
+  const toggleFilter = (filter: SummerFilterKey) => {
     selectedFilters = selectedFilters.includes(filter)
       ? selectedFilters.filter((selectedFilter) => selectedFilter !== filter)
       : [...selectedFilters, filter]
   }
 
-  const setMinAward = (value: number) => {
-    selectedMinAward = Math.min(
-      Math.max(value, awardBounds.min),
-      selectedMaxAward,
-    )
+  const setMinCost = (value: number) => {
+    selectedMinCost = Math.min(Math.max(value, costBounds.min), selectedMaxCost)
   }
 
-  const setMaxAward = (value: number) => {
-    selectedMaxAward = Math.max(
-      Math.min(value, awardBounds.max),
-      selectedMinAward,
-    )
+  const setMaxCost = (value: number) => {
+    selectedMaxCost = Math.max(Math.min(value, costBounds.max), selectedMinCost)
   }
 
   const resetFilters = () => {
     selectedFilters = []
-    selectedMinAward = awardBounds.min
-    selectedMaxAward = awardBounds.max
+    selectedMinCost = costBounds.min
+    selectedMaxCost = costBounds.max
   }
 
   const formatGradeList = (grades: number[]) =>
     grades.map((grade) => `Grade ${grade}`).join(", ")
 
-  const matchesFilters = (scholarship: Scholarship) => {
+  const matchesFilters = (program: Summer) => {
     const hasSelectedFilters =
       selectedFilters.length === 0 ||
-      selectedFilters.every((selectedFilter) =>
-        scholarship.filters.includes(selectedFilter),
-      )
+      selectedFilters.every((selectedFilter) => program.filters.includes(selectedFilter))
 
     if (!hasSelectedFilters) return false
-    if (!isAwardRangeFiltered) return true
+    if (!isCostRangeFiltered) return true
 
-    const awardRange = getAwardRange(scholarship)
+    const costRange = getCostRange(program)
 
     return (
-      awardRange !== null &&
-      awardRange.max >= selectedMinAward &&
-      awardRange.min <= selectedMaxAward
+      costRange !== null &&
+      costRange.max >= selectedMinCost &&
+      costRange.min <= selectedMaxCost
     )
   }
 
-  let renderedScholarships = $derived.by(() =>
-    sortScholarships(searchTerm, scholarships.filter(matchesFilters)),
+  let renderedPrograms = $derived.by(() =>
+    sortPrograms(searchTerm, programs.filter(matchesFilters)),
   )
 
   $effect(() => {
-    if (awardRangeInitialized) return
+    if (costRangeInitialized) return
 
-    selectedMinAward = awardBounds.min
-    selectedMaxAward = awardBounds.max
-    awardRangeInitialized = true
+    selectedMinCost = costBounds.min
+    selectedMaxCost = costBounds.max
+    costRangeInitialized = true
   })
 
   $effect(() => {
@@ -194,7 +176,7 @@
     class="filter-tab"
     class:is-active={filtersOpen}
     aria-expanded={filtersOpen}
-    aria-controls="scholarship-filters"
+    aria-controls="summer-filters"
     onclick={() => (filtersOpen = !filtersOpen)}
   >
     <span class="filter-icon" aria-hidden="true"></span>
@@ -206,90 +188,95 @@
 </div>
 
 {#if filtersOpen}
-  <div
-    class="filter-transition"
-    transition:slide={{ duration: 180, axis: "y" }}
-  >
-    <FilterSelect
+  <div class="filter-transition" transition:slide={{ duration: 180, axis: "y" }}>
+    <SummerFilterSelect
       filters={filterOptions}
       {selectedFilters}
-      minAward={selectedMinAward}
-      maxAward={selectedMaxAward}
-      rangeMin={awardBounds.min}
-      rangeMax={awardBounds.max}
-      resultCount={renderedScholarships.length}
-      totalCount={scholarships.length}
+      minCost={selectedMinCost}
+      maxCost={selectedMaxCost}
+      rangeMin={costBounds.min}
+      rangeMax={costBounds.max}
+      resultCount={renderedPrograms.length}
+      totalCount={programs.length}
       onFilterToggle={toggleFilter}
-      onMinAwardChange={setMinAward}
-      onMaxAwardChange={setMaxAward}
+      onMinCostChange={setMinCost}
+      onMaxCostChange={setMaxCost}
       onReset={resetFilters}
     />
   </div>
 {/if}
 
-{#if renderedScholarships.length}
+{#if renderedPrograms.length}
   <section class="scholarship-grid">
-    {#each renderedScholarships as scholarship (scholarship.id)}
+    {#each renderedPrograms as program (program.id)}
       <div
         class="scholarship-card-slot"
-        class:source-hidden={showModal &&
-          activeScholarship?.id === scholarship.id}
-        aria-hidden={showModal && activeScholarship?.id === scholarship.id}
+        class:source-hidden={showModal && activeProgram?.id === program.id}
+        aria-hidden={showModal && activeProgram?.id === program.id}
       >
-        <ScholarshipCard
-          onclick={(event) => openScholarship(scholarship, event)}
-          name={scholarship.name}
-          deadline={scholarship.formattedDeadline()}
-          daysLeft={scholarship.daysUntil()}
-          description={scholarship.description}
-          endowmentRange={scholarship.endowmentRange()}
-          filters={scholarship.displayFilters()}
+        <SummerProgramCard
+          onclick={(event) => openProgram(program, event)}
+          name={program.name}
+          deadline={program.formattedDeadline()}
+          daysLeft={program.daysUntil()}
+          description={program.description}
+          estimated_cost={program.estimated_costRange()}
+          location={program.location}
+          filters={program.displayFilters()}
         />
       </div>
     {/each}
   </section>
 {:else}
   <div class="empty-state">
-    <p>No scholarships match this search.</p>
+    <p>No summer programs match this search.</p>
     <button type="button" onclick={resetFilters}>Reset filters</button>
   </div>
 {/if}
 
 <Modal bind:showModal sourceRect={activeCardRect}>
-  {#if activeScholarship}
+  {#if activeProgram}
     <article class="scholarship-modal">
       <header class="modal-header">
         <div class="meta">
-          <p class="eyebrow">Scholarship</p>
-          <h2>{activeScholarship.name}</h2>
+          <p class="eyebrow">Summer Program</p>
+          <h2>{activeProgram.name}</h2>
         </div>
       </header>
 
-      <section class="detail-grid" aria-label="Scholarship details">
-        {#if activeScholarship.endowmentRange()}
+      <section class="detail-grid" aria-label="Summer program details">
+        {#if activeProgram.estimated_costRange()}
           <div class="detail-tile">
-            <span>Award</span>
-            <strong>{activeScholarship.endowmentRange()}</strong>
+            <span>Cost</span>
+            <strong>{activeProgram.estimated_costRange()}</strong>
           </div>
         {/if}
 
-        <div class="detail-tile">
-          <span>Deadline</span>
-          <strong>{activeScholarship.formattedDeadline()}</strong>
-        </div>
+        {#if activeProgram.deadline}
+          <div class="detail-tile">
+            <span>Deadline</span>
+            <strong>{activeProgram.formattedDeadline()}</strong>
+          </div>
 
-        <div class="detail-tile">
-          <span>Status</span>
-          <strong class={`countdown ${activeScholarship.countdownClass()}`}>
-            {activeScholarship.countdownLabel()}
-          </strong>
-        </div>
+          <div class="detail-tile">
+            <span>Status</span>
+            <strong class={`countdown ${activeProgram.countdownClass()}`}>
+              {activeProgram.countdownLabel()}
+            </strong>
+          </div>
+        {/if}
 
-        {#if activeScholarship.availableGrades?.length}
+        {#if activeProgram.location}
+          <div class="detail-tile">
+            <span>Location</span>
+            <strong>{activeProgram.location}</strong>
+          </div>
+        {/if}
+
+        {#if activeProgram.availableGrades?.length}
           <div class="detail-tile">
             <span>Eligible grades</span>
-            <strong>{formatGradeList(activeScholarship.availableGrades)}</strong
-            >
+            <strong>{formatGradeList(activeProgram.availableGrades)}</strong>
           </div>
         {/if}
       </section>
@@ -297,14 +284,14 @@
       <div class="modal-content-grid">
         <section class="modal-section overview-section">
           <p class="section-label">Overview</p>
-          <p class="modal-description">{activeScholarship.description}</p>
+          <p class="modal-description">{activeProgram.description}</p>
         </section>
 
         <aside class="modal-section sidebar-section">
-          {#if activeScholarship.primary_link}
+          {#if activeProgram.primary_link}
             <a
               class="primary-link"
-              href={activeScholarship.primary_link}
+              href={activeProgram.primary_link}
               target="_blank"
               rel="noreferrer"
             >
@@ -312,16 +299,12 @@
             </a>
           {/if}
 
-          {#if activeScholarship.displayFilters().length}
+          {#if activeProgram.displayFilters().length}
             <div class="tag-section">
               <p class="section-label">Categories</p>
               <div class="tags">
-                {#each activeScholarship.displayFilters() as filter (filter.key)}
-                  <Tag
-                    color={filter.color}
-                    name={filter.name}
-                    description={filter.description}
-                  />
+                {#each activeProgram.displayFilters() as filter (filter.key)}
+                  <Tag color={filter.color} name={filter.name} description={filter.description} />
                 {/each}
               </div>
             </div>
@@ -535,52 +518,6 @@
     text-transform: uppercase;
   }
 
-  .status-card {
-    display: grid;
-    justify-items: end;
-    gap: 4px;
-    min-width: 132px;
-    padding: 12px 14px;
-    border: 1px solid $nav-border;
-    border-radius: 14px;
-    background: $link-focus;
-    color: $text;
-    text-align: right;
-  }
-
-  .status-card span {
-    font-size: 0.78rem;
-    font-weight: 900;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
-
-  .status-card strong {
-    color: $primary;
-    font-size: 1rem;
-  }
-
-  .status-card.calm {
-    background: $calm;
-    border-color: darken($calm, 10);
-  }
-
-  .status-card.warm {
-    background: $warm;
-    border-color: darken($warm, 10);
-  }
-
-  .status-card.hot {
-    background: $hot;
-    border-color: darken($hot, 10);
-  }
-
-  .status-card.passed {
-    background: rgba(90, 112, 144, 0.12);
-    border-color: rgba(90, 112, 144, 0.26);
-    color: #4f5f7d;
-  }
-
   .detail-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -775,12 +712,6 @@
 
     .modal-header {
       padding-right: 38px;
-    }
-
-    .status-card {
-      justify-items: start;
-      width: 100%;
-      text-align: left;
     }
 
     .detail-grid {

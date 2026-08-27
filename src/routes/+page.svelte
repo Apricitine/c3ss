@@ -18,14 +18,16 @@
   }
 
   for (const scholarship of data.scholarships) {
+    if (!scholarship.deadline) continue;
+
     // name
     const name = scholarship.name;
-    
+
     // deadline
     const year = parseInt((scholarship.deadline.split("T")[0]).split("-")[0], 10);
     const month = parseInt((scholarship.deadline.split("T")[0]).split("-")[1], 10);
     const day = parseInt((scholarship.deadline.split("T")[0]).split("-")[2], 10);
-    
+
     /*
     const now = new Date();
     const currentYear = now.getFullYear();
@@ -67,15 +69,9 @@
 
     return () => clearInterval(myInterval);
   });
-
 </script>
 
-  <section class="hero">
-    <p class="eyebrow">Welcome</p>
-    <h1>Your one-stop reference for scholarships and internships at LCHS</h1>
-    <p class="lede">
-      Discover opportunities tailored to you LCHS students! Don't waste time on irrelevant stuff.
-    </p>
+<section class="hero">
 
     <div class="actions">
       <a class="button primary" href="/scholarships">Explore scholarships</a>
@@ -110,15 +106,6 @@
   </section>
 
 <style lang="scss">
-  .hero {
-    background: linear-gradient(145deg, #0b1f3b, #0f3ca4 38%, #1d4ed8 100%);
-    color: #f3f7ff;
-    padding: 44px 42px 48px;
-    border-radius: 24px;
-    box-shadow: 0 24px 48px rgba(16, 46, 116, 0.32);
-    position: relative;
-    overflow: hidden;
-  }
 
   .hero::after {
     content: "";
