@@ -1,30 +1,23 @@
 <script lang="ts">
   import Modal from "$lib/components/Modal.svelte"
-  import ScholarshipCard from "$lib/components/Scholarship.svelte"
+  import SummerProgramCard from "$lib/components/SummerPrograms.svelte"
   import Tag from "$lib/components/Tag.svelte"
   import { fuzzy } from "fast-fuzzy"
-  import { slide } from "svelte/transition"
-  import {
-    Scholarship,
-    type ScholarshipDTO,
-    type ScholarshipFilter,
-    type ScholarshipFilterKey,
-  } from "$lib/scripts/scholarships"
+  import { SummerProgram, type SummerDTO } from "$lib/scripts/summerPrograms"
   import Search from "$lib/components/Search.svelte"
-  import FilterSelect from "$lib/components/FilterSelect.svelte"
 
-  let { data }: { data: { scholarships: ScholarshipDTO[] } } = $props()
+  let { data }: { data: { summerPrograms: SummerDTO[] } } = $props()
 
   let showModal = $state(false)
   let filtersOpen = $state(false)
-  let activeScholarship = $state<Scholarship | null>(null)
+  let activeSummerProgram = $state<Summer | null>(null)
   let activeCardRect = $state<DOMRect | null>(null)
   let searchTerm = $state("")
   let selectedFilters = $state<ScholarshipFilterKey[]>([])
   let selectedMinAward = $state(0)
   let selectedMaxAward = $state(0)
   let awardRangeInitialized = $state(false)
-  let scholarships = $derived(data.scholarships.map(Scholarship.from))
+  let scholarships = $derived(data.summerPrograms.map(Scholarship.from))
 
   let filterOptions = $derived.by(() => {
     const options = new Map<ScholarshipFilterKey, ScholarshipFilter>()

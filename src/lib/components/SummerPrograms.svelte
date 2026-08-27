@@ -1,6 +1,6 @@
 <script lang="ts">
   import Tag from "$lib/components/Tag.svelte"
-  import type { SummerFilter } from "$lib/scripts/summerprograms"
+  import type { SummerFilter } from "$lib/scripts/summerPrograms"
 
   interface Props {
     name: string
