@@ -454,18 +454,6 @@
     text-align: right;
   }
 
-  .status-card span {
-    font-size: 0.78rem;
-    font-weight: 900;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
-
-  .status-card strong {
-    color: $primary;
-    font-size: 1rem;
-  }
-
   .status-card.calm {
     background: $calm;
     border-color: darken($calm, 10);
