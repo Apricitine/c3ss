@@ -1,5 +1,5 @@
 import { supabase } from '$lib/supabaseClient';
-import type { SummerDTO } from '$lib/scripts/summerprograms';
+import type { SummerDTO } from '$lib/scripts/summerPrograms';
 
 export const load = async () => {
   const { data, error } = await supabase.from('summerprograms').select<'summerprograms', SummerDTO>();

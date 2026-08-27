@@ -3,8 +3,14 @@
   import SummerProgramCard from "$lib/components/SummerPrograms.svelte"
   import Tag from "$lib/components/Tag.svelte"
   import { fuzzy } from "fast-fuzzy"
-  import { SummerProgram, type SummerDTO } from "$lib/scripts/summerPrograms"
+  import { 
+    Summer, 
+    type SummerDTO,
+    type SummerFilterKey,
+    type SummerFilter
+  } from "$lib/scripts/summerPrograms"
   import Search from "$lib/components/Search.svelte"
+  import FilterSelectSummerPrograms from "$lib/components/FilterSelectSummerPrograms.svelte"
 
   let { data }: { data: { summerPrograms: SummerDTO[] } } = $props()
 
@@ -13,17 +19,14 @@
   let activeSummerProgram = $state<Summer | null>(null)
   let activeCardRect = $state<DOMRect | null>(null)
   let searchTerm = $state("")
-  let selectedFilters = $state<ScholarshipFilterKey[]>([])
-  let selectedMinAward = $state(0)
-  let selectedMaxAward = $state(0)
-  let awardRangeInitialized = $state(false)
-  let scholarships = $derived(data.summerPrograms.map(Scholarship.from))
+  let selectedFilters = $state<SummerFilterKey[]>([])
+  let summerPrograms = $derived(data.summerPrograms.map(Summer.from))
 
   let filterOptions = $derived.by(() => {
-    const options = new Map<ScholarshipFilterKey, ScholarshipFilter>()
+    const options = new Map<SummerFilterKey, SummerFilter>()
 
-    for (const scholarship of scholarships) {
-      for (const filter of scholarship.displayFilters()) {
+    for (const summerProgram of summerPrograms) {
+      for (const filter of summerProgram.displayFilters()) {
         options.set(filter.key, filter)
       }
     }
@@ -33,145 +36,64 @@
     )
   })
 
-  const getFiniteAwardValues = (scholarship: Scholarship) =>
-    scholarship.endowment.flatMap((prize) => {
-      const [min, max] = Array.isArray(prize.amount)
-        ? prize.amount
-        : [prize.amount, prize.amount]
-
-      return max === "full-tuition" ? [min] : [min, max]
-    })
-
-  const getAwardRange = (scholarship: Scholarship) => {
-    let lowest = Number.POSITIVE_INFINITY
-    let highest = Number.NEGATIVE_INFINITY
-
-    for (const prize of scholarship.endowment) {
-      const [min, max] = Array.isArray(prize.amount)
-        ? prize.amount
-        : [prize.amount, prize.amount]
-
-      lowest = Math.min(lowest, min)
-      highest =
-        max === "full-tuition"
-          ? Number.POSITIVE_INFINITY
-          : Math.max(highest, max)
-    }
-
-    if (!Number.isFinite(lowest) || highest === Number.NEGATIVE_INFINITY)
-      return null
-
-    return { min: lowest, max: highest }
-  }
-
-  let awardBounds = $derived.by(() => {
-    const values = scholarships.flatMap(getFiniteAwardValues)
-
-    if (!values.length) return { min: 0, max: 0 }
-
-    return {
-      min: Math.max(0, Math.floor(Math.min(...values) / 100) * 100),
-      max: Math.ceil(Math.max(...values) / 100) * 100,
-    }
-  })
-
-  let isAwardRangeFiltered = $derived(
-    awardBounds.max > awardBounds.min &&
-      (selectedMinAward > awardBounds.min ||
-        selectedMaxAward < awardBounds.max),
-  )
-
-  let activeFilterCount = $derived(
-    selectedFilters.length + (isAwardRangeFiltered ? 1 : 0),
-  )
-
-  const openScholarship = (scholarship: Scholarship, event: MouseEvent) => {
+  const openSummerProgram = (summerProgram: Summer, event: MouseEvent) => {
     const sourceCard =
       event.currentTarget instanceof HTMLElement ? event.currentTarget : null
 
-    activeScholarship = scholarship
+    activeSummerProgram = summerProgram
     activeCardRect = sourceCard?.getBoundingClientRect() ?? null
     showModal = true
   }
 
-  const sortScholarships = (
+  const sortSummerPrograms = (
     term: string,
-    source: Scholarship[],
-  ): Scholarship[] => {
+    source: Summer[],
+  ): Summer[] => {
     const query = term.trim()
 
     if (!query) return [...source]
 
     return [...source]
-      .map((scholarship) => ({
-        scholarship,
-        similarity: fuzzy(query, scholarship.name),
+      .map((summerProgram) => ({
+        summerProgram,
+        similarity: fuzzy(query, summerProgram.name),
       }))
       .sort(
         (firstItem, secondItem) => secondItem.similarity - firstItem.similarity,
       )
-      .map(({ scholarship }) => scholarship)
+      .map(({ summerProgram }) => summerProgram)
   }
 
-  const toggleFilter = (filter: ScholarshipFilterKey) => {
+  const toggleFilter = (filter: SummerFilterKey) => {
     selectedFilters = selectedFilters.includes(filter)
       ? selectedFilters.filter((selectedFilter) => selectedFilter !== filter)
       : [...selectedFilters, filter]
   }
 
-  const setMinAward = (value: number) => {
-    selectedMinAward = Math.min(
-      Math.max(value, awardBounds.min),
-      selectedMaxAward,
-    )
-  }
-
-  const setMaxAward = (value: number) => {
-    selectedMaxAward = Math.max(
-      Math.min(value, awardBounds.max),
-      selectedMinAward,
-    )
-  }
-
   const resetFilters = () => {
     selectedFilters = []
-    selectedMinAward = awardBounds.min
-    selectedMaxAward = awardBounds.max
   }
 
   const formatGradeList = (grades: number[]) =>
     grades.map((grade) => `Grade ${grade}`).join(", ")
 
-  const matchesFilters = (scholarship: Scholarship) => {
+  const matchesFilters = (summerProgram: Summer) => {
     const hasSelectedFilters =
       selectedFilters.length === 0 ||
       selectedFilters.every((selectedFilter) =>
-        scholarship.filters.includes(selectedFilter),
+        summerProgram.filters.includes(selectedFilter),
       )
 
     if (!hasSelectedFilters) return false
-    if (!isAwardRangeFiltered) return true
-
-    const awardRange = getAwardRange(scholarship)
-
-    return (
-      awardRange !== null &&
-      awardRange.max >= selectedMinAward &&
-      awardRange.min <= selectedMaxAward
-    )
   }
 
-  let renderedScholarships = $derived.by(() =>
-    sortScholarships(searchTerm, scholarships.filter(matchesFilters)),
+  let renderedSummerPrograms = $derived.by(() =>
+    sortSummerPrograms(searchTerm, summerPrograms.filter(matchesFilters)),
   )
 
-  $effect(() => {
-    if (awardRangeInitialized) return
-
-    selectedMinAward = awardBounds.min
-    selectedMaxAward = awardBounds.max
-    awardRangeInitialized = true
-  })
+  let activeFilterCount = $derived(
+    selectedFilters.length
+  )
 
   $effect(() => {
     if (!showModal) {
@@ -203,18 +125,12 @@
     class="filter-transition"
     transition:slide={{ duration: 180, axis: "y" }}
   >
-    <FilterSelect
+    <FilterSelectSummerPrograms
       filters={filterOptions}
       {selectedFilters}
-      minAward={selectedMinAward}
-      maxAward={selectedMaxAward}
-      rangeMin={awardBounds.min}
-      rangeMax={awardBounds.max}
-      resultCount={renderedScholarships.length}
-      totalCount={scholarships.length}
+      resultCount={renderedSummerPrograms.length}
+      totalCount={summerPrograms.length}
       onFilterToggle={toggleFilter}
-      onMinAwardChange={setMinAward}
-      onMaxAwardChange={setMaxAward}
       onReset={resetFilters}
     />
   </div>
