@@ -43,6 +43,8 @@
   <main class="page">
     {@render children()}
   </main>
+
+  <span class="credit">Made with ❤️ by the <a href="https://github.com/lchsiteam">LC iTeam</a></span>
 </div>
 
 <a class="report-issue" href={error} target="_blank" rel="noreferrer">
@@ -273,5 +275,18 @@
   *::before,
   *::after {
     box-sizing: border-box;
+  }
+
+  span.credit {
+    font-size: 0.76rem;
+    color: $eyebrow;
+    display: grid;
+    align-items: center;
+    text-align: center;
+
+    a {
+      color:rgb(9, 139, 190);
+      text-decoration: none;
+    }
   }
 </style>
