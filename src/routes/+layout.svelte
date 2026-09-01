@@ -1,6 +1,8 @@
 <script lang="ts">
   import favicon from "$lib/assets/favicon.svg"
 
+  const error = "idk"
+
   let { children } = $props<{ children: () => unknown }>()
 </script>
 
@@ -42,6 +44,11 @@
     {@render children()}
   </main>
 </div>
+
+<a class="report-issue" href={error} target="_blank" rel="noreferrer">
+  <span class="report-icon" aria-hidden="true">?</span>
+  <span class="report-label">Report an issue</span>
+</a>
 
 <style lang="scss">
   @use "$lib/styles/global.scss" as *;
@@ -177,6 +184,72 @@
     width: 100%;
   }
 
+  .report-issue {
+    position: fixed;
+    bottom: 24px;
+    left: 24px;
+    z-index: 20;
+    display: inline-flex;
+    align-items: center;
+    width: 46px;
+    height: 46px;
+    padding: 0 12px;
+    overflow: hidden;
+    border: 1px solid $nav-border;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 12px 26px $nav-shadow;
+    color: $primary;
+    text-decoration: none;
+    transition:
+      width 180ms ease,
+      background 180ms ease,
+      color 180ms ease,
+      transform 180ms ease,
+      box-shadow 180ms ease;
+  }
+
+  .report-icon {
+    display: grid;
+    flex: 0 0 22px;
+    width: 22px;
+    height: 22px;
+    place-items: center;
+    border: 1.5px solid currentColor;
+    border-radius: 50%;
+    font-size: 0.9rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .report-label {
+    margin-left: 10px;
+    opacity: 0;
+    transform: translateX(-6px);
+    transition:
+      opacity 130ms ease,
+      transform 180ms ease;
+    white-space: nowrap;
+    font-size: 0.86rem;
+    font-weight: 800;
+  }
+
+  .report-issue:hover,
+  .report-issue:focus-visible {
+    width: 166px;
+    background: $primary;
+    box-shadow: 0 16px 32px $link-shadow;
+    color: #ffffff;
+    outline: none;
+    transform: translateY(-2px);
+  }
+
+  .report-issue:hover .report-label,
+  .report-issue:focus-visible .report-label {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
   @media (max-width: 720px) {
     .topbar {
       flex-direction: column;
@@ -188,6 +261,11 @@
       width: 100%;
       justify-content: flex-start;
       flex-wrap: wrap;
+    }
+
+    .report-issue {
+      bottom: 16px;
+      left: 16px;
     }
   }
 
