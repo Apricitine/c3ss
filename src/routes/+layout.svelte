@@ -31,7 +31,6 @@
       </div>
     </div>
     <nav class="nav">
-      <a class="nav-link" href="/">Home</a>
       <a class="nav-link" href="/scholarships">Scholarships</a>
       <a class="nav-link" href="/summerprograms">Summer Programs</a>
     </nav>

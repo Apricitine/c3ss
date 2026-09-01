@@ -21,6 +21,8 @@ export const FILTER_COLORS = {
   orange: "#eb8552",
   purple: "#b882e0",
   gold: "#e3ab62",
+  pink: "#e362b8",
+  orangeRed: "#d8372b",
 } as const
 
 export type FilterColor = keyof typeof FILTER_COLORS
@@ -72,6 +74,16 @@ const filterDefinitions = {
     description: "The scholarship only accepts applicants pursuing a specific major in college/other program.",
     color: "cyan",
   },
+  local: {
+    name: "Local",
+    description: "This scholarship is only available to students in the La Canada/SGV area. (It may be easier to get!)",
+    color: "pink",
+  },
+  womenonly: {
+    name: "Women Only",
+    description: "This scholarship is only available to female students.",
+    color: "orangeRed",
+  }
 } as const satisfies Record<string, FilterDefinition>
 
 export type ScholarshipFilterKey = keyof typeof filterDefinitions

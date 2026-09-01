@@ -415,7 +415,6 @@
     gap: 18px;
     align-items: start;
     padding: 0 44px 18px 0;
-    border-bottom: 1px solid $nav-border;
   }
 
   .meta {

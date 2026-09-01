@@ -1,13 +1,5 @@
-import { supabase } from '$lib/supabaseClient'
-import type { ScholarshipDTO } from '$lib/scripts/scholarships'
+import { redirect } from '@sveltejs/kit'
 
-export const load = async () => {
-  const { data, error } = await supabase.from('scholarships').select<'scholarships', ScholarshipDTO>()
-  if (error) {
-    console.error('Error loading scholarships:', error.message)
-    return { scholarships: [] }
-  }
-  return { scholarships: data ?? [] }
+export function load() {
+  redirect(308, '/scholarships')
 }
-
-
