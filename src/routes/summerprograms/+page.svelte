@@ -141,9 +141,10 @@
 
 {#if renderedSummerPrograms.length}
   <section class="scholarship-grid">
-    {#each renderedSummerPrograms as summerProgram (summerProgram.id)}
+    {#each renderedSummerPrograms as summerProgram, index (summerProgram.id)}
       <div
         class="scholarship-card-slot"
+        style={`--card-enter-delay: ${Math.min(index * 40, 280)}ms`}
         class:source-hidden={showModal &&
           activeSummerProgram?.id === summerProgram.id}
         aria-hidden={showModal && activeSummerProgram?.id === summerProgram.id}
@@ -361,14 +362,39 @@
     margin: 18px 0 32px;
   }
 
+  @keyframes card-entrance {
+    from {
+      opacity: 0;
+      transform: translateY(14px) scale(0.985);
+    }
+
+    65% {
+      transform: translateY(-1px) scale(1.002);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
   .scholarship-card-slot {
     transition: opacity 160ms ease;
     max-width: 75vw;
+    animation: card-entrance 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: var(--card-enter-delay);
   }
 
   .scholarship-card-slot.source-hidden {
     opacity: 0;
+    animation: none;
     pointer-events: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scholarship-card-slot {
+      animation: none;
+    }
   }
 
   .empty-state {
