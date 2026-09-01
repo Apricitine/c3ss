@@ -15,6 +15,8 @@
   <title>Catalog | C3SS</title>
 </svelte:head>
 
+<div class="background-pattern" aria-hidden="true"></div>
+
 <div class="app-shell">
   <header class="topbar">
     <div class="brand">
@@ -63,10 +65,36 @@
       sans-serif;
   }
 
+  .background-pattern {
+    position: fixed;
+    inset: -20%;
+    z-index: 0;
+    pointer-events: none;
+    background-image: url("$lib/assets/logo.png");
+    background-position: 64px 88px;
+    background-repeat: repeat;
+    background-size: 272px;
+    opacity: 0.026;
+  }
+
+  .background-pattern::after {
+    position: absolute;
+    inset: -12%;
+    content: "";
+    background-image: url("$lib/assets/logo.png");
+    background-position: 138px 184px;
+    background-repeat: repeat;
+    background-size: 224px;
+    opacity: 0.52;
+    transform: rotate(-8deg);
+  }
+
   .app-shell {
     max-width: 75vw;
     margin: 0 auto;
     padding: 32px 0px 64px;
+    position: relative;
+    z-index: 1;
   }
 
   .topbar {
