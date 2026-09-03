@@ -1,7 +1,7 @@
 <script lang="ts">
-  import favicon from "$lib/assets/favicon.svg"
+  import favicon from "$lib/assets/logo.ico"
 
-  const error = "idk"
+  const error = "https://forms.gle/Tg79A2oLBQWeXDpr7"
 
   let { children } = $props<{ children: () => unknown }>()
 </script>
@@ -25,7 +25,7 @@
       <span class="logo-container"
         ><enhanced:img
           class="logo"
-          src="$lib/assets/logo.png"
+          src="$lib/assets/logo.ico"
           alt="c3 logo"
         /></span
       >
@@ -79,7 +79,7 @@
     inset: -20%;
     z-index: 0;
     pointer-events: none;
-    background-image: url("$lib/assets/logo.png");
+    background-image: url("$lib/assets/logo.ico");
     background-position: 64px 88px;
     background-repeat: repeat;
     background-size: 272px;
@@ -90,7 +90,7 @@
     position: absolute;
     inset: -12%;
     content: "";
-    background-image: url("$lib/assets/logo.png");
+    background-image: url("$lib/assets/logo.ico");
     background-position: 138px 184px;
     background-repeat: repeat;
     background-size: 224px;
