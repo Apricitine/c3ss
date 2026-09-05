@@ -12,10 +12,12 @@
   } from "$lib/scripts/scholarships"
   import Search from "$lib/components/Search.svelte"
   import FilterSelect from "$lib/components/FilterSelect.svelte"
+  import { browser } from "$app/environment"
 
   let { data }: { data: { scholarships: ScholarshipDTO[] } } = $props()
 
   let showModal = $state(false)
+  let showScholarshipIntro = $state(false)
   let filtersOpen = $state(false)
   let activeScholarship = $state<Scholarship | null>(null)
   let activeCardRect = $state<DOMRect | null>(null)
@@ -25,6 +27,8 @@
   let selectedMaxAward = $state(0)
   let awardRangeInitialized = $state(false)
   let scholarships = $derived(data.scholarships.map(Scholarship.from))
+
+  const scholarshipIntroStorageKey = "c3ss-scholarships-intro-seen"
 
   let filterOptions = $derived.by(() => {
     const options = new Map<ScholarshipFilterKey, ScholarshipFilter>()
@@ -146,6 +150,10 @@
     selectedMaxAward = awardBounds.max
   }
 
+  const dismissScholarshipIntro = () => {
+    showScholarshipIntro = false
+  }
+
   const formatGradeList = (grades: number[]) =>
     grades.map((grade) => `Grade ${grade}`).join(", ")
 
@@ -168,6 +176,8 @@
     )
   }
 
+  
+
   let renderedScholarships = $derived.by(() =>
     sortScholarships(searchTerm, scholarships.filter(matchesFilters)),
   )
@@ -185,10 +195,53 @@
       activeCardRect = null
     }
   })
+
+  $effect(() => {
+    if (!browser) return
+
+    try {
+      if (localStorage.getItem(scholarshipIntroStorageKey)) return
+
+      showScholarshipIntro = true
+      localStorage.setItem(scholarshipIntroStorageKey, "true")
+    } catch {
+      // If storage is unavailable, still show the introduction for this visit.
+      showScholarshipIntro = true
+    }
+  })
 </script>
 
+{#if true}
+  <div class="intro-transition" transition:slide={{ duration: 180, axis: "y" }}>
+    <section
+      class="scholarship-intro"
+      aria-labelledby="scholarship-intro-title"
+    >
+      <button
+        type="button"
+        class="intro-close"
+        aria-label="Dismiss welcome message"
+        title="Dismiss welcome message"
+        onclick={dismissScholarshipIntro}
+      >
+        <span aria-hidden="true">×</span>
+      </button>
+      <div class="intro-copy">
+        <p class="intro-label">from the LC iTeam</p>
+        <h2 id="scholarship-intro-title">Welcome to the C3SS!</h2>
+        <p class="intro-description">
+          Discover scholarships and summer programs curated by the College &
+          Career Center and LCHS Counseling Department.
+        </p>
+        <div class="start-tut">Walk me through it!</div>
+      </div>
+      <span class="intro-mark" aria-hidden="true">C3</span>
+    </section>
+  </div>
+{/if}
+
 <div class="search-tools">
-  <Search bind:searchTerm thing="scholarships"/>
+  <Search bind:searchTerm thing="scholarships" />
   <button
     type="button"
     class="filter-tab"
@@ -335,6 +388,157 @@
 
 <style lang="scss">
   @use "$lib/styles/global.scss" as *;
+
+  .intro-transition {
+    overflow: hidden;
+  }
+
+  .scholarship-intro {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(140px, 0.32fr);
+    align-items: center;
+    min-height: 260px;
+    margin: 0 0 24px;
+    padding: clamp(32px, 5vw, 58px);
+    overflow: hidden;
+    border: 1px solid $primary;
+    border-radius: 22px;
+    background: linear-gradient(125deg, $primary 0%, $primary 56%, $red 135%);
+    box-shadow: 0 20px 42px $nav-shadow;
+
+    &::before {
+      position: absolute;
+      z-index: -1;
+      top: -150px;
+      right: -100px;
+      width: 360px;
+      height: 360px;
+      content: "";
+      border-radius: 50%;
+      background: $gold;
+      opacity: 0.18;
+    }
+  }
+
+  .intro-copy {
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+    max-width: 650px;
+  }
+
+  .intro-label {
+    display: inline-block;
+    margin: 0 0 14px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: $gold;
+    color: $text;
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  .intro-copy h2 {
+    margin: 0;
+    color: $surface;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    line-height: 1.04;
+    letter-spacing: -0.045em;
+  }
+
+  .intro-description {
+    max-width: 570px;
+    margin: 16px 0 0;
+    color: $surface;
+    font-size: 1rem;
+    line-height: 1.55;
+    opacity: 0.86;
+  }
+
+  .start-tut {
+    display: inline-block;
+    margin: 18px 0 0;
+    padding: 14px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba($surface, 0.42);
+    background: transparent;
+    color: $surface;
+    cursor: pointer;
+    font:
+      800 0.9rem/1 "Inter",
+      system-ui,
+      -apple-system,
+      sans-serif;
+    transition:
+      transform 140ms ease,
+      box-shadow 140ms ease,
+      border 140ms ease,
+      color 140ms ease,
+      background 140ms ease;
+    &:hover,
+    &:focus-visible {
+      outline: none;
+      transform: translateY(-1px);
+      border: 1px solid rgba($surface, 1);
+      color: $primary;
+      background: $surface;
+    }
+  }
+
+  .intro-close {
+    position: absolute;
+    z-index: 2;
+    top: 16px;
+    right: 16px;
+    display: grid;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    place-items: center;
+    border: 1px solid rgba($surface, 0.42);
+    border-radius: 50%;
+    background: transparent;
+    color: $surface;
+    cursor: pointer;
+    font:
+      400 1.25rem/1 "Inter",
+      system-ui,
+      -apple-system,
+      sans-serif;
+    transition:
+      background 140ms ease,
+      box-shadow 140ms ease,
+      transform 140ms ease;
+  }
+
+  .intro-close span:first-child {
+    transform: translateY(-1px);
+  }
+
+  .intro-close:hover,
+  .intro-close:focus-visible {
+    background: $surface;
+    box-shadow: 0 6px 14px $link-shadow;
+    color: $primary;
+    outline: none;
+    transform: scale(1.06);
+  }
+
+  .intro-mark {
+    position: relative;
+    z-index: 1;
+    justify-self: end;
+    color: $surface;
+    font-size: clamp(5rem, 13vw, 10rem);
+    font-weight: 800;
+    letter-spacing: -0.12em;
+    line-height: 0.8;
+    opacity: 0.16;
+    user-select: none;
+  }
 
   .search-tools {
     display: flex;
@@ -488,6 +692,26 @@
   @media (prefers-reduced-motion: reduce) {
     .scholarship-card-slot {
       animation: none;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .scholarship-intro {
+      grid-template-columns: 1fr;
+      min-height: 300px;
+      padding: 34px 28px;
+    }
+
+    .intro-close {
+      top: 12px;
+      right: 12px;
+    }
+
+    .intro-mark {
+      position: absolute;
+      right: 26px;
+      bottom: 10px;
+      font-size: 7rem;
     }
   }
 
@@ -666,38 +890,38 @@
     letter-spacing: 0.02em;
     text-transform: uppercase;
     background: rgba(248, 133, 56, 0.2);
-    color: $primary
-  }
-
-  .countdown.calm {
-    background: rgba(104, 181, 123, 0.18);
-    color: #2b4c35;
-    box-shadow: inset 0 0 0 1px rgba(104, 181, 123, 0.4);
-  }
-
-  .countdown.warm {
-    background: rgba(246, 195, 68, 0.28);
-    color: #7a2a1f;
-    box-shadow: inset 0 0 0 1px rgba(246, 195, 68, 0.5);
-    animation: pulse 1s ease-in-out infinite;
-  }
-
-  .countdown.hot {
-    background: rgba(179, 38, 30, 0.22);
-    color: #b3261e;
-    box-shadow:
-      inset 0 0 0 1px rgba(179, 38, 30, 0.5),
-      0 0 0 6px rgba(179, 38, 30, 0.12);
-    animation:
-      pulse-fast 0.9s ease-in-out infinite,
-      shake 1s ease-in-out infinite;
-  }
-
-  .countdown.passed {
-    background: rgba(144, 90, 90, 0.14);
     color: $primary;
-    box-shadow: inset 0 0 0 1px $nav-shadow;
-    text-decoration: line-through;
+
+    &.calm {
+      background: rgba(104, 181, 123, 0.18);
+      color: #2b4c35;
+      box-shadow: inset 0 0 0 1px rgba(104, 181, 123, 0.4);
+    }
+
+    &.warm {
+      background: rgba(246, 195, 68, 0.28);
+      color: #7a2a1f;
+      box-shadow: inset 0 0 0 1px rgba(246, 195, 68, 0.5);
+      animation: pulse 1s ease-in-out infinite;
+    }
+
+    &.hot {
+      background: rgba(179, 38, 30, 0.22);
+      color: #b3261e;
+      box-shadow:
+        inset 0 0 0 1px rgba(179, 38, 30, 0.5),
+        0 0 0 6px rgba(179, 38, 30, 0.12);
+      animation:
+        pulse-fast 0.9s ease-in-out infinite,
+        shake 1s ease-in-out infinite;
+    }
+
+    &.passed {
+      background: rgba(144, 90, 90, 0.14);
+      color: $primary;
+      box-shadow: inset 0 0 0 1px $nav-shadow;
+      text-decoration: line-through;
+    }
   }
 
   @keyframes pulse {
