@@ -153,6 +153,7 @@
           onclick={(event) => openSummerProgram(summerProgram, event)}
           name={summerProgram.name}
           deadline={summerProgram.formattedDeadline()}
+          start_date={summerProgram.rollingFormattedDeadline()}
           daysLeft={summerProgram.daysUntil()}
           description={summerProgram.description}
           filters={summerProgram.displayFilters()}

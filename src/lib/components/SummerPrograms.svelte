@@ -5,6 +5,7 @@
   interface Props {
     name: string
     deadline: string
+    start_date: string
     daysLeft: number | null
     description: string
     estimated_cost?: string | null
@@ -24,10 +25,17 @@
     return "calm"
   }
 
-  const countdownLabel = () =>
+  const rollingCountdownLabel = () =>
     props.daysLeft === null
       ? "No deadline"
       : props.daysLeft < 0
+        ? "Passed"
+        : `${props.daysLeft}d`
+
+  const countdownLabel = () =>
+    (props.daysLeft === null)
+      ? "No deadline"
+      : (props.daysLeft < 0)
         ? "Passed"
         : `${props.daysLeft}d`
 
@@ -81,15 +89,27 @@
         </div>
       {/if}
     </div>
-    <div class="deadline">
-      <span class={`countdown ${countdownClass()}`}>
-        {countdownLabel()}
-      </span>
-      <div class="deadline-text">
-        <span>Deadline</span>
-        <strong>{props.deadline}</strong>
+    {#if props.start_date != null}
+      <div class="deadline">
+        <span class={`countdown ${countdownClass()}`}>
+
+          {rollingCountdownLabel()}
+
+
+        </span>
+
       </div>
-    </div>
+    {:else}
+      <div class="deadline">
+        <span class={`countdown ${countdownClass()}`}>
+          {countdownLabel()}
+        </span>
+        <div class="deadline-text">
+          <span>Deadline</span>
+          <strong>{props.deadline}</strong>
+        </div>
+      </div>
+    {/if}
   </div>
 
   <div class="description-block">
