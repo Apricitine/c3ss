@@ -106,6 +106,13 @@ export class Summer implements SummerDTO {
     return new Summer(dto)
   }
 
+  get rollingDeadlineDate(): Date | null {
+    if (!this.start_date) return null
+
+    const date = new Date(this.start_date)
+    return Number.isNaN(date.getTime()) ? null : date
+  }
+
   get deadlineDate(): Date | null {
     if (!this.deadline) return null
 
@@ -114,21 +121,16 @@ export class Summer implements SummerDTO {
   }
 
   formattedDeadline() {
-    const date = this.deadlineDate
-    if (!date) return "Not listed"
+    const date = this.deadlineDate ?? this.rollingDeadlineDate
 
-    return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
-  }
-
-  rollingFormattedDeadline() {
-    const date = this.deadlineDate
     if (!date) return "Not listed"
+  //this should return null
 
     return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
   }
 
   daysFrom(reference: Date = new Date()) {
-    const target = this.deadlineDate
+    const target = this.deadlineDate ?? this.rollingDeadlineDate
     if (!target) return null
 
     const msPerDay = 1000 * 60 * 60 * 24
@@ -150,12 +152,25 @@ export class Summer implements SummerDTO {
   }
 
   rollingCountdownLabel(reference?: Date, { short = false } = {}) {
-    const days = this.daysUntil(reference)
+    const days = this.rollingDaysUntil(reference)
     if (days === null) return "No deadline"
     if (days < 0) return "opened"
     if (days < -30) return "likely closed" as const
     if (short) return `${days}d`
     return `${days} days`
+  }
+
+  rollingDaysUntil(reference: Date = new Date()) {
+    const target = this.rollingDeadlineDate
+    if (!target) return null
+
+    const msPerDay = 1000 * 60 * 60 * 24
+    const today = new Date(reference)
+    today.setHours(0, 0, 0, 0)
+
+    target.setHours(0, 0, 0, 0)
+
+    return Math.ceil((target.getTime() - today.getTime()) / msPerDay)
   }
 
   daysUntil(reference: Date = new Date()) {

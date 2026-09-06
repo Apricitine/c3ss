@@ -17,6 +17,11 @@
   let descriptionElement: HTMLParagraphElement | null = null
   let isDescriptionClipped = $state(false)
 
+  const rollingCountdownClass = () => {
+    if (props.daysLeft === null) return "calm"
+    return "calm"
+  }
+
   const countdownClass = () => {
     if (props.daysLeft === null) return "calm"
     if (props.daysLeft < 0) return "passed"
@@ -91,17 +96,18 @@
     </div>
     {#if props.start_date != null}
       <div class="deadline">
-        <span class={`countdown ${countdownClass()}`}>
-
+        <span class={`countdown ${rollingCountdownClass()}`}>
           {rollingCountdownLabel()}
-
-
         </span>
+        <div class="deadline-text">
+          <span>Start Date</span>
+          <strong>{props.start_date}</strong>
+        </div>
 
       </div>
     {:else}
       <div class="deadline">
-        <span class={`countdown ${countdownClass()}`}>
+        <span class={`countdown ${rollingCountdownClass()}`}>
           {countdownLabel()}
         </span>
         <div class="deadline-text">
