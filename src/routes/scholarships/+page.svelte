@@ -73,6 +73,7 @@
   let tutorialBubble = $state<HTMLElement | null>(null)
   let highlightStyle = $state("")
   let bubbleStyle = $state("")
+  let cutoutStyle = $state("")
 
   const scholarshipIntroStorageKey = "c3ss-scholarships-intro-seen"
 
@@ -333,7 +334,7 @@
 
     await refreshTutorialPosition(true)
     tutorialBubble?.focus()
-  }
+  } 
 
   const goToTutorialStep = async (nextStep: number) => {
     if (nextStep >= stepDescies.length) {
@@ -408,6 +409,33 @@
     }
   })
 
+  const updateCutout = () => {
+    if (!browser || !searchTarget) return
+
+    const padding = 10
+    const rect = searchTarget.getBoundingClientRect()
+
+    cutoutStyle = `top: ${rect.top + rect.height / 2}px; left: ${rect.left + rect.width / 2}px; width: ${rect.width + padding * 2}px; height: ${rect.height + padding * 2}px;`
+  }
+
+  $effect(() => {
+    if (!browser || !searchTarget || !tutorialActive || step !== 0) {
+      cutoutStyle = ""
+      return
+    }
+
+    const reposition = () => updateCutout()
+
+    reposition()
+    window.addEventListener("resize", reposition)
+    window.addEventListener("scroll", reposition, true)
+
+    return () => {
+      window.removeEventListener("resize", reposition)
+      window.removeEventListener("scroll", reposition, true)
+    }
+  })
+
   $effect(() => {
     if (!browser || !tutorialActive) return
 
@@ -459,6 +487,10 @@
       <span class="intro-mark">C3</span>
     </section>
   </div>
+{/if}
+
+{#if cutoutStyle}
+  <div class="cutout" id="cutout" style={cutoutStyle}></div>
 {/if}
 
 <div class="search-tools">
@@ -676,6 +708,17 @@
   @use "sass:color";
   .intro-transition {
     overflow: hidden;
+  }
+
+  .cutout {
+    position: fixed;
+    transform: translate(-50%, -50%);
+    border-radius: 16px;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+
+    z-index: 9999;
+
+    pointer-events: none;
   }
 
   .scholarship-intro {
