@@ -153,6 +153,7 @@
           onclick={(event) => openSummerProgram(summerProgram, event)}
           name={summerProgram.name}
           deadline={summerProgram.formattedDeadline()}
+          start_date={summerProgram.rollingFormattedDeadline()}
           daysLeft={summerProgram.daysUntil()}
           description={summerProgram.description}
           filters={summerProgram.displayFilters()}
@@ -176,21 +177,31 @@
           <h2>{activeSummerProgram.name}</h2>
         </div>
       </header>
-
       <section class="detail-grid" aria-label="Summer program details">
-        
+        {#if activeSummerProgram.start_date != null}
+          <div class="detail-tile">
+            <span>Start Date</span>
+            <strong>{activeSummerProgram.rollingFormattedDeadline()}</strong>
+          </div>
+          <div class="detail-tile">
+            <span>Status</span>
+            <strong class={`countdown ${activeSummerProgram.rollingCountdownClass()}`}>
+              {activeSummerProgram.rollingCountdownLabel()}
+            </strong>
+          </div>
+        {:else}
+          <div class="detail-tile">
+            <span>Deadline</span>
+            <strong>{activeSummerProgram.formattedDeadline()}</strong>
+          </div>
+          <div class="detail-tile">
+            <span>Status</span>
+            <strong class={`countdown ${activeSummerProgram.countdownClass()}`}>
+              {activeSummerProgram.countdownLabel()}
+            </strong>
+          </div>
+        {/if}
 
-        <div class="detail-tile">
-          <span>Deadline</span>
-          <strong>{activeSummerProgram.formattedDeadline()}</strong>
-        </div>
-
-        <div class="detail-tile">
-          <span>Status</span>
-          <strong class={`countdown ${activeSummerProgram.countdownClass()}`}>
-            {activeSummerProgram.countdownLabel()}
-          </strong>
-        </div>
 
         {#if activeSummerProgram.availableGrades?.length}
           <div class="detail-tile">

@@ -5,6 +5,7 @@
   interface Props {
     name: string
     deadline: string
+    start_date: string | null
     daysLeft: number | null
     description: string
     estimated_cost?: string | null
@@ -16,6 +17,11 @@
   let descriptionElement: HTMLParagraphElement | null = null
   let isDescriptionClipped = $state(false)
 
+  const rollingCountdownClass = () => {
+    if (props.daysLeft === null) return "calm"
+    return "calm"
+  }
+
   const countdownClass = () => {
     if (props.daysLeft === null) return "calm"
     if (props.daysLeft < 0) return "passed"
@@ -24,10 +30,17 @@
     return "calm"
   }
 
-  const countdownLabel = () =>
+  const rollingCountdownLabel = () =>
     props.daysLeft === null
-      ? "No deadline"
+      ? "Rolling"
       : props.daysLeft < 0
+        ? "Opened"
+        : `${props.daysLeft}d`
+
+  const countdownLabel = () =>
+    (props.daysLeft === null)
+      ? "No deadline"
+      : (props.daysLeft < 0)
         ? "Passed"
         : `${props.daysLeft}d`
 
@@ -81,15 +94,29 @@
         </div>
       {/if}
     </div>
-    <div class="deadline">
-      <span class={`countdown ${countdownClass()}`}>
-        {countdownLabel()}
-      </span>
-      <div class="deadline-text">
-        <span>Deadline</span>
-        <strong>{props.deadline}</strong>
+<!-- this part works! -->
+    {#if props.start_date != "Not listed"}
+      <div class="deadline">
+        <span class={`countdown ${rollingCountdownClass()}`}>
+          {rollingCountdownLabel()}
+        </span>
+        <div class="deadline-text">
+          <span>Start Date</span>
+          <strong>{props.start_date}</strong>
+        </div>
+
       </div>
-    </div>
+    {:else}
+      <div class="deadline">
+        <span class={`countdown ${countdownClass()}`}>
+          {countdownLabel()}
+        </span>
+        <div class="deadline-text">
+          <span>Deadline</span>
+          <strong>{props.deadline}</strong>
+        </div>
+      </div>
+    {/if}
   </div>
 
   <div class="description-block">
