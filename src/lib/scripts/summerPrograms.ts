@@ -120,11 +120,19 @@ export class Summer implements SummerDTO {
     return Number.isNaN(date.getTime()) ? null : date
   }
 
-  formattedDeadline() {
-    const date = this.deadlineDate ?? this.rollingDeadlineDate
+  rollingFormattedDeadline() {
+    const date = this.rollingDeadlineDate
 
     if (!date) return "Not listed"
-  //this should return null
+
+    return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
+  }
+
+
+  formattedDeadline() {
+    const date = this.deadlineDate
+
+    if (!date) return "Not listed"
 
     return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`
   }
@@ -143,7 +151,8 @@ export class Summer implements SummerDTO {
   }
 
   rollingCountdownClass(reference?: Date) {
-    const days = this.daysUntil(reference)
+    const days = this.rollingDaysUntil(reference)
+    console.log(days)
     if (days === null) return "calm" as const
     if (days < -30) return "likely closed" as const
     if (days < 0) return "opened" as const

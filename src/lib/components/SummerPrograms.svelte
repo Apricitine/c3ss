@@ -5,7 +5,7 @@
   interface Props {
     name: string
     deadline: string
-    start_date: string
+    start_date: string | null
     daysLeft: number | null
     description: string
     estimated_cost?: string | null
@@ -32,9 +32,9 @@
 
   const rollingCountdownLabel = () =>
     props.daysLeft === null
-      ? "No deadline"
+      ? "Rolling"
       : props.daysLeft < 0
-        ? "Passed"
+        ? "Opened"
         : `${props.daysLeft}d`
 
   const countdownLabel = () =>
@@ -94,7 +94,8 @@
         </div>
       {/if}
     </div>
-    {#if props.start_date != null}
+<!-- this part works! -->
+    {#if props.start_date != "Not listed"}
       <div class="deadline">
         <span class={`countdown ${rollingCountdownClass()}`}>
           {rollingCountdownLabel()}
@@ -107,7 +108,7 @@
       </div>
     {:else}
       <div class="deadline">
-        <span class={`countdown ${rollingCountdownClass()}`}>
+        <span class={`countdown ${countdownClass()}`}>
           {countdownLabel()}
         </span>
         <div class="deadline-text">
