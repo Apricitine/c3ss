@@ -75,9 +75,6 @@
   let bubbleStyle = $state("")
   let cutoutStyle = $state("")
 
-  let tutorialHighlighterElements = $derived([searchTarget, filterTarget]);
-  let currHighlightElement = $state<HTMLElement | null>(null);
-
   const scholarshipIntroStorageKey = "c3ss-scholarships-intro-seen"
 
   let filterOptions = $derived.by(() => {
@@ -334,11 +331,7 @@
     showIntro = false
     step = 0
     tutorialActive = true
-
-    currHighlightElement = tutorialHighlighterElements[0]
-
-
-  } 
+  }
 
   const goToTutorialStep = async (nextStep: number) => {
     if (nextStep >= stepDescies.length) {
@@ -347,8 +340,6 @@
     }
 
     step = nextStep
-
-    currHighlightElement = tutorialHighlighterElements[step];
 
     if (step === 1) {
       filtersOpen = true
@@ -416,19 +407,32 @@
   })
 
   const updateCutout = () => {
-    if (!browser || !currHighlightElement) return
+    if (!browser) return
+
+    const rect = stupidRectangleGetter()
+
+    if (!rect) {
+      cutoutStyle = ""
+      return
+    }
 
     const padding = 10
-    const rect = currHighlightElement.getBoundingClientRect()
 
     cutoutStyle = `top: ${rect.top + rect.height / 2}px; left: ${rect.left + rect.width / 2}px; width: ${rect.width + padding * 2}px; height: ${rect.height + padding * 2}px;`
   }
 
   $effect(() => {
-    if (!browser || !currHighlightElement || !tutorialActive || step !== 0) {
+    if (!browser || !tutorialActive) {
       cutoutStyle = ""
       return
     }
+
+
+    void step
+    void searchTarget
+    void filterTarget
+    void filterButtonTarget
+    void renderedScholarships.length
 
     const reposition = () => updateCutout()
 
