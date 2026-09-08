@@ -1,3 +1,7 @@
+<!-- 1. during the tutorial you cant scroll -->
+<!-- 2. add a text box with a button that explains the steps -->
+<!-- 3.  -->
+
 <script lang="ts">
   import Modal from "$lib/components/Modal.svelte"
   import ScholarshipCard from "$lib/components/Scholarship.svelte"
@@ -508,6 +512,11 @@
     </section>
   </div>
 {/if}
+
+{#if tutorialActive}
+  <div> {stepDescies[step]["description"]} </div>
+{/if}
+
 
 {#if cutoutStyle}
   <div class="cutout" id="cutout" style={cutoutStyle}></div>
