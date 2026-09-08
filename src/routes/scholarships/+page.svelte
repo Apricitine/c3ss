@@ -2,7 +2,7 @@
   import Modal from "$lib/components/Modal.svelte"
   import ScholarshipCard from "$lib/components/Scholarship.svelte"
   import Tag from "$lib/components/Tag.svelte"
-  import { fuzzy } from "fast-fuzzy"
+  import { fuzzy, search } from "fast-fuzzy"
   import { tick } from "svelte"
   import { slide } from "svelte/transition"
   import {
@@ -74,6 +74,9 @@
   let highlightStyle = $state("")
   let bubbleStyle = $state("")
   let cutoutStyle = $state("")
+
+  let tutorialHighlighterElements = $derived([searchTarget, filterTarget]);
+  let currHighlightElement = $state<HTMLElement | null>(null);
 
   const scholarshipIntroStorageKey = "c3ss-scholarships-intro-seen"
 
@@ -332,8 +335,9 @@
     step = 0
     tutorialActive = true
 
-    await refreshTutorialPosition(true)
-    tutorialBubble?.focus()
+    currHighlightElement = tutorialHighlighterElements[0]
+
+
   } 
 
   const goToTutorialStep = async (nextStep: number) => {
@@ -343,6 +347,8 @@
     }
 
     step = nextStep
+
+    currHighlightElement = tutorialHighlighterElements[step];
 
     if (step === 1) {
       filtersOpen = true
@@ -410,16 +416,16 @@
   })
 
   const updateCutout = () => {
-    if (!browser || !searchTarget) return
+    if (!browser || !currHighlightElement) return
 
     const padding = 10
-    const rect = searchTarget.getBoundingClientRect()
+    const rect = currHighlightElement.getBoundingClientRect()
 
     cutoutStyle = `top: ${rect.top + rect.height / 2}px; left: ${rect.left + rect.width / 2}px; width: ${rect.width + padding * 2}px; height: ${rect.height + padding * 2}px;`
   }
 
   $effect(() => {
-    if (!browser || !searchTarget || !tutorialActive || step !== 0) {
+    if (!browser || !currHighlightElement || !tutorialActive || step !== 0) {
       cutoutStyle = ""
       return
     }
@@ -430,9 +436,19 @@
     window.addEventListener("resize", reposition)
     window.addEventListener("scroll", reposition, true)
 
+    const introSlideDuration = 180
+    const start = performance.now()
+    let rafId = requestAnimationFrame(function track() {
+      reposition()
+      if (performance.now() - start < introSlideDuration + 100) {
+        rafId = requestAnimationFrame(track)
+      }
+    })
+
     return () => {
       window.removeEventListener("resize", reposition)
       window.removeEventListener("scroll", reposition, true)
+      cancelAnimationFrame(rafId)
     }
   })
 
@@ -643,65 +659,12 @@
   {/if}
 </Modal>
 
-{#if tutorialActive}
-  <div class="tutorial-overlay" aria-live="polite">
-    <button
-      type="button"
-      class="tutorial-backdrop"
-      aria-label="End tutorial"
-      onclick={endTutorial}
-    ></button>
-    <div
-      class="tutorial-highlight"
-      style={highlightStyle}
-      aria-hidden="true"
-    ></div>
-    <section
-      class="tutorial-bubble"
-      bind:this={tutorialBubble}
-      style={bubbleStyle}
-      aria-labelledby="tutorial-title"
-      aria-describedby="tutorial-description"
-      tabindex="-1"
-    >
-      <div class="tutorial-bubble-header">
-        <p class="tutorial-progress">
-          {step + 1} of {stepDescies.length}
-        </p>
-        <button
-          type="button"
-          class="tutorial-close"
-          aria-label="End tutorial"
-          onclick={endTutorial}
-        >
-          <span aria-hidden="true">×</span>
-        </button>
-      </div>
-      <h2 id="tutorial-title">{stepDescies[step].title}</h2>
-      <p id="tutorial-description">{stepDescies[step].description}</p>
-      <div class="tutorial-actions">
-        {#if step > 0}
-          <button
-            type="button"
-            class="tutorial-secondary"
-            onclick={() => void goToTutorialStep(step - 1)}
-          >
-            Back
-          </button>
-        {:else}
-          <span></span>
-        {/if}
-        <button
-          type="button"
-          class="tutorial-primary"
-          onclick={() => void goToTutorialStep(step + 1)}
-        >
-          {step === stepDescies.length - 1 ? "Finish" : "Next"}
-        </button>
-      </div>
-    </section>
-  </div>
-{/if}
+<button
+  type="button"
+  class="tutorial-primary"
+  onclick={() => void goToTutorialStep(step + 1)}>
+  {step === stepDescies.length - 1 ? "Finish" : "Next"}
+</button>
 
 <style lang="scss">
   @use "$lib/styles/global.scss" as *;
@@ -1327,6 +1290,13 @@
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+  }
+
+  .tutorial-primary {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 10000;
   }
 
   @media (max-width: 640px) {
