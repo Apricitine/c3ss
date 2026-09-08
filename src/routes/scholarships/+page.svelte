@@ -29,6 +29,7 @@
   let awardRangeInitialized = $state(false)
   let scholarships = $derived(data.scholarships.map(Scholarship.from))
 
+
   type TutorialState = {
     searchTerm: string
     selectedFilters: ScholarshipFilterKey[]
@@ -317,6 +318,7 @@
 
   const endTutorial = () => {
     tutorialActive = false
+    document.body.classList.remove('no-scroll');
     restoreTutorialState()
   }
 
@@ -331,6 +333,8 @@
     showIntro = false
     step = 0
     tutorialActive = true
+    document.body.classList.add('no-scroll');
+    
   }
 
   const goToTutorialStep = async (nextStep: number) => {
@@ -673,9 +677,17 @@
 <style lang="scss">
   @use "$lib/styles/global.scss" as *;
   @use "sass:color";
+
+  :global(.no-scroll) {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+  }
+
   .intro-transition {
     overflow: hidden;
   }
+
 
   .cutout {
     position: fixed;
