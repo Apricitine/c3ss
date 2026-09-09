@@ -33,7 +33,6 @@
   let awardRangeInitialized = $state(false)
   let scholarships = $derived(data.scholarships.map(Scholarship.from))
 
-
   type TutorialState = {
     searchTerm: string
     selectedFilters: ScholarshipFilterKey[]
@@ -79,6 +78,7 @@
   let highlightStyle = $state("")
   let bubbleStyle = $state("")
   let cutoutStyle = $state("")
+  let buttonStyle = $state("")
 
   const scholarshipIntroStorageKey = "c3ss-scholarships-intro-seen"
 
@@ -323,7 +323,7 @@
 
   const endTutorial = () => {
     tutorialActive = false
-    document.body.classList.remove('no-scroll');
+    document.body.classList.remove("no-scroll")
     restoreTutorialState()
   }
 
@@ -338,8 +338,7 @@
     showIntro = false
     step = 0
     tutorialActive = true
-    document.body.classList.add('no-scroll');
-    
+    document.body.classList.add("no-scroll")
   }
 
   const goToTutorialStep = async (nextStep: number) => {
@@ -430,12 +429,24 @@
     cutoutStyle = `top: ${rect.top + rect.height / 2}px; left: ${rect.left + rect.width / 2}px; width: ${rect.width + padding * 2}px; height: ${rect.height + padding * 2}px;`
   }
 
+  const updateButton = () => {
+    if (!browser) return
+
+    const rect = stupidRectangleGetter()
+
+    if (!rect) {
+      buttonStyle = ""
+      return
+    }
+
+    buttonStyle = `top: ${rect.top - 50}px;`
+  }
+
   $effect(() => {
     if (!browser || !tutorialActive) {
       cutoutStyle = ""
       return
     }
-
 
     void step
     void searchTarget
@@ -443,7 +454,10 @@
     void filterButtonTarget
     void renderedScholarships.length
 
-    const reposition = () => updateCutout()
+    const reposition = () => {
+      updateCutout()
+      updateButton()
+    }
 
     reposition()
     window.addEventListener("resize", reposition)
@@ -488,14 +502,8 @@
 
 {#if showIntro}
   <div class="intro-transition" transition:slide={{ duration: 180, axis: "y" }}>
-    <section
-      class="scholarship-intro"
-    >
-      <button
-        type="button"
-        class="intro-close"
-        onclick={dismissIntro}
-      >
+    <section class="scholarship-intro">
+      <button type="button" class="intro-close" onclick={dismissIntro}>
         <span>×</span>
       </button>
       <div class="intro-copy">
@@ -518,12 +526,24 @@
   </div>
 {/if}
 
+<<<<<<< HEAD
 {#if tutorialActive}
   <div class="tutorial-box"> 
     <div class="tutorial-text"> {stepDescies[step]["description"]} </div>
   </div>
+=======
+{#if bubbleStyle}
+  <div>{stepDescies[step]["description"]}</div>
+  <button
+    type="button"
+    class="tutorial-primary"
+    style={buttonStyle}
+    onclick={() => void goToTutorialStep(step + 1)}
+  >
+    {step === stepDescies.length - 1 ? "Finish" : "Next →"}
+  </button>
+>>>>>>> 62ba084190d6e16a5f277c9694558d6a3a23d162
 {/if}
-
 
 {#if cutoutStyle}
   <div class="cutout" id="cutout" style={cutoutStyle}></div>
@@ -679,13 +699,6 @@
   {/if}
 </Modal>
 
-<button
-  type="button"
-  class="tutorial-primary"
-  onclick={() => void goToTutorialStep(step + 1)}>
-  {step === stepDescies.length - 1 ? "Finish" : "Next"}
-</button>
-
 <style lang="scss">
   @use "$lib/styles/global.scss" as *;
   @use "sass:color";
@@ -720,15 +733,13 @@
     overflow: hidden;
   }
 
-
   .cutout {
     position: fixed;
     transform: translate(-50%, -50%);
-    border-radius: 16px;
+    border-radius: 26px;
     box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
-
-    z-index: 9999;
-
+    z-index: 15;
+    border: 3px solid rgb(161, 243, 161);
     pointer-events: none;
   }
 
@@ -827,8 +838,32 @@
     }
   }
 
+  .tutorial-primary {
+    cursor: pointer;
+    position: absolute;
+    z-index: 20;
+    background: transparent;
+    border: none;
+    color: $surface;
+    font:
+      800 0.9rem/1 "Inter",
+      system-ui,
+      -apple-system,
+      sans-serif;
+
+    transition:
+      transform 140ms ease,
+      color 140ms ease;
+    &:hover,
+    &:focus-visible {
+      outline: none;
+      transform: translateX(2px);
+      color: color.scale($surface, $lightness: -5%);
+    }
+  }
+
   .tour-search-target {
-    width:100%;
+    width: 100%;
   }
 
   .intro-close {
@@ -1340,12 +1375,7 @@
     gap: 8px;
   }
 
-  .tutorial-primary {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 10000;
-  }
+  
 
   @media (max-width: 640px) {
     .search-tools {
