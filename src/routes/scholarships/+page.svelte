@@ -518,7 +518,9 @@
 {/if}
 
 {#if tutorialActive}
-  <div> {stepDescies[step]["description"]} </div>
+  <div class="tutorial-box"> 
+    <div class="tutorial-text>"> {stepDescies[step]["description"]} </div>
+  </div>
 {/if}
 
 
@@ -691,6 +693,14 @@
     overflow: hidden;
     position: fixed;
     width: 100%;
+  }
+
+  .tutorial-box {
+    //TODO
+  }
+
+  .tutorial-text {
+    //TODO
   }
 
   .intro-transition {
