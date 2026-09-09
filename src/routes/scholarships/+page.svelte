@@ -296,6 +296,8 @@
     await tick()
 
     const targets = sequencer()
+    console.log(targets[0])
+    console.log(targets[targets.length - 1])
 
     if (scrollToTarget && targets[0]) {
       targets[targets.length - 1].scrollIntoView({
@@ -304,7 +306,6 @@
         behavior: "auto",
       })
     }
-
     await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
     updatePos()
   }
@@ -519,7 +520,7 @@
 
 {#if tutorialActive}
   <div class="tutorial-box"> 
-    <div class="tutorial-text>"> {stepDescies[step]["description"]} </div>
+    <div class="tutorial-text"> {stepDescies[step]["description"]} </div>
   </div>
 {/if}
 
@@ -696,11 +697,23 @@
   }
 
   .tutorial-box {
-    //TODO
+    position: absolute;
+    width: 50%;
+    container-type: inline-size;
+    padding: 1rem 1.25rem;
+    border-radius: 14px;
+    background: linear-gradient(135deg, $surface, $bg);
+    border: 1px solid $nav-border;
+    box-shadow: 0 12px 30px $nav-shadow;
+    z-index: 20;
   }
 
   .tutorial-text {
-    //TODO
+    font:
+      800 0.9rem/1 "Inter",
+      system-ui,
+      -apple-system,
+      sans-serif;
   }
 
   .intro-transition {
