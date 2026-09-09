@@ -526,12 +526,12 @@
   </div>
 {/if}
 
-<<<<<<< HEAD
 {#if tutorialActive}
   <div class="tutorial-box"> 
     <div class="tutorial-text"> {stepDescies[step]["description"]} </div>
   </div>
-=======
+{/if}
+
 {#if bubbleStyle}
   <div>{stepDescies[step]["description"]}</div>
   <button
@@ -542,7 +542,6 @@
   >
     {step === stepDescies.length - 1 ? "Finish" : "Next →"}
   </button>
->>>>>>> 62ba084190d6e16a5f277c9694558d6a3a23d162
 {/if}
 
 {#if cutoutStyle}
