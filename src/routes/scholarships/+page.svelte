@@ -8,7 +8,7 @@
   import Tag from "$lib/components/Tag.svelte"
   import { fuzzy, search } from "fast-fuzzy"
   import { tick } from "svelte"
-  import { slide } from "svelte/transition"
+  import { slide, fly, fade } from "svelte/transition"
   import {
     Scholarship,
     type ScholarshipDTO,
@@ -78,7 +78,7 @@
   let highlightStyle = $state("")
   let bubbleStyle = $state("")
   let cutoutStyle = $state("")
-  let buttonStyle = $state("")
+  // let buttonStyle = $state("")
 
   const scholarshipIntroStorageKey = "c3ss-scholarships-intro-seen"
 
@@ -303,7 +303,7 @@
       targets[targets.length - 1].scrollIntoView({
         block: "center",
         inline: "nearest",
-        behavior: "auto",
+        behavior: "smooth",
       })
     }
     await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
@@ -429,18 +429,18 @@
     cutoutStyle = `top: ${rect.top + rect.height / 2}px; left: ${rect.left + rect.width / 2}px; width: ${rect.width + padding * 2}px; height: ${rect.height + padding * 2}px;`
   }
 
-  const updateButton = () => {
-    if (!browser) return
-
-    const rect = stupidRectangleGetter()
-
-    if (!rect) {
-      buttonStyle = ""
-      return
-    }
-
-    buttonStyle = `top: ${rect.top - 50}px;`
-  }
+  // const updateButton = () => {
+  //   if (!browser) return
+  //
+  //   const rect = stupidRectangleGetter()
+  //
+  //   if (!rect) {
+  //     buttonStyle = ""
+  //     return
+  //   }
+  //
+  //   buttonStyle = `top: ${rect.top - 50}px;`
+  // }
 
   $effect(() => {
     if (!browser || !tutorialActive) {
@@ -526,26 +526,24 @@
   </div>
 {/if}
 
-{#if tutorialActive}
-  <div class="tutorial-box"> 
-    <div class="tutorial-text"> {stepDescies[step]["description"]} </div>
-  </div>
-{/if}
 
-{#if bubbleStyle}
-  <div>{stepDescies[step]["description"]}</div>
-  <button
-    type="button"
-    class="tutorial-primary"
-    style={buttonStyle}
-    onclick={() => void goToTutorialStep(step + 1)}
-  >
-    {step === stepDescies.length - 1 ? "Finish" : "Next →"}
-  </button>
+{#if tutorialActive && bubbleStyle}
+  {#key step}
+    <div class="tutorial-box" style={bubbleStyle} bind:this={tutorialBubble} role="dialog" transition:fly={{y : 12, duration: 200 }}>
+      <p class="tutorial-step">Step {step + 1} of {stepDescies.length}</p>
+      <h3 class="tutorial-title">{stepDescies[step].title}</h3>
+      <p class="tutorial-text">{stepDescies[step].description}</p>
+      <div class="tutorial-actions">
+        <button type="button" class="tutorial-primary" onclick={() => void goToTutorialStep(step + 1)}>
+          {step === stepDescies.length - 1 ? "Finish" : "Next"}
+        </button>
+      </div>
+    </div>
+  {/key}
 {/if}
 
 {#if cutoutStyle}
-  <div class="cutout" id="cutout" style={cutoutStyle}></div>
+  <div class="cutout" id="cutout" style={cutoutStyle} transition:fade={{ duration: 200 }}></div>
 {/if}
 
 <div class="search-tools">
@@ -704,29 +702,72 @@
 
   :global(.no-scroll) {
     overflow: hidden;
-    position: fixed;
-    width: 100%;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tutorial-box,
+    .cutout {
+      transition: none;
+    }
   }
 
   .tutorial-box {
-    position: absolute;
-    width: 50%;
-    container-type: inline-size;
+    position: fixed;
+    width: min(360px, calc(100vw - 32px));
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
     padding: 1rem 1.25rem;
     border-radius: 14px;
-    background: linear-gradient(135deg, $surface, $bg);
+    background: $surface;
     border: 1px solid $nav-border;
     box-shadow: 0 12px 30px $nav-shadow;
     z-index: 20;
+    transition: left 240ms, ease, top 240ms ease;
+  }
+  .tutorial-step {
+    margin: 0;
+    font: 700 0.7rem/1 "Inter", system-ui, sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: $primary;
+  }
+
+  .tutorial-title {
+    margin: 0;
+    font: 700 1.05rem/1.2 "Inter", system-ui, sans-serif;
+    color: $text;
   }
 
   .tutorial-text {
-    font:
-      800 0.9rem/1 "Inter",
-      system-ui,
-      -apple-system,
-      sans-serif;
+    margin: 0;
+    font: 400 0.9rem/1.45 "Inter", system-ui, sans-serif;
+    color: $text;
   }
+
+  .tutorial-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+  }
+
+  .tutorial-primary {
+    padding: 0.6rem 1.1rem;
+    border: none;
+    border-radius: 999px;
+    background: $primary;
+    color: $surface;
+    font: 700 0.85rem/1 "Inter", system-ui, sans-serif;
+    cursor: pointer;
+    transition: background 140ms ease, transform 140ms ease;
+
+    &:hover,
+    &:focus-visible {
+      outline: none;
+      background: $red;
+      transform: translateY(-1px);
+    }
+}
 
   .intro-transition {
     overflow: hidden;
@@ -738,8 +779,9 @@
     border-radius: 26px;
     box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
     z-index: 15;
-    border: 3px solid rgb(161, 243, 161);
+    border: 3px solid #007FEF;
     pointer-events: none;
+    transition: top 240ms ease, left 240ms ease, width 240ms ease, height 240ms ease;
   }
 
   .scholarship-intro {
@@ -834,30 +876,6 @@
       border: 1px solid rgba($surface, 1);
       color: $primary;
       background: $surface;
-    }
-  }
-
-  .tutorial-primary {
-    cursor: pointer;
-    position: absolute;
-    z-index: 20;
-    background: transparent;
-    border: none;
-    color: $surface;
-    font:
-      800 0.9rem/1 "Inter",
-      system-ui,
-      -apple-system,
-      sans-serif;
-
-    transition:
-      transform 140ms ease,
-      color 140ms ease;
-    &:hover,
-    &:focus-visible {
-      outline: none;
-      transform: translateX(2px);
-      color: color.scale($surface, $lightness: -5%);
     }
   }
 
