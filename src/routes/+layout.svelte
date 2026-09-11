@@ -44,7 +44,7 @@
     {@render children()}
   </main>
 
-  <span class="credit">Made with ❤️ by the <a href="https://github.com/lchsiteam">LC iTeam</a></span>
+  <span class="credit">Made with ❤️ by the <a href="https://github.com/lchsiteam">LC iTeam</a> &copy 2026 Kenneth Lee, Luke Dabell, Intern Jeo</span>
 </div>
 
 <a class="report-issue" href={error} target="_blank" rel="noreferrer">
