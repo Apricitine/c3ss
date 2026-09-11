@@ -1,7 +1,3 @@
-<!-- 1. during the tutorial you cant scroll -->
-<!-- 2. add a text box with a button that explains the steps -->
-<!-- 3.  -->
-
 <script lang="ts">
   import Modal from "$lib/components/Modal.svelte"
   import ScholarshipCard from "$lib/components/Scholarship.svelte"
@@ -78,7 +74,7 @@
   let highlightStyle = $state("")
   let bubbleStyle = $state("")
   let cutoutStyle = $state("")
-  // let buttonStyle = $state("")
+  let buttonStyle = $state("")
 
   const scholarshipIntroStorageKey = "c3ss-scholarships-intro-seen"
 
@@ -429,18 +425,18 @@
     cutoutStyle = `top: ${rect.top + rect.height / 2}px; left: ${rect.left + rect.width / 2}px; width: ${rect.width + padding * 2}px; height: ${rect.height + padding * 2}px;`
   }
 
-  // const updateButton = () => {
-  //   if (!browser) return
-  //
-  //   const rect = stupidRectangleGetter()
-  //
-  //   if (!rect) {
-  //     buttonStyle = ""
-  //     return
-  //   }
-  //
-  //   buttonStyle = `top: ${rect.top - 50}px;`
-  // }
+  const updateButton = () => {
+    if (!browser) return
+
+    const rect = stupidRectangleGetter()
+
+    if (!rect) {
+      buttonStyle = ""
+      return
+    }
+
+    buttonStyle = `top: ${rect.top - 50}px;`
+  }
 
   $effect(() => {
     if (!browser || !tutorialActive) {
