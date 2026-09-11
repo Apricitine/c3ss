@@ -11,3 +11,4 @@ bun dev
 ```
 The environment variables aren't in the gitignore so you can access the database without any secrets. (<-- this will change in the future, dw)
 DM us on discord with any questions, concerns, or additions!
+ itest
