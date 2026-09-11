@@ -124,6 +124,7 @@
 
 <style lang="scss">
   @use "$lib/styles/global.scss" as *;
+  @use "sass:color";
   .filter-panel {
     display: grid;
     gap: 18px;
@@ -177,8 +178,8 @@
 
   .reset-button:hover,
   .reset-button:focus-visible {
-    background: darken($link-focus, 5);
-    border-color: darken($nav-border, 5);;
+    background: color.adjust($link-focus, $lightness: -5%);
+    border-color: color.adjust($nav-border, $lightness: -5%);
     outline: none;
     transform: translateY(-1px);
   }

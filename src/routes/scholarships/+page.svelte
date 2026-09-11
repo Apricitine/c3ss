@@ -2,8 +2,9 @@
   import Modal from "$lib/components/Modal.svelte"
   import ScholarshipCard from "$lib/components/Scholarship.svelte"
   import Tag from "$lib/components/Tag.svelte"
-  import { fuzzy } from "fast-fuzzy"
-  import { slide } from "svelte/transition"
+  import { fuzzy, search } from "fast-fuzzy"
+  import { tick } from "svelte"
+  import { slide, fly, fade } from "svelte/transition"
   import {
     Scholarship,
     type ScholarshipDTO,
@@ -17,7 +18,7 @@
   let { data }: { data: { scholarships: ScholarshipDTO[] } } = $props()
 
   let showModal = $state(false)
-  let showScholarshipIntro = $state(false)
+  let showIntro = $state(false)
   let filtersOpen = $state(false)
   let activeScholarship = $state<Scholarship | null>(null)
   let activeCardRect = $state<DOMRect | null>(null)
@@ -27,6 +28,53 @@
   let selectedMaxAward = $state(0)
   let awardRangeInitialized = $state(false)
   let scholarships = $derived(data.scholarships.map(Scholarship.from))
+
+  type TutorialState = {
+    searchTerm: string
+    selectedFilters: ScholarshipFilterKey[]
+    selectedMinAward: number
+    selectedMaxAward: number
+    filtersOpen: boolean
+  }
+
+  type TutorialRect = {
+    top: number
+    right: number
+    bottom: number
+    left: number
+    width: number
+    height: number
+  }
+
+  const stepDescies = [
+    {
+      title: "Use the search bar",
+      description:
+        "Use keywords to search! Or look for a specific scholarship by name",
+    },
+    {
+      title: "Filter the results",
+      description:
+        "You can filter through the list using the award range or categories",
+    },
+    {
+      title: "Learn more about each one",
+      description:
+        "Click on a scholarship to get some more detailed info about it",
+    },
+  ]
+
+  let tutorialActive = $state(false)
+  let step = $state(0)
+  let tutorialState = $state<TutorialState | null>(null)
+  let searchTarget = $state<HTMLDivElement | null>(null)
+  let filterButtonTarget = $state<HTMLButtonElement | null>(null)
+  let filterTarget = $state<HTMLDivElement | null>(null)
+  let tutorialBubble = $state<HTMLElement | null>(null)
+  let highlightStyle = $state("")
+  let bubbleStyle = $state("")
+  let cutoutStyle = $state("")
+  let buttonStyle = $state("")
 
   const scholarshipIntroStorageKey = "c3ss-scholarships-intro-seen"
 
@@ -150,8 +198,163 @@
     selectedMaxAward = awardBounds.max
   }
 
-  const dismissScholarshipIntro = () => {
-    showScholarshipIntro = false
+  const dismissIntro = () => {
+    showIntro = false
+  }
+
+  const sequencer = () => {
+    switch (step) {
+      case 0:
+        return searchTarget ? [searchTarget] : []
+      case 1:
+        return [filterButtonTarget, filterTarget].filter(
+          (element): element is HTMLDivElement => element !== null,
+        )
+      default:
+        if (!browser) return []
+
+        const firstCard = document.querySelector<HTMLDivElement>(
+          ".scholarship-card-slot",
+        )
+
+        return firstCard ? [firstCard] : []
+    }
+  }
+
+  const stupidRectangleGetter = (): TutorialRect | null => {
+    const rects = sequencer()
+      .map((element) => element.getBoundingClientRect())
+      .filter((rect) => rect.width && rect.height)
+
+    if (!rects.length) return null
+
+    const left = Math.min(...rects.map((rect) => rect.left))
+    const top = Math.min(...rects.map((rect) => rect.top))
+    const right = Math.max(...rects.map((rect) => rect.right))
+    const bottom = Math.max(...rects.map((rect) => rect.bottom))
+
+    return {
+      left,
+      top,
+      right,
+      bottom,
+      width: right - left,
+      height: bottom - top,
+    }
+  }
+
+  const updatePos = () => {
+    if (!browser || !tutorialActive) return
+
+    const target = stupidRectangleGetter()
+
+    if (!target) {
+      highlightStyle = ""
+      bubbleStyle = ""
+      return
+    }
+
+    const padding = 10
+    const highlightLeft = Math.max(padding, target.left - 8)
+    const highlightTop = Math.max(padding, target.top - 8)
+    const highlightRight = Math.min(
+      window.innerWidth - padding,
+      target.right + 8,
+    )
+    const highlightBottom = Math.min(
+      window.innerHeight - padding,
+      target.bottom + 8,
+    )
+    const highlightWidth = Math.max(0, highlightRight - highlightLeft)
+    const highlightHeight = Math.max(0, highlightBottom - highlightTop)
+    const bubbleWidth = Math.min(360, window.innerWidth - 32)
+    const bubbleHeight = tutorialBubble?.offsetHeight ?? 190
+    const bubbleGap = 18
+    const spaceBelow = window.innerHeight - highlightBottom
+    const spaceAbove = highlightTop
+    const bubbleTop =
+      spaceBelow >= bubbleHeight + bubbleGap || spaceBelow >= spaceAbove
+        ? Math.min(
+            window.innerHeight - bubbleHeight - 16,
+            highlightBottom + bubbleGap,
+          )
+        : Math.max(16, highlightTop - bubbleHeight - bubbleGap)
+    const bubbleLeft = Math.min(
+      window.innerWidth - bubbleWidth - 16,
+      Math.max(16, highlightLeft + highlightWidth / 2 - bubbleWidth / 2),
+    )
+
+    highlightStyle = `left: ${highlightLeft}px; top: ${highlightTop}px; width: ${highlightWidth}px; height: ${highlightHeight}px;`
+    bubbleStyle = `left: ${bubbleLeft}px; top: ${bubbleTop}px;`
+  }
+
+  const refreshTutorialPosition = async (scrollToTarget = false) => {
+    await tick()
+
+    const targets = sequencer()
+    console.log(targets[0])
+    console.log(targets[targets.length - 1])
+
+    if (scrollToTarget && targets[0]) {
+      targets[targets.length - 1].scrollIntoView({
+        block: "center",
+        inline: "nearest",
+        behavior: "smooth",
+      })
+    }
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+    updatePos()
+  }
+
+  const restoreTutorialState = () => {
+    if (!tutorialState) return
+
+    searchTerm = tutorialState.searchTerm
+    selectedFilters = tutorialState.selectedFilters
+    selectedMinAward = tutorialState.selectedMinAward
+    selectedMaxAward = tutorialState.selectedMaxAward
+    filtersOpen = tutorialState.filtersOpen
+    tutorialState = null
+  }
+
+  const endTutorial = () => {
+    tutorialActive = false
+    document.body.classList.remove("no-scroll")
+    restoreTutorialState()
+  }
+
+  const startTutorial = async () => {
+    tutorialState = {
+      searchTerm,
+      selectedFilters: [...selectedFilters],
+      selectedMinAward,
+      selectedMaxAward,
+      filtersOpen,
+    }
+    showIntro = false
+    step = 0
+    tutorialActive = true
+    document.body.classList.add("no-scroll")
+  }
+
+  const goToTutorialStep = async (nextStep: number) => {
+    if (nextStep >= stepDescies.length) {
+      endTutorial()
+      return
+    }
+
+    step = nextStep
+
+    if (step === 1) {
+      filtersOpen = true
+    }
+
+    if (step === 2 && !renderedScholarships.length) {
+      searchTerm = ""
+      resetFilters()
+    }
+
+    await refreshTutorialPosition(true)
   }
 
   const formatGradeList = (grades: number[]) =>
@@ -175,8 +378,6 @@
       awardRange.min <= selectedMaxAward
     )
   }
-
-  
 
   let renderedScholarships = $derived.by(() =>
     sortScholarships(searchTerm, scholarships.filter(matchesFilters)),
@@ -202,50 +403,154 @@
     try {
       if (localStorage.getItem(scholarshipIntroStorageKey)) return
 
-      showScholarshipIntro = true
+      showIntro = true
       localStorage.setItem(scholarshipIntroStorageKey, "true")
     } catch {
-      // If storage is unavailable, still show the introduction for this visit.
-      showScholarshipIntro = true
+      showIntro = true
+    }
+  })
+
+  const updateCutout = () => {
+    if (!browser) return
+
+    const rect = stupidRectangleGetter()
+
+    if (!rect) {
+      cutoutStyle = ""
+      return
+    }
+
+    const padding = 10
+
+    cutoutStyle = `top: ${rect.top + rect.height / 2}px; left: ${rect.left + rect.width / 2}px; width: ${rect.width + padding * 2}px; height: ${rect.height + padding * 2}px;`
+  }
+
+  const updateButton = () => {
+    if (!browser) return
+
+    const rect = stupidRectangleGetter()
+
+    if (!rect) {
+      buttonStyle = ""
+      return
+    }
+
+    buttonStyle = `top: ${rect.top - 50}px;`
+  }
+
+  $effect(() => {
+    if (!browser || !tutorialActive) {
+      cutoutStyle = ""
+      return
+    }
+
+    void step
+    void searchTarget
+    void filterTarget
+    void filterButtonTarget
+    void renderedScholarships.length
+
+    const reposition = () => {
+      updateCutout()
+      updateButton()
+    }
+
+    reposition()
+    window.addEventListener("resize", reposition)
+    window.addEventListener("scroll", reposition, true)
+
+    const introSlideDuration = 180
+    const start = performance.now()
+    let rafId = requestAnimationFrame(function track() {
+      reposition()
+      if (performance.now() - start < introSlideDuration + 100) {
+        rafId = requestAnimationFrame(track)
+      }
+    })
+
+    return () => {
+      window.removeEventListener("resize", reposition)
+      window.removeEventListener("scroll", reposition, true)
+      cancelAnimationFrame(rafId)
+    }
+  })
+
+  $effect(() => {
+    if (!browser || !tutorialActive) return
+
+    const reposition = () => updatePos()
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") endTutorial()
+    }
+
+    window.addEventListener("resize", reposition)
+    window.addEventListener("scroll", reposition, true)
+    window.addEventListener("keydown", closeOnEscape)
+    void refreshTutorialPosition()
+
+    return () => {
+      window.removeEventListener("resize", reposition)
+      window.removeEventListener("scroll", reposition, true)
+      window.removeEventListener("keydown", closeOnEscape)
     }
   })
 </script>
 
-{#if true}
+{#if showIntro}
   <div class="intro-transition" transition:slide={{ duration: 180, axis: "y" }}>
-    <section
-      class="scholarship-intro"
-      aria-labelledby="scholarship-intro-title"
-    >
-      <button
-        type="button"
-        class="intro-close"
-        aria-label="Dismiss welcome message"
-        title="Dismiss welcome message"
-        onclick={dismissScholarshipIntro}
-      >
-        <span aria-hidden="true">×</span>
+    <section class="scholarship-intro">
+      <button type="button" class="intro-close" onclick={dismissIntro}>
+        <span>×</span>
       </button>
       <div class="intro-copy">
         <p class="intro-label">from the LC iTeam</p>
-        <h2 id="scholarship-intro-title">Welcome to the C3SS!</h2>
+        <h2 id="scholarship-intro-title">Welcome to the C3SS Catalog!</h2>
         <p class="intro-description">
           Discover scholarships and summer programs curated by the College &
           Career Center and LCHS Counseling Department.
         </p>
-        <div class="start-tut">Walk me through it!</div>
+        <button
+          type="button"
+          class="start-tut"
+          onclick={() => void startTutorial()}
+        >
+          Walk me through it!
+        </button>
       </div>
-      <span class="intro-mark" aria-hidden="true">C3</span>
+      <span class="intro-mark">C3</span>
     </section>
   </div>
 {/if}
 
+
+{#if tutorialActive && bubbleStyle}
+  {#key step}
+    <div class="tutorial-box" style={bubbleStyle} bind:this={tutorialBubble} role="dialog" transition:fly={{y : 12, duration: 200 }}>
+      <p class="tutorial-step">Step {step + 1} of {stepDescies.length}</p>
+      <h3 class="tutorial-title">{stepDescies[step].title}</h3>
+      <p class="tutorial-text">{stepDescies[step].description}</p>
+      <div class="tutorial-actions">
+        <button type="button" class="tutorial-primary" onclick={() => void goToTutorialStep(step + 1)}>
+          {step === stepDescies.length - 1 ? "Finish" : "Next"}
+        </button>
+      </div>
+    </div>
+  {/key}
+{/if}
+
+{#if cutoutStyle}
+  <div class="cutout" id="cutout" style={cutoutStyle} transition:fade={{ duration: 200 }}></div>
+{/if}
+
 <div class="search-tools">
-  <Search bind:searchTerm thing="scholarships" />
+  <div class="tour-search-target" bind:this={searchTarget}>
+    <Search bind:searchTerm thing="scholarships" />
+  </div>
   <button
     type="button"
     class="filter-tab"
     class:is-active={filtersOpen}
+    bind:this={filterButtonTarget}
     aria-expanded={filtersOpen}
     aria-controls="scholarship-filters"
     onclick={() => (filtersOpen = !filtersOpen)}
@@ -261,6 +566,7 @@
 {#if filtersOpen}
   <div
     class="filter-transition"
+    bind:this={filterTarget}
     transition:slide={{ duration: 180, axis: "y" }}
   >
     <FilterSelect
@@ -388,9 +694,90 @@
 
 <style lang="scss">
   @use "$lib/styles/global.scss" as *;
+  @use "sass:color";
+
+  :global(.no-scroll) {
+    overflow: hidden;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tutorial-box,
+    .cutout {
+      transition: none;
+    }
+  }
+
+  .tutorial-box {
+    position: fixed;
+    width: min(360px, calc(100vw - 32px));
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem 1.25rem;
+    border-radius: 14px;
+    background: $surface;
+    border: 1px solid $nav-border;
+    box-shadow: 0 12px 30px $nav-shadow;
+    z-index: 20;
+    transition: left 240ms, ease, top 240ms ease;
+  }
+  .tutorial-step {
+    margin: 0;
+    font: 700 0.7rem/1 "Inter", system-ui, sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: $primary;
+  }
+
+  .tutorial-title {
+    margin: 0;
+    font: 700 1.05rem/1.2 "Inter", system-ui, sans-serif;
+    color: $text;
+  }
+
+  .tutorial-text {
+    margin: 0;
+    font: 400 0.9rem/1.45 "Inter", system-ui, sans-serif;
+    color: $text;
+  }
+
+  .tutorial-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+  }
+
+  .tutorial-primary {
+    padding: 0.6rem 1.1rem;
+    border: none;
+    border-radius: 999px;
+    background: $primary;
+    color: $surface;
+    font: 700 0.85rem/1 "Inter", system-ui, sans-serif;
+    cursor: pointer;
+    transition: background 140ms ease, transform 140ms ease;
+
+    &:hover,
+    &:focus-visible {
+      outline: none;
+      background: $red;
+      transform: translateY(-1px);
+    }
+}
 
   .intro-transition {
     overflow: hidden;
+  }
+
+  .cutout {
+    position: fixed;
+    transform: translate(-50%, -50%);
+    border-radius: 26px;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+    z-index: 15;
+    border: 3px solid #007FEF;
+    pointer-events: none;
+    transition: top 240ms ease, left 240ms ease, width 240ms ease, height 240ms ease;
   }
 
   .scholarship-intro {
@@ -486,6 +873,10 @@
       color: $primary;
       background: $surface;
     }
+  }
+
+  .tour-search-target {
+    width: 100%;
   }
 
   .intro-close {
@@ -591,7 +982,7 @@
   .filter-tab:focus-visible,
   .filter-tab.is-active {
     background: $link-focus;
-    border-color: darken($nav-border, 30);
+    border-color: color.adjust($nav-border, $lightness: 30%);
     box-shadow: 0 15px 30px $link-shadow;
     outline: none;
     transform: translateY(-1px);
@@ -800,17 +1191,17 @@
 
   .status-card.calm {
     background: $calm;
-    border-color: darken($calm, 10);
+    border-color: color.adjust($calm, $lightness: -10%);
   }
 
   .status-card.warm {
     background: $warm;
-    border-color: darken($warm, 10);
+    border-color: color.adjust($warm, $lightness: -10%);
   }
 
   .status-card.hot {
     background: $hot;
-    border-color: darken($hot, 10);
+    border-color: color.adjust($hot, $lightness: -10%);
   }
 
   .status-card.passed {
@@ -996,6 +1387,8 @@
     flex-wrap: wrap;
     gap: 8px;
   }
+
+  
 
   @media (max-width: 640px) {
     .search-tools {

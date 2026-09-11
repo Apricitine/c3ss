@@ -252,6 +252,7 @@
 
 <style lang="scss">
   @use "$lib/styles/global.scss" as *;
+  @use "sass:color";
 
   .search-tools {
     display: flex;
@@ -304,7 +305,7 @@
   .filter-tab:focus-visible,
   .filter-tab.is-active {
     background: $link-focus;
-    border-color: darken($nav-border, 30);
+    border-color: color.adjust($nav-border, $lightness: -30%);
     box-shadow: 0 15px 30px $link-shadow;
     outline: none;
     transform: translateY(-1px);
@@ -492,17 +493,17 @@
 
   .status-card.calm {
     background: $calm;
-    border-color: darken($calm, 10);
+    border-color: color.adjust($calm, $lightness: -10%);
   }
 
   .status-card.warm {
     background: $warm;
-    border-color: darken($warm, 10);
+    border-color: color.adjust($warm, $lightness: -10%);
   }
 
   .status-card.hot {
     background: $hot;
-    border-color: darken($hot, 10);
+    border-color: color.adjust($hot, $lightness: -10%);
   }
 
   .status-card.passed {
