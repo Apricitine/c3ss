@@ -1,9 +1,13 @@
 <script lang="ts">
   import favicon from "$lib/assets/logo.ico"
+  import { dev } from "$app/environment"
+  import { injectAnalytics } from "@vercel/analytics/sveltekit"
 
   const error = "https://forms.gle/Tg79A2oLBQWeXDpr7"
 
   let { children } = $props<{ children: () => unknown }>()
+
+  injectAnalytics({ mode: dev ? "development" : "production" })
 </script>
 
 <svelte:head>
@@ -44,7 +48,10 @@
     {@render children()}
   </main>
 
-  <span class="credit">Made with ❤️ by the <a href="https://github.com/lchsiteam">LC iTeam</a> &copy 2026 Kenneth Lee, Luke Dabell, Intern Jeo</span>
+  <span class="credit"
+    >Made with ❤️ by the <a href="https://github.com/lchsiteam">LC iTeam</a> &copy
+    2026 Kenneth Lee, Luke Dabell, Intern Jeo</span
+  >
 </div>
 
 <a class="report-issue" href={error} target="_blank" rel="noreferrer">
@@ -285,7 +292,7 @@
     text-align: center;
 
     a {
-      color:rgb(9, 139, 190);
+      color: rgb(9, 139, 190);
       text-decoration: none;
     }
   }

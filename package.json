@@ -25,6 +25,7 @@
 	"dependencies": {
 		"@supabase/supabase-js": "^2.115.0",
 		"@sveltejs/enhanced-img": "^0.11.0",
+		"@vercel/analytics": "^2.0.1",
 		"fast-fuzzy": "^1.12.0"
 	}
 }
